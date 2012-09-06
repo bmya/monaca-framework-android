@@ -1,0 +1,188 @@
+import java_cup.runtime.*;
+import mobi.monaca.framework.template.*;
+import mobi.monaca.framework.template.ast.*;
+
+/* Preliminaries to set up and use the scanner.  */
+parser code {: 
+
+    @Override
+    public void report_error(String message, Object info) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(message);
+        
+        if (!(info instanceof Symbol)) {
+            throw new ParserError(builder.toString(), getTemplatePath(), 0);
+        }
+
+        Symbol symbol = (Symbol) info;
+        
+        if (symbol.left < 0 || symbol.right < 0) {
+            throw new ParserError(builder.toString(), getTemplatePath(), 0);
+        }
+        
+        builder.append("Unexpected token: " + (LexerDumper.getSymbolName(symbol.sym)));
+
+        throw new ParserError(builder.toString(), getTemplatePath(), symbol.left);
+    }
+
+    @Override
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+    }
+
+    public String getTemplatePath() {
+        return ((TemplateLexer)getScanner()).getTemplatePath();
+    }
+
+:}; 
+
+/* Terminals (tokens returned by the scanner). */
+terminal 
+    T_BLOCK, 
+    T_ENDBLOCK, 
+    T_EXTENDS, 
+    T_PARENT, 
+    T_ECHO,
+    T_DOT,
+    T_END,
+    T_EQUAL,
+    T_PIPE,
+    T_NOTEQUAL,
+    T_IF,
+    T_ELSEIF,
+    T_ELSE,
+    T_ENDIF,
+    T_OPENPAREN,
+    T_CLOSEPAREN,
+    T_AND,
+    T_OR,
+    T_NOT;
+
+terminal Token 
+    T_INCLUDE, 
+    T_STRING, 
+    T_RAW, 
+    T_ID;
+
+/* Non terminals */
+non terminal TopStatementsNode 
+    top_statements;
+
+non terminal StatementsNode 
+    statements, 
+    block_content;
+
+non terminal Node 
+    top_statement, 
+    statement, 
+    block_statement, 
+    include_statement, 
+    extends_statement, 
+    parent_statement, 
+    raw_statement,
+    echo_statement,
+    pipe_syntax,
+    if_statement,
+    expression,
+    constant,
+    binary_operation,
+    unary_operation;
+
+non terminal Node
+    if_content;
+
+non terminal 
+    block_end,
+    if_end;
+
+precedence right
+    T_NOT;
+
+precedence left
+    T_EQUAL,
+    T_PIPE,
+    T_NOTEQUAL;
+
+precedence left
+    T_AND,
+    T_OR;
+
+/* Syntax definition */
+top_statements    ::= top_statements:left top_statement:right {: RESULT = new TopStatementsNode(left, right);  :}
+                    | /* empty */  {: RESULT = new TopStatementsNode(); :}
+                    ;
+
+top_statement     ::= extends_statement:stmt {: RESULT = stmt; :}
+                    | block_statement:stmt   {: RESULT = stmt; :}
+                    | include_statement:stmt {: RESULT = stmt; :}
+                    | raw_statement:stmt     {: RESULT = stmt; :}
+                    | echo_statement:stmt    {: RESULT = stmt; :}
+                    | if_statement:stmt      {: RESULT = stmt; :}
+                    ;
+
+statements        ::= statements:left statement:right {: RESULT = new StatementsNode(left, right); :}
+                    | /* empty */ {: RESULT = new StatementsNode(); :}
+                    ;
+
+statement         ::= parent_statement:stmt  {: RESULT = stmt; :}
+                    | block_statement:stmt   {: RESULT = stmt; :}
+                    | include_statement:stmt {: RESULT = stmt; :}
+                    | raw_statement:stmt     {: RESULT = stmt; :}
+                    | echo_statement:stmt    {: RESULT = stmt; :}
+                    | if_statement:stmt      {: RESULT = stmt; :}
+                    ;
+
+block_statement   ::= T_BLOCK T_ID:id block_content:stmts {: RESULT = new BlockStatementNode(id, stmts); :} ;
+
+block_content     ::= T_STRING:str               {: RESULT = StatementsNode.buildFrom(str); :}
+                    | statements:stmts block_end {: RESULT = stmts; :}
+                    ;
+
+block_end         ::= T_END 
+                    | T_ENDBLOCK 
+                    ;
+
+extends_statement ::= T_EXTENDS T_STRING:path {: RESULT = new ExtendsStatementNode(path); :} ;
+
+include_statement ::= T_INCLUDE T_STRING:path {: RESULT = new IncludeStatementNode(path); :} ;
+
+parent_statement  ::= T_PARENT {: RESULT = new ParentStatementNode(); :} ;
+
+raw_statement     ::= T_RAW:raw {: RESULT = new RawStatementNode(raw); :} ;
+
+echo_statement    ::= T_ECHO expression:expr pipe_syntax:pipe_modifiers {: RESULT = new EchoStatementNode(expr, (PipeModifiers)pipe_modifiers); :} ;
+
+pipe_syntax       ::= T_PIPE T_ID:modifier_token pipe_syntax:right {: RESULT = new PipeModifiers(modifier_token, (PipeModifiers)right); :} 
+                    | /* empty */ {: RESULT = new PipeModifiers(); :} ;
+
+if_statement      ::= T_IF expression:expr statements:stmts if_content:else_stmt if_end 
+                      {: RESULT = new IfStatementNode(expr, stmts, else_stmt); :} 
+                    ;
+
+if_content        ::= T_ELSEIF expression:expr statements:stmts if_content:else_stmt {: RESULT = new IfStatementNode(expr, stmts, else_stmt); :}
+                    | T_ELSE statements:stmts {: RESULT = stmts; :}
+                    | /* empty */ {: RESULT = new StatementsNode(); :}
+                    ;
+
+if_end            ::= T_END | T_ENDIF ;
+
+expression        ::= binary_operation:node                    {: RESULT = node; :} 
+                    | unary_operation:node                     {: RESULT = node; :}
+                    | constant:constant                        {: RESULT = constant; :}
+                    | T_STRING:str                             {: RESULT = new StringValueNode(str); :}
+                    | T_OPENPAREN expression:expr T_CLOSEPAREN {: RESULT = expr; :}
+                    ;
+
+constant          ::= constant:left T_DOT T_ID:id {: RESULT = new ConstantValueNode((ConstantValueNode)left, id); :}
+                    | T_ID:id {: RESULT = new ConstantValueNode(id); :}
+                    ;
+
+unary_operation   ::= T_NOT expression:expr {: RESULT = UnaryOperationNode.buildNot(expr); :}
+                    ;
+
+binary_operation  ::= expression:left T_EQUAL expression:right    {: RESULT = BinaryOperationNode.buildEqual(left, right); :}
+                    | expression:left T_NOTEQUAL expression:right {: RESULT = BinaryOperationNode.buildNotEqual(left, right); :}
+                    | expression:left T_AND expression:right      {: RESULT = ShortCircuitBinaryOperationNode.buildAnd(left, right); :}
+                    | expression:left T_OR expression:right       {: RESULT = ShortCircuitBinaryOperationNode.buildOr(left, right); :}
+                    ;
+

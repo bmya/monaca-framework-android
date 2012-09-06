@@ -1,0 +1,15 @@
+
+build
+MonacaFramework/bin
+MonacaFramework/gen
+MonacaFramework/tmp
+
+# Can ignore specific files
+.DS_Store
+*jarlist.cache
+*.class
+
+# template project
+MonacaTemplateEngine/gen/
+MonacaTemplateEngineTest/gen/
+
