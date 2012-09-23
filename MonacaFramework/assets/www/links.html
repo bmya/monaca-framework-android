@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Hello Monaca</title>
-    <script type="text/javascript" src="plugins/cordova.js"></script>
+    {% if Device.Platform == IOS %}<script type="text/javascript" src="plugins/cordova.js.ios"></script>{% endif %}
+    {% if Device.Platform == Android %}<script type="text/javascript" src="plugins/cordova.js.android"></script>{% endif %}
     <script type="text/javascript" src="plugins/monaca.js"></script>
     <script type="text/javascript" src="plugins/monaca.viewport.js"></script>
     <script type="text/javascript">
