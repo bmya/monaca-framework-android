@@ -1,0 +1,56 @@
+{
+    "top" : {
+        "container" : "toolbar",
+        "id" : "header",
+        "style" : {
+            "title" : "Monaca HelloWorld!",
+            "iosBarStyle" : "UIBarStyleBlackTranslucent"
+        },
+        "right": [
+            {
+                "component": "button",
+                "style": {
+                        "text": "Tap Me!"
+                },
+                "event": {
+                    "onTap": "onTapButton();"
+                },
+                "id": "tapme-button"
+            }
+        ]
+    },
+    "bottom" : {
+        "container" : "tabbar",
+        "id" : "footer",
+        "style" : {
+            "visibility" : "true"
+        },
+        "items":
+            [
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "Home",
+                        "image": "img/icon/cube.png"
+                    },
+                     "link": "index.html"
+                },
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "PhoneGap Demo",
+                        "image": "img/icon/page.png"
+                    },
+                    "link": "phonegap-demo.html"
+                },
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "Links",
+                        "image": "img/icon/chat.png"
+                    },
+                    "link": "links.html"
+                }
+            ]
+    }
+}
