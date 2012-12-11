@@ -13,3 +13,10 @@ MonacaFramework/tmp
 MonacaTemplateEngine/gen/
 MonacaTemplateEngineTest/gen/
 
+# Library
+BarcodeScannerLibrary/gen/
+BarcodeScannerLibrary/bin/
+
+# build
+MonacaTemplateEngine/monaca_templating.[0-9]*.jar
+
