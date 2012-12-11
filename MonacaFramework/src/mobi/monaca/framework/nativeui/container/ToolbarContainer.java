@@ -15,7 +15,6 @@ import mobi.monaca.framework.psedo.R;
 
 import org.json.JSONObject;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
@@ -30,7 +29,8 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 
 public class ToolbarContainer implements Component {
-    protected Context context;
+    private static final int TOP_BOTTOM_PADDING = 5;
+	protected Context context;
     protected ToolbarContainerView view;
     protected ToolbarComponent left, center, right;
     protected JSONObject style;
@@ -75,7 +75,6 @@ public class ToolbarContainer implements Component {
      * "fixed" | "scroll" (default: "fixed") => androidだと無理ぽい title : [string]
      * (default : "") (このスタイルが指定された場合、center属性は無視される)
      */
-    @SuppressLint({ "NewApi", "ParserError" })
     protected void style() {
         if (isTransparent(style.optDouble("opacity", 1.0)) && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE
                 : View.INVISIBLE)) {
@@ -142,7 +141,7 @@ public class ToolbarContainer implements Component {
 
         view.getContentView().setBackgroundDrawable(
                 new BitmapDrawable(context.getResources(), bgBitmap));
-        view.getContentView().setPadding(padding.left, 0, padding.right, 0);
+        view.getContentView().setPadding(padding.left, dip2px(context, TOP_BOTTOM_PADDING), padding.right, dip2px(context, TOP_BOTTOM_PADDING));
         view.getContentView().getBackground()
                 .setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
 

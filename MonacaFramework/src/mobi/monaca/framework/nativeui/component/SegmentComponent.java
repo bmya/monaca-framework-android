@@ -6,7 +6,9 @@ import java.util.List;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.psedo.R;
+import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -102,7 +104,7 @@ public class SegmentComponent implements ToolbarComponent {
 
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT);
+                    FrameLayout.LayoutParams.MATCH_PARENT);
             addView(layout, layoutParams);
             addView(createFrameView(), layoutParams);
         }
@@ -147,7 +149,7 @@ public class SegmentComponent implements ToolbarComponent {
         protected void addSegmentItemView(SegmentItemView itemView) {
             items.add(itemView);
             layout.addView(itemView, new LinearLayout.LayoutParams(0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+                    LinearLayout.LayoutParams.MATCH_PARENT, 1));
 
             if (items.size() == 1) {
                 itemView.switchToSelected();
@@ -169,10 +171,15 @@ public class SegmentComponent implements ToolbarComponent {
             }
 
             int maxWidth = Collections.max(widths);
+            // compensate for sdk > Honeycomb using Holo theme which make item width wider
+            if(android.os.Build.VERSION.SDK_INT >= 11){
+            	maxWidth = maxWidth - UIUtil.dip2px(getContext(), 15);
+            }
+            MyLog.e(TAG, "max width:" + maxWidth);
             for (SegmentItemView segment : items) {
                 LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) segment
                         .getLayoutParams();
-                p.width = maxWidth;
+                p.width =  maxWidth;
                 segment.setLayoutParams(p);
             }
 
@@ -245,8 +252,8 @@ public class SegmentComponent implements ToolbarComponent {
             button.setShadowLayer(1f, 0f, -1f, 0xcc000000);
 
             addView(button, new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.FILL_PARENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT));
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT));
 
             setAsSingle();
             switchToUnselected();

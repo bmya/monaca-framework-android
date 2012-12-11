@@ -168,6 +168,24 @@ public class TabbarItem implements Component {
             textView.setTextColor(color);
         }
 
+        public void initializeSelected() {
+            if (!isSelected) {
+                getBackground().setAlpha(0x33);
+
+                textView.setTextColor(0xffffffff);
+                isSelected = true;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        context.changeCurrentUri(link);
+                    }
+                });
+            }
+            imageView.setAlpha(0xff);
+            invalidate();
+        }
+
+
         public void switchToSelected() {
         	MyLog.v(TAG, "switchToSelected() link:" + link);
             if (!isSelected) {
@@ -178,7 +196,7 @@ public class TabbarItem implements Component {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        context.changeLocationWithoutUIFile(link);
+                        context.loadRelativePathWithoutUIFile(link);
                     }
                 });
             }

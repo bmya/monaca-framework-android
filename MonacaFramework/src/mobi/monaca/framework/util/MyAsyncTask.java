@@ -1,28 +1,39 @@
 package mobi.monaca.framework.util;
 
+import android.os.AsyncTask.Status;
 import android.os.Handler;
-
-abstract public class MyAsyncTask<B> {
+/**
+ * Used to kick ass Android AsyncTask's bug where doInBackground() is not always get called
+ * @param <A> parameter types for execute() method
+ * @param <B> type used for onProgressUpdate()
+ * @param <C> type returned by doInBackground()
+ */
+abstract public class MyAsyncTask<A, B, C> {
 
     protected boolean isExecuted = false;
-    protected Thread backgroundThread = null;
+    protected Thread backgroundThread = null; 
+    final Handler handler = new Handler();
+	private boolean mIsCancelled = false;
+	private Status currentStatus = Status.PENDING;
 
-    public void execute() {
+    public void execute(final A ...a) {
         if (isExecuted) {
             throw new RuntimeException("This task is already executed.");
         }
 
+        onPreExecute();
         isExecuted = true;
-
-        final Handler handler = new Handler();
+        currentStatus = Status.RUNNING;
+        
         backgroundThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final B result = doInBackground();
+                final C result = doInBackground(a);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         onPostExecute(result);
+                        currentStatus = Status.FINISHED;
                     }
                 });
             }
@@ -30,20 +41,48 @@ abstract public class MyAsyncTask<B> {
 
         backgroundThread.start();
     }
-
-    public void cancel() {
-        if (backgroundThread != null) {
-            backgroundThread.interrupt();
-        }
+    
+    protected void onPreExecute() {
+	}
+    
+    protected void publishProgress(final B ...b){
+    	handler.post(new Runnable() {
+			
+			@Override
+			public void run() {
+				onProgressUpdate(b);
+			}
+		});
     }
+
+    public void cancel(boolean mayInterruptIfRunning) {
+    	if(mayInterruptIfRunning){
+    		if (backgroundThread != null) {
+                backgroundThread.interrupt();
+            }
+    	}
+        
+        mIsCancelled = true;
+    }
+    
+    public Status getStatus(){
+    	return currentStatus;
+    }
+    
+    public boolean isCancelled() {
+    	return mIsCancelled ;
+	}
 
     public boolean isExecuted() {
         return isExecuted;
     }
 
-    abstract protected B doInBackground();
+    abstract protected C doInBackground(A ...a);
 
-    protected void onPostExecute(B result) {
+    protected void onPostExecute(C result) {
     }
+    
+    protected void onProgressUpdate(B ...b) {
+	}
 
 }

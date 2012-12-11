@@ -1,6 +1,7 @@
 package mobi.monaca.framework.bootloader;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class LocalFileBootloader {
     }
 
     protected void execute() {
+    	Log.d(TAG, "using localFileBootloader");
         new BootloaderTask().execute();
     }
 
@@ -65,11 +67,8 @@ public class LocalFileBootloader {
     }
 
     public static void setup(Context context, Runnable runner, Runnable fail) {
+    	Log.d(TAG, "using LocalFileBootloader");
         new LocalFileBootloader(context, runner, fail).execute();
-    }
-
-    public static boolean needToUseLocalFileBootloader() {
-        return Build.VERSION.SDK_INT == 14 || Build.VERSION.SDK_INT == 15;
     }
 
     protected boolean validateAllFilesHash() {
@@ -146,23 +145,60 @@ public class LocalFileBootloader {
         return result;
     }
 
-    protected void aggregateAssetsFileList(String prefix,
+    public static boolean needToUseLocalFileBootloader() {
+	    return Build.VERSION.SDK_INT == 14 || Build.VERSION.SDK_INT == 15;
+	}
+
+    /**
+     * returns new inputStream from assetPath.
+     * if ver4.0.x, uses LocalFileBootloader.
+     * else uses getAssets()
+     * @param relativePath this method removes file:///android_asset/ and file://android_asset/
+     * @param context
+     * @return
+     * @throws IOException
+     */
+    public static InputStream openAsset(Context context, String relativePath) throws IOException {
+    	Log.d(TAG, "getInputStream : " + relativePath);
+
+    	if (needToUseLocalFileBootloader()) {
+        	String newPath = relativePath.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
+        	Log.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
+
+    		File localAssetFile = new File(context.getApplicationInfo().dataDir + "/" + relativePath);
+
+        	Log.d(TAG, "localAssetFile :" + localAssetFile);
+    		if (localAssetFile.exists()) {
+    			Log.d(TAG, "getInputStream,  loading localFile succeed");
+    			return new FileInputStream(localAssetFile);
+    		} else {
+    			Log.d(TAG, "getInputStream,  loading localFile failed, get from assets");
+    			return context.getAssets().open(relativePath);
+    		}
+    	} else {
+    		Log.d(TAG, "no need to use LocalFileBootloader");
+    		return context.getAssets().open(relativePath);
+    	}
+    }
+
+	protected void aggregateAssetsFileList(String prefix,
             ArrayList<String> result) {
         try {
             for (String path : context.getAssets().list(prefix)) {
-                if (!path.contains(".")) {
-                    if (existAsset(path)) {
+            	Log.d(TAG, "pathCheck :" + prefix + "/" + path);
+               // if (!path.contains(".")) {
+                    if (existAsset(prefix + "/" + path)) {
                         result.add(prefix + "/" + path);
                     } else {
                         // may be directory
                         aggregateAssetsFileList(prefix + "/" + path, result);
                     }
-                } else {
-                    result.add(prefix + "/" + path);
-                }
+              //  } else {
+              //      result.add(prefix + "/" + path);
+              //  }
             }
         } catch (Exception e) {
-            Log.d(getClass().getSimpleName(), "", e);
+            Log.e(getClass().getSimpleName(), "", e);
             throw new RuntimeException(e);
         }
     }
@@ -218,15 +254,15 @@ public class LocalFileBootloader {
             InputStream stream = context.getAssets().open(path);
             stream.close();
         } catch (Exception e) {
+        	MyLog.e(TAG, path + " not exist");
             return false;
         }
-
         return true;
     }
 
     /** Copy assets to local data directory. */
     protected void copyAssetToLocal(String path) {
-    	MyLog.v(TAG, "copyAssetToLocal()");
+    	MyLog.w(TAG, "copyAssetToLocal()");
         byte[] buffer = new byte[1024 * 4];
 
         File file = new File(context.getApplicationInfo().dataDir + "/" + path);
@@ -267,13 +303,13 @@ public class LocalFileBootloader {
         }
     }
 
-    protected class BootloaderTask extends MyAsyncTask<Boolean> {
+    protected class BootloaderTask extends MyAsyncTask<Void, Void, Boolean> {
 
         protected Handler handler = new Handler();
         protected ProgressDialog loadingDialog = null;
 
         @Override
-        protected Boolean doInBackground() {
+        protected Boolean doInBackground(Void ...a) {
             boolean needInit = true;
 
             showProgressDialog();
@@ -291,9 +327,9 @@ public class LocalFileBootloader {
             try {
                 if (needInit) {
                     clean();
-                    
-//                    MyLog.v(TAG, "assetFiles size=" + getAssetsFileList().size());
-                    
+
+                    MyLog.v(TAG, "assetFiles size=" + getAssetsFileList().size());
+
                     for (String path : getAssetsFileList()) {
                         copyAssetToLocal(path);
                     }

@@ -17,7 +17,15 @@
     <plugin name="Capture" value="org.apache.cordova.Capture"/>
     <plugin name="Battery" value="org.apache.cordova.BatteryListener"/>
     <plugin name="SplashScreen" value="org.apache.cordova.SplashScreen"/>
-    
-    <plugin name="mobi.monaca.nativecomponent" value="mobi.monaca.framework.MonacaNativeUIPlugin"/>
-    <plugin name="Transit" value="mobi.monaca.framework.MonacaTransitPlugin"/>
+
+    <plugin name="mobi.monaca.nativecomponent" value="mobi.monaca.framework.plugin.MonacaNativeUIPlugin"/>
+    <plugin name="Transit" value="mobi.monaca.framework.plugin.MonacaTransitPlugin"/>
+    <plugin name="MonacaSplashScreen" value="mobi.monaca.framework.plugin.MonacaSplashPlugin"/>
+
+    <plugin name="DatePickerPlugin" value="mobi.monaca.framework.plugin.DatePickerPlugin"/>
+    <plugin name="ChildBrowser" value="mobi.monaca.framework.plugin.ChildBrowser"/>
+    <plugin name="Share" value="mobi.monaca.framework.plugin.Share"/>
+    <plugin name="BluetoothPlugin" value="mobi.monaca.framework.plugin.BluetoothPlugin"/>
+    <plugin name="BarcodeScanner" value="com.phonegap.plugins.barcodescanner.BarcodeScanner"/>
+    <plugin name="WebIntent" value="mobi.monaca.framework.plugin.WebIntent"/>
 </plugins>

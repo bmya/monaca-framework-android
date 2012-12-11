@@ -71,6 +71,7 @@ public class MonacaApplication extends Application {
             try {
                 url = new URI(url).normalize().toString();
             } catch (Exception e) {
+            	e.printStackTrace();
                 return false;
             }
             
@@ -80,6 +81,11 @@ public class MonacaApplication extends Application {
             
             if (url.startsWith("file://" + context.getApplicationInfo().dataDir)) {
                 return !url.startsWith("file://" + context.getApplicationInfo().dataDir + "/shared_prefs/");
+            }
+            
+            //allow access to SD card (some app need access to photos in SD card)
+            if (url.startsWith("file:///mnt/")){
+            	return true;
             }
             
             return false;

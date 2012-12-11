@@ -4,29 +4,29 @@
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10" />
-    
-	<supports-screens 
-	   android:anyDensity="true" 
-	   android:largeScreens="true" 
-	   android:resizeable="true" 
-	   android:normalScreens="true" 
+
+	<supports-screens
+	   android:anyDensity="true"
+	   android:largeScreens="true"
+	   android:resizeable="true"
+	   android:normalScreens="true"
 	   android:smallScreens="true"></supports-screens>
-	   
+
     <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="mobi.monaca.framework.MonacaApplication">
-    
+
     	<!-- for human test -->
         <activity android:name="mobi.monaca.framework.MonacaActivity"
                   android:label="MonacaActivity"
                   android:screenOrientation="sensor"
                   android:configChanges="keyboardHidden|orientation|keyboard"
                   android:theme="@android:style/Theme.Black.NoTitleBar">
-                  
+
             <!--  <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>-->
-        </activity>        
-        
+        </activity>
+
         <activity android:name="mobi.monaca.framework.MonacaSplashActivity"
                   android:label="MonacaSplashActivity"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar">
@@ -35,18 +35,43 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity android:name="mobi.monaca.framework.MonacaPageActivity"
                   android:label="MonacaPageActivity"
                   android:screenOrientation="sensor"
                   android:configChanges="keyboardHidden|orientation|keyboard"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
-        
+
         <!-- <meta-data android:name="disable_monaca_template_engine" android:value="true" />-->
+                    <!-- ZXing activities -->
+    <activity
+            android:name="com.google.zxing.client.android.CaptureActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:windowSoftInputMode="stateAlwaysHidden" >
+            <intent-filter>
+
+
+                <action android:name="com.phonegap.plugins.barcodescanner.SCAN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.google.zxing.client.android.encode.EncodeActivity"
+            android:label="@string/share_name" >
+            <intent-filter>
+                <action android:name="com.phonegap.plugins.barcodescanner.ENCODE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
     </application>
-    
+
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-permission android:name="android.permission.VIBRATE" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -61,5 +86,8 @@
 	<uses-permission android:name="android.permission.WRITE_CONTACTS" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+	<uses-permission android:name="android.permission.BLUETOOTH" />
+	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+	<uses-permission android:name="android.permission.FLASHLIGHT" />
+
 </manifest>

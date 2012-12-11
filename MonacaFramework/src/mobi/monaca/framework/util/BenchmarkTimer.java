@@ -20,6 +20,7 @@ public class BenchmarkTimer {
 
     static public void start() {
         synchronized (entryList) {
+        	entryList.clear();
             mark("start");
         }
     }
@@ -37,19 +38,23 @@ public class BenchmarkTimer {
         Entry prev = null;
         Log.d(BenchmarkTimer.class.getSimpleName(),
                 "---------------------------------------------");
+        long duration = 0;
+        long total = 0;
         for (Entry entry : entryList) {
             if (prev != null) {
-                Log.d(BenchmarkTimer.class.getSimpleName(),
-                        String.format(" %30s > %-10d", "", entry.time
-                                - prev.time));
+                duration = entry.time
+				        - prev.time;
+				Log.d(BenchmarkTimer.class.getSimpleName(),
+                        String.format(" %30s > %-10d", "", duration));
             }
             Log.d(BenchmarkTimer.class.getSimpleName(),
                     String.format(" %30s ", entry.label));
 
+            total += duration;
             prev = entry;
         }
         Log.d(BenchmarkTimer.class.getSimpleName(),
-                "---------------------------------------------");
+                "------------------ TOTAL=" + total + "---------------------------");
     }
 
     static public void mark(String label) {

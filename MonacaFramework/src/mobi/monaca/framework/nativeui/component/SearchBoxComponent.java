@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -48,15 +49,15 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
         } catch (JSONException e) {
         	throw new RuntimeException(e);
         }
-        
+
         context.addOnRotateListener(this);
     }
-    
+
     @Override
     public void onRotate(int orientation) {
         updateWidthForOrientation(orientation);
     }
-    
+
     protected void updateWidthForOrientation(int orientation) {
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             searchEditText.setWidth(UIUtil.dip2px(context, 136));
@@ -65,13 +66,19 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
         }
         searchEditText.invalidate();
     }
-    
+
     public void updateStyle(JSONObject update) {
         updateJSONObject(style, update);
         style();
     }
 
     public JSONObject getStyle() {
+    	//update editTextValue
+    	try {
+			style.put("value", searchEditText.getText().toString());
+		} catch (JSONException e) {
+			Log.d(TAG, "update value failed");
+		}
         return style;
     }
 
@@ -86,7 +93,7 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
 
     protected void initView() {
         layout = new FrameLayout(context);
-        
+
         searchEditText = new EditText(context);
         searchEditText.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -119,19 +126,19 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
-            
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
-            
+
             @Override
             public void afterTextChanged(Editable s) {
                 clearButton.setVisibility(searchEditText.getText().toString().equals("") ? View.GONE : View.VISIBLE);
             }
         });
-        
+
         layout.addView(searchEditText);
-        
+
         clearButton = new Button(context);
         clearButton.setBackgroundResource(R.drawable.monaca_search_clear);
         clearButton.setOnClickListener(new View.OnClickListener() {
@@ -142,7 +149,7 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
                 context.showSoftInput(searchEditText);
             }
         });
-        
+
         Drawable drawable = context.getResources().getDrawable(R.drawable.monaca_search_clear);
         FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(
             drawable.getMinimumWidth(),

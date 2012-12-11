@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.UIBuilder;
 import mobi.monaca.framework.nativeui.UIBuilder.ResultSet;
 import mobi.monaca.framework.nativeui.UIContext;
@@ -22,6 +23,7 @@ import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.template.AssetTemplateResource;
+import mobi.monaca.framework.template.LocalFileTemplateResource;
 import mobi.monaca.framework.template.TemplateEngine;
 import mobi.monaca.framework.template.model.MonacaApplicationInfo;
 import mobi.monaca.framework.transition.BackgroundDrawable;
@@ -31,6 +33,10 @@ import mobi.monaca.framework.util.AssetUriUtil;
 import mobi.monaca.framework.util.BenchmarkTimer;
 import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.framework.util.UrlUtil;
+import mobi.monaca.framework.view.MonacaPageGingerbreadWebViewClient;
+import mobi.monaca.framework.view.MonacaPageHoneyCombWebViewClient;
+import mobi.monaca.framework.view.MonacaWebView;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -39,22 +45,26 @@ import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
 import org.apache.cordova.DroidGap;
 import org.apache.cordova.api.CordovaInterface;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import receiver.ScreenReceiver;
+import android.R.color;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -71,6 +81,8 @@ import android.webkit.JsPromptResult;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
 /**
@@ -82,11 +94,9 @@ public class MonacaPageActivity extends DroidGap {
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
 
-	protected String userId = null, password = null, uri = null;
+	protected MonacaURI currentMonacaUri;
 
-	protected BackgroundDrawable background = null;
-
-	protected DefaultHttpClient httpClient;
+	protected Drawable background = null;
 
 	protected HashMap<String, Component> dict;
 
@@ -98,13 +108,17 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected int pageIndex = 0;
 
+	protected JSONObject appJson;
+
+	protected Dialog monacaSplashDialog;
+
 	protected BroadcastReceiver closePageReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			int level = intent.getIntExtra("level", 0);
 			if (pageIndex >= level) {
 				finish();
 			}
-			Log.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + uri);
+			Log.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutQuery());
 			Log.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
 		}
 	};
@@ -117,42 +131,39 @@ public class MonacaPageActivity extends DroidGap {
 	protected TransitionParams transitionParams;
 
 	protected JSONObject infoForJavaScript = new JSONObject();
-	public String mCurrentHtml;
+	protected String mCurrentHtml;
+	private ScreenReceiver mScreenReceiver;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		prepare();
-		super.onCreate(savedInstance);
 
+		// initialize receiver
+		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
+		mScreenReceiver = new ScreenReceiver();
+		registerReceiver(mScreenReceiver, filter);
+
+		super.onCreate(savedInstance);
+		// to clear getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+       //  WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN); in DroidGap class
+		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		MyLog.v(TAG, "MonacaApplication.getPages().size():" + MonacaApplication.getPages().size());
+		Intent i = getIntent();
+		final String uri = i.hasExtra(URL_PARAM_NAME) ? i.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
 		if (MonacaApplication.getPages().size() == 1) {
 			init();
-			loadCurrentUri();
+			loadUri(uri ,false);
 		} else {
 			init();
-			loadUiFile(uri);
+			loadUiFile(getCurrentUriWithoutQuery());
 			handler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					loadCurrentUriWithoutUIFile();
+					loadUri(uri, true);
 				}
 			}, 100);
 		}
-
-		appView.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction()) {
-				case MotionEvent.ACTION_DOWN:
-				case MotionEvent.ACTION_UP:
-					if (!v.hasFocus()) {
-						v.requestFocus();
-					}
-					break;
-				}
-				return false;
-			}
-		});
 
 		// dirty fix for android4's strange bug
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
@@ -162,12 +173,86 @@ public class MonacaPageActivity extends DroidGap {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
+	}
+
+	protected Drawable getSplashDrawable() throws IOException {
+		InputStream is = getResources().getAssets().open(MonacaSplashActivity.SPLASH_IMAGE_PATH);
+		return Drawable.createFromStream(is, "splash_default");
 
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
+    protected int getSplashBackgroundColor() {
+		try {
+    		InputStream stream = getResources().getAssets().open("app.json");
+			byte[] buffer = new byte[stream.available()];
+			stream.read(buffer);
+			JSONObject appJson = new JSONObject(new String(buffer,"UTF-8"));
+			String backgroundColorString = appJson.getJSONObject("splash").getJSONObject("android").getString("background");
+			if(!backgroundColorString.startsWith("#")){
+				backgroundColorString = "#" + backgroundColorString;
+			}
+			int backbroundColor = Color.parseColor(backgroundColorString);
+			return backbroundColor;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+		return Color.TRANSPARENT;
+	}
+
+	public void showMonacaSplash() {
+		final MonacaPageActivity activity = this;
+
+        Runnable runnable = new Runnable() {
+            public void run() {
+
+                // Get reference to display
+                Display display = activity.getWindowManager().getDefaultDisplay();
+
+                // Create the layout for the dialog
+                FrameLayout root = new FrameLayout(activity.getActivity());
+                root.setMinimumHeight(display.getHeight());
+                root.setMinimumWidth(display.getWidth());
+                root.setBackgroundColor(activity.getSplashBackgroundColor());
+                root.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
+
+                try {
+                    ImageView splashImageView;
+                	splashImageView = new ImageView(MonacaPageActivity.this);
+                	splashImageView.setImageDrawable(activity.getSplashDrawable());
+                	splashImageView.setScaleType(ScaleType.FIT_CENTER);
+
+                	root.addView(splashImageView);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+                // Create and show the dialog
+                monacaSplashDialog = new Dialog(MonacaPageActivity.this, android.R.style.Theme_Translucent_NoTitleBar);
+                // check to see if the splash screen should be full screen
+                if ((getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                        == WindowManager.LayoutParams.FLAG_FULLSCREEN) {
+                	monacaSplashDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                }
+                monacaSplashDialog.setContentView(root);
+                monacaSplashDialog.setCancelable(false);
+                monacaSplashDialog.show();
+            }
+        };
+        this.runOnUiThread(runnable);
+	}
+
+	public void removeMonacaSplash() {
+        if (monacaSplashDialog != null && monacaSplashDialog.isShowing()) {
+        	monacaSplashDialog.dismiss();
+        	monacaSplashDialog = null;
+        }
 	}
 
 	@Override
@@ -191,25 +276,26 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected void prepare() {
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null && bundle.getBoolean(MonacaSplashActivity.SHOWS_SPLASH_KEY, false)) {
+			showMonacaSplash();
+			getIntent().getExtras().remove(MonacaSplashActivity.SHOWS_SPLASH_KEY);
+		}
+
 		loadParams();
 
 		MonacaApplication.addPage(this);
 		pageIndex = MonacaApplication.getPages().size() - 1;
 		registerReceiver(closePageReceiver, ClosePageIntent.createIntentFilter());
-		uiContext = new UIContext(uri, this);
-
-		// setup orientation
-		setRequestedOrientation(transitionParams.requestedOrientation);
+		uiContext = new UIContext(getCurrentUriWithoutQuery(), this);
 
 		// override theme
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
-			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 			setTheme(mobi.monaca.framework.psedo.R.style.MonacaDialogTheme);
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
 			setTheme(mobi.monaca.framework.psedo.R.style.MonacaSlideTheme);
 		} else {
-			setTheme(android.R.style.Theme_Black_NoTitleBar);
 		}
 
 		// template engine settings
@@ -227,19 +313,17 @@ public class MonacaPageActivity extends DroidGap {
 	private void initTemplateEngine() {
 		if (usingTemplatgeEngine()) {
 
-			int wwwIndex = uri.indexOf("/www/");
-			String appRoot = uri.substring(0, wwwIndex + 5);
+			int wwwIndex = getCurrentUriWithoutQuery().indexOf("/www/");
+			String appRoot = getCurrentUriWithoutQuery().substring(0, wwwIndex + 5);
 			MonacaApplicationInfo applicationInfo = new MonacaApplicationInfo(appRoot);
 
-			if (UrlUtil.isUrl(uri)) {
-				templateEngine = new TemplateEngine(this, new RemoteTemplateResource(httpClient), applicationInfo);
-			} else if (AssetUriUtil.isAssetUri(uri)) {
+			if (AssetUriUtil.isAssetUri(getCurrentUriWithoutQuery())) {
 				templateEngine = new TemplateEngine(this, new AssetTemplateResource(this), applicationInfo);
-			} else if (uri.startsWith("file:///")) {
+			} else if (getCurrentUriWithoutQuery().startsWith("file:///")) {
 				MyLog.v(TAG, "Using FileTemplateResource");
-				templateEngine = new TemplateEngine(this, new FileTemplateResource(), applicationInfo);
+				templateEngine = new TemplateEngine(this, new LocalFileTemplateResource(), applicationInfo);
 			} else {
-				throw new RuntimeException("unsupported such uri: " + uri);
+				throw new RuntimeException("unsupported such uri: " + getCurrentUriWithoutQuery());
 			}
 		} else {
 			templateEngine = null;
@@ -248,19 +332,24 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Load background drawable from transition params and device orientation. */
 	protected void loadBackground(Configuration config) {
+		MyLog.v(TAG, "loadBackground().");
 		if (transitionParams != null && transitionParams.hasBackgroundImage()) {
 			String path = null;
 			String preferedPath = "www/" + UIContext.getPreferredPath(transitionParams.backgroundImagePath);
-			if (existsAsset(this, preferedPath)) {
+			if (AssetUriUtil.existsAsset(this, preferedPath)) {
 				path = preferedPath;
 			} else {
 				path = "www/" + transitionParams.backgroundImagePath;
 			}
 
+			MyLog.v(TAG, "loadBackground(). path:" + path);
+
 			try {
-				Bitmap bitmap = BitmapFactory.decodeStream(getAssets().open(path));
+
+				Bitmap bitmap = BitmapFactory.decodeStream(LocalFileBootloader.openAsset(this.getApplicationContext(), path));
 				background = new BackgroundDrawable(bitmap, getWindowManager().getDefaultDisplay(), config.orientation);
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -276,28 +365,9 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	@Override
-	public void init() {
-		CordovaWebView webView = new CordovaWebView(this);
-		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(uri, this, webView);
-		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
-		this.init(webView, webViewClient, webChromeClient);
-
+	public void initMonaca() {
 		appView.setFocusable(true);
 		appView.setFocusableInTouchMode(true);
-		if (hasAuthInfo()) {
-			appView.setHttpAuthUsernamePassword(Monaca.DAV_DOMAIN, // TODO
-																	// change to
-																	// project
-																	// url
-																	// returned
-																	// from
-																	// server
-					Monaca.DAV_AUTH_NAME, userId, password);
-			appView.setHttpAuthUsernamePassword(Monaca.DAV_DOMAIN + ":443", Monaca.DAV_AUTH_NAME, userId, password);
-		}
-
-		setupBackground();
 
 		loadUrl("about:blank?");
 
@@ -315,9 +385,34 @@ public class MonacaPageActivity extends DroidGap {
 
 		setupBackground();
 
+		// for focus problem between native component and webView
+		appView.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+				case MotionEvent.ACTION_UP:
+					if (!v.hasFocus()) {
+						v.requestFocus();
+					}
+					break;
+				}
+				return false;
+			}
+		});
+
 	}
 
-	class MonacaChromeClient extends CordovaChromeClient {
+	@Override
+	public void init() {
+		CordovaWebView webView = new MonacaWebView(this);
+		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(getCurrentUriWithoutQuery(), this, webView);
+		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
+		this.init(webView, webViewClient, webChromeClient);
+		this.initMonaca();
+	}
+
+	protected class MonacaChromeClient extends CordovaChromeClient {
 
 		public MonacaChromeClient(CordovaInterface ctx) {
 			super(ctx);
@@ -328,32 +423,42 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		@Override
-		public boolean onJsPrompt(WebView arg0, String arg1, String arg2, String arg3, JsPromptResult arg4) {
-			// MyLog.v(TAG, "onJsPromt:arg1:" + arg1 + ", arg2:" + arg2 +
-			// ", arg3:" + arg3);
-			if (arg1.equalsIgnoreCase("uri")) {
+		public boolean onJsPrompt(WebView webView, String url, String message, String defaultValue, JsPromptResult jsPromtResult) {
+			 MyLog.v(TAG, "onJsPromt:arg1:" + url + ", arg2:" + message +
+			 ", arg3:" + defaultValue);
+			if (url.equalsIgnoreCase("uri")) {
 				// MyLog.v(TAG, "url null-> return true");
 				return true;
 			}
 
-			return super.onJsPrompt(arg0, arg1, arg2, arg3, arg4);
+			return super.onJsPrompt(webView, url, message, defaultValue, jsPromtResult);
 		}
 
 	}
 
 	/** Setup background drawable for app View and root view. */
 	protected void setupBackground() {
+		MyLog.v(TAG, "setupBackground()");
 		if (background != null) {
+			MyLog.v(TAG, "background != null");
 			if (appView != null) {
+				MyLog.v(TAG, "appview and background not null -> set to appview");
 				appView.setBackgroundDrawable(background);
 			}
 
 			if (root != null) {
 				root.setBackgroundDrawable(background);
+				MyLog.v(TAG, "set background to root");
 
 				if (root.getParent() == null) {
 					setContentView(root);
 				}
+			}
+		} else {
+			if (appView != null) {
+				MyLog.v(TAG, "setDefaultBackground");
+				// Default background
+				appView.setBackgroundResource(color.white);
 			}
 		}
 	}
@@ -379,24 +484,18 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected void loadParams() {
+
 		Intent intent = getIntent();
 		transitionParams = (TransitionParams) intent.getSerializableExtra(TRANSITION_PARAM_NAME);
 
 		if (transitionParams == null) {
-			transitionParams = TransitionParams.createDefaultParams();
+			transitionParams = TransitionParams.createDefaultParams(this.getRequestedOrientation());
 		}
 
-		uri = intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
+		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
 
-		MyLog.v(TAG, "uri:" + uri);
-
-		userId = userId != null ? userId : getIntent().getStringExtra(Monaca.USERID_PARAM);
-		password = password != null ? password : getIntent().getStringExtra(Monaca.PASSWORD_PARAM);
-
-		if (userId != null && password != null) {
-			httpClient = buildHttpClient();
-		}
-
+		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutQuery());
+		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getUrlWithQuery());
 	}
 
 	protected boolean usingTemplatgeEngine() {
@@ -411,60 +510,60 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	public boolean existsAsset(Context context, String assetPath) {
-		try {
-			InputStream stream = getAssets().open(assetPath);
-			stream.close();
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
 	public JSONObject getInfoForJavaScript() {
 		return infoForJavaScript;
 	}
 
 	protected boolean hasOpacityBar(ResultSet resultSet) {
-        if (resultSet.top != null && ToolbarContainer.isTransparent(resultSet.top.getStyle().optDouble("opacity", 1.0))) {
-            return true;
-        }
-        
-        if (resultSet.bottom != null && ToolbarContainer.isTransparent(resultSet.bottom.getStyle().optDouble("opacity", 1.0))) {
-            return true;
-        }
-        
-        return false;
+		if (resultSet.top != null && ToolbarContainer.isTransparent(resultSet.top.getStyle().optDouble("opacity", 1.0))) {
+			return true;
+		}
+
+		if (resultSet.bottom != null && ToolbarContainer.isTransparent(resultSet.bottom.getStyle().optDouble("opacity", 1.0))) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/** Load local ui file */
 	protected void loadUiFile(String uri) {
 		MyLog.v(TAG, "loadUiFile()");
-		String uiString = getUIFile(getUIFileUrl(uri));
-		MyLog.v(TAG, "uiString:" + uiString);
+		String uiString = null;
+
+		try {
+			uiString = getUIFile(UrlUtil.getUIFileUrl(uri));
+		} catch (IOException e1) {
+			MyLog.d(TAG, "UI file not found");
+			return;
+		}
 
 		JSONObject uiJSON;
+		ResultSet result = null;
 		try {
 			uiJSON = new JSONObject(uiString);
+			result = new UIBuilder(uiContext, uiJSON).build();
 		} catch (JSONException e) {
 			UIUtil.reportJSONParseError(getApplicationContext(), e.getMessage());
-			// uiJSON = new JSONObject();
+			return;
+		}catch (Exception e) {
+			e.printStackTrace();
+			MyLog.sendBloadcastDebugLog(getApplicationContext(), "NativeComponent:" + e.getMessage(), "error", "error");
 			return;
 		}
 
-		ResultSet result = null;
-		try {
-			result = new UIBuilder(uiContext, uiJSON).build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			MyLog.sendBloadcastDebugLog(getApplicationContext(), "NativeComponent:" + e.getMessage(), "error");
-			return;
-		}
+		applyUiToView(result);
+	}
+
+	protected void applyUiToView(ResultSet result) {
 
 		uiBuilderResult = result;
 		this.dict = result.dict;
 
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		JSONObject pageStyle = uiBuilderResult.pageStyle;
+		processPageStyle(pageStyle);
+
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		params.setMargins(0, 0, 0, 0);
 
 		if (result.bottomView != null || result.topView != null) {
@@ -479,21 +578,21 @@ public class MonacaPageActivity extends DroidGap {
 
 				root.removeAllViews();
 				MyLog.v(TAG, "root.removeAllViews()");
-				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
 				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
 				if (appViewParent != null) {
 					appViewParent.removeAllViews();
 				}
 
-				frame.addView(appView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT));
-				frame.addView(newRoot, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT));
+				frame.addView(appView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+				frame.addView(newRoot, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
 				// top bar view
 				newRoot.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
 
 				// center
-				newRoot.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+				newRoot.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
 
 				// bottom bar view
@@ -533,12 +632,11 @@ public class MonacaPageActivity extends DroidGap {
 					appViewParent.removeView(appView);
 				}
 
-				root.addView(appView, 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+				root.addView(appView, 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
 
 				// bottom bar view
 				root.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
 			}
-			getWindow().getDecorView().invalidate();
 		} else {
 			MyLog.v(TAG, "Reverse of result.bottomView != null || result.topView != null");
 			((ViewGroup) appView.getParent()).removeView(appView);
@@ -549,7 +647,45 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	protected String getUIFile(String path) {
+	private void processPageStyle(JSONObject pageStyle) {
+		if(uiBuilderResult.pageStyle != null){
+			ArrayList<Drawable> layerList = new ArrayList<Drawable>();
+
+			// background color
+			String backgroundColor = pageStyle.optString("backgroundColor");
+			if(!backgroundColor.equalsIgnoreCase("")){
+				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(backgroundColor));
+				layerList.add(colorDrawable);
+			}
+
+			String backgroundImageFile = pageStyle.optString("backgroundImage");
+			if(!backgroundImageFile.equalsIgnoreCase("")){
+				MyLog.w(TAG, "backgroundImage:" + backgroundImageFile);
+				String path = null;
+				String preferedPath = "www/" + UIContext.getPreferredPath(backgroundImageFile);
+				if (AssetUriUtil.existsAsset(this, preferedPath)) {
+					path = preferedPath;
+				} else {
+					path = "www/" + backgroundImageFile;
+				}
+				MyLog.v(TAG, "loadBackground(). path:" + path);
+				try {
+					Bitmap bitmap = BitmapFactory.decodeStream(LocalFileBootloader.openAsset(this.getApplicationContext(), path));
+					BackgroundDrawable backgroundImage = new BackgroundDrawable(bitmap, getWindowManager().getDefaultDisplay(), getResources().getConfiguration().orientation);
+					layerList.add(backgroundImage);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			Drawable[] layers = new Drawable[layerList.size()];
+			LayerDrawable layerDrawable = new LayerDrawable(layerList.toArray(layers));
+			background = layerDrawable;
+		}
+	}
+
+
+	protected String getUIFile(String path) throws IOException {
 		Reader reader;
 		InputStream stream = null;
 
@@ -560,29 +696,17 @@ public class MonacaPageActivity extends DroidGap {
 		Log.d(getClass().getSimpleName(), "ui file loading: " + path);
 
 		if (path.startsWith("file:///android_asset/")) {
-			try {
-				stream = getAssets().open(path.substring("file:///android_asset/".length()));
-				reader = new InputStreamReader(stream);
-			} catch (Exception e) {
-				Log.d(getClass().getSimpleName(), "ui file loading fail: " + path);
-				return "";
-			}
+			stream = LocalFileBootloader.openAsset( this.getApplicationContext(), path.substring("file:///android_asset/".length()));
+			reader = new InputStreamReader(stream);
+
 		} else if (path.startsWith("file://")) {
-			try {
-				path = new File(path.substring(7)).getCanonicalPath();
-				reader = new FileReader(new File(path));
-			} catch (Exception e) {
-				Log.d(getClass().getSimpleName(), "ui file loading fail: " + path);
-				return "";
-			}
+
+			path = new File(path.substring(7)).getCanonicalPath();
+			reader = new FileReader(new File(path));
+
 		} else {
-			try {
-				stream = InputStreamLoader.loadAssetFile(this, path);
-				reader = new InputStreamReader(stream, "UTF-8");
-			} catch (Exception e) {
-				Log.d(getClass().getSimpleName(), "ui file loading fail: " + path);
-				return "";
-			}
+			stream = InputStreamLoader.loadAssetFile(this, path);
+			reader = new InputStreamReader(stream, "UTF-8");
 		}
 		Writer writer = new StringWriter();
 
@@ -592,18 +716,12 @@ public class MonacaPageActivity extends DroidGap {
 			while ((n = reader.read(buffer)) != -1) {
 				writer.write(buffer, 0, n);
 			}
-		} catch (IOException e) {
-
 		} finally {
-			try {
-				reader.close();
-				if (stream != null) {
-					stream.close();
-				}
-			} catch (Exception e) {
+			reader.close();
+			if (stream != null) {
+				stream.close();
 			}
 		}
-
 		return writer.toString();
 	}
 
@@ -651,7 +769,22 @@ public class MonacaPageActivity extends DroidGap {
 		});
 	}
 
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if(hasFocus){
+			BenchmarkTimer.mark("visible");
+			BenchmarkTimer.finish();
+//			Debug.stopMethodTracing();
+		}
+	}
+
 	public void onPageFinished(View view, String url) {
+		BenchmarkTimer.mark("page finish:" + url);
+//		if(!url.startsWith("about:blank")){
+//			BenchmarkTimer.finish();
+//		}
+
 		// for android4's strange bug.
 		sendJavascript("console.log(' ');");
 
@@ -673,12 +806,9 @@ public class MonacaPageActivity extends DroidGap {
 	    this.appView.setLayoutParams(params);
 	}
 
-	public String getCurrentUrl() {
-		return uri;
-	}
-
 	@Override
 	protected void onRestart() {
+		MyLog.i(TAG, "onRestart");
 		super.onRestart();
 		loadBackground(getResources().getConfiguration());
 		setupBackground();
@@ -689,25 +819,43 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	protected void onResume() {
+		MyLog.i(TAG, "onResume");
 		try {
 			WebView.class.getMethod("onResume").invoke(this);
 		} catch (Exception e) {
 		}
 
-		 if (appView != null && appView.callbackServer != null && appView.pluginManager !=
-		 null) {
-			 appView.loadUrl("javascript: window.onReactivate && onReactivate();");
-		 }
+		// only when screen turns on
+		if (!ScreenReceiver.wasScreenOn) {
+			// this is when onResume() is called due to a screen state change
+			System.out.println("SCREEN TURNED ON");
+		} else {
+			// this is when onResume() is called when the screen state has not
+			// changed
+			// if (appView != null && appView.callbackServer != null && appView.pluginManager != null) {
+			if (appView != null && appView.pluginManager != null) {
+				appView.loadUrl("javascript: window.onReactivate && onReactivate();");
+			}
+		}
+
 		isCapableForTransition = true;
 
 		super.onResume();
 	}
 
 	@Override
+	protected void onPause() {
+		MyLog.i(TAG, "onPause");
+		super.onPause();
+		this.removeMonacaSplash();
+	}
+
+	@Override
 	public void onDestroy() {
+		MyLog.i(TAG, "onDestroy");
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
-
+		this.removeMonacaSplash();
 		super.onDestroy();
 
 		MonacaApplication.removePage(this);
@@ -718,32 +866,23 @@ public class MonacaPageActivity extends DroidGap {
 			background = null;
 		}
 
-		userId = password = null;
 		if (dict != null) {
 			dict.clear();
 		}
 		dict = null;
 		uiBuilderResult = null;
-		httpClient = null;
 		templateEngine = null;
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		closePageReceiver = null;
+		unregisterReceiver(mScreenReceiver);
 	}
 
 	/** Reload current URI. */
 	public void reload() {
 		appView.stopLoading();
 		initTemplateEngine();
-		loadCurrentUri();
-	}
-
-	public void loadCurrentUri() {
-		loadCurrentUri(false);
-	}
-
-	public void loadCurrentUriWithoutUIFile() {
-		loadCurrentUri(true);
+		loadUri(getCurrentUriWithoutQuery(), false);
 	}
 
 	public String getCurrentHtml() {
@@ -751,10 +890,12 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	/** Load current URI. */
-	public void loadCurrentUri(final boolean withoutUIFile) {
-		MyLog.v(TAG, "loadCurrentUri() uri:" + uri);
+	public void loadUri(String uri, final boolean withoutUIFile) {
+		MyLog.v(TAG, "loadCurrentUri() uri:" + getCurrentUriWithoutQuery());
+		setCurrentUri(uri);
+
 		// check for 404
-		if (uri.equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
+		if (getCurrentUriWithoutQuery().equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
 			String failingUrl = getIntent().getStringExtra("error_url");
 			show404Page(failingUrl);
 			return;
@@ -762,45 +903,60 @@ public class MonacaPageActivity extends DroidGap {
 
 		if (usingTemplatgeEngine()) {
 			if (!withoutUIFile) {
-				loadUiFile(uri);
+				loadUiFile(getCurrentUriWithoutQuery());
 			}
 
 			try {
 				String result = processTemplateEngine();
+
+				if (currentMonacaUri.hasQueryParams()) {
+					result = currentMonacaUri.getQueryParamsContainingHtml(result);
+				}
+
 				mCurrentHtml = result;
-				MyLog.v(TAG, "result:" + result);
 
 				appView.setBackgroundColor(0x00000000);
 				setupBackground();
 				loadLayoutInformation();
 
-				appView.loadDataWithBaseURL(uri, result, "text/html", "UTF-8", "uri");
+				appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), result, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+
+
 			} catch (Exception e) {
 				MyLog.e(TAG, e.getClass().getSimpleName() + ":" + e.getCause().getMessage());
-				show404Page(uri);
+				show404Page(getCurrentUriWithoutQuery());
 			}
-
-			// appView.clearView();
-			// appView.invalidate();
 		} else {
 			MyLog.v(TAG, "not using templateEngine");
 			if (!withoutUIFile) {
-				loadUiFile(uri);
+				loadUiFile(getCurrentUriWithoutQuery());
 			}
+			String goodHtmlPath = getCurrentUriWithoutQuery().replaceFirst("file://", "");
 
-			appView.setBackgroundColor(0x00000000);
-			setupBackground();
-			loadLayoutInformation();
-
-			appView.loadUrl(uri);
-			appView.clearView();
-			appView.invalidate();
-
-			String goodHtmlPath = uri.replaceFirst("file://", "");
 			try {
 				mCurrentHtml = FileUtils.readFileToString(new File(goodHtmlPath));
+
+				if (currentMonacaUri.hasQueryParams()) {
+					mCurrentHtml = currentMonacaUri.getQueryParamsContainingHtml(mCurrentHtml);
+				}
+				appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+
 			} catch (IOException e) {
-				e.printStackTrace();
+				MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
+
+				appView.setBackgroundColor(0x00000000);
+				setupBackground();
+				loadLayoutInformation();
+
+				appView.loadUrl(currentMonacaUri.getUrlWithoutQuery());
+				appView.clearView();
+				appView.invalidate();
+
+				try {
+					mCurrentHtml = FileUtils.readFileToString(new File(goodHtmlPath));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 	}
@@ -811,9 +967,7 @@ public class MonacaPageActivity extends DroidGap {
 			String html = IOUtils.toString(is);
 			html = html.replaceFirst("url_place_holder", UrlUtil.cutHostInUri(failingUrl));
 			html = html.replaceFirst("back_button_text", getString(R.string.back_button_text));
-//			appView.loadDataWithBaseURL("file:///android_asset/404/404.html", html, "text/html", "utf-8", "uri");
-			appView.loadDataWithBaseURL("file:///android_res/raw/error404.html", html, "text/html", "utf-8", "uri");
-//			appView.loadUrl("file:///android_res/raw/error404.html");
+			appView.loadDataWithBaseURL("file:///android_res/raw/error404.html", html, "text/html", "utf-8", null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -823,7 +977,7 @@ public class MonacaPageActivity extends DroidGap {
 		Intent intent = new Intent(this, getClass());
 		intent.putExtra(URL_PARAM_NAME, "file:///android_asset/www/404/404.html");
 		intent.putExtra("error_url", errorUrl);
-		
+
 		TransitionParams params = TransitionParams.from(new JSONObject(), "none");
 		intent.putExtra(TRANSITION_PARAM_NAME, params);
 		startActivity(intent);
@@ -831,47 +985,49 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected String processTemplateEngine() {
-		String templatePath = uri.startsWith("file:///android_asset/") ? uri.substring("file:///android_asset/".length()) : uri;
+		String templatePath = getCurrentUriWithoutQuery().startsWith("file:///android_asset/") ? getCurrentUriWithoutQuery().substring("file:///android_asset/".length()) : getCurrentUriWithoutQuery();
 		String result = templateEngine.execute(templatePath);
 		return result;
 	}
 
-	/** Get if the intent has user's auth info. */
-	protected boolean hasAuthInfo() {
-		return userId != null && password != null;
+	protected String processTemplateEngine(String targetUri) {
+		String templatePath = targetUri.startsWith("file:///android_asset/") ? targetUri.substring("file:///android_asset/".length()) : targetUri;
+		String result = templateEngine.execute(templatePath);
+		return result;
 	}
 
-	public void pushPage(String url, TransitionParams params) {
-		pushPageWithIntent(url, params);
-	}
-
-	public void pushPage(String url) {
-		pushPageWithIntent(url, null);
-	}
-
-	protected void pushPageWithIntent(String url, TransitionParams params) {
+	public void pushPageWithIntent(String url, TransitionParams params) {
 		if (isCapableForTransition) {
-			Intent intent = new Intent(this, getClass());
-
-			intent.putExtra(URL_PARAM_NAME, getResolvedUrl(url));
-			if (params != null) {
-				intent.putExtra(TRANSITION_PARAM_NAME, params);
-			}
+			Intent intent = createIntentForNextPage(url, params);
 
 			isCapableForTransition = false;
 			startActivity(intent);
 		}
 	}
 
+	protected Intent createIntentForNextPage(String url, TransitionParams params) {
+		Intent intent = new Intent(this, getClass());
+
+		intent.putExtra(URL_PARAM_NAME, UrlUtil.getResolvedUrl(url));
+		if (params != null) {
+			intent.putExtra(TRANSITION_PARAM_NAME, params);
+		}
+		return intent;
+	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		MyLog.d(TAG, "debug - onKeyDown");
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 
 			if (uiBuilderResult != null && uiBuilderResult.eventer.hasOnTapBackButtonAction()) {
+				MyLog.d(TAG, "debug - Run backButtonEventer.onTapBackButtonAction()");
 				uiBuilderResult.eventer.onTapBackButton();
 			} else if (uiBuilderResult != null && uiBuilderResult.backButtonEventer != null) {
+				MyLog.d(TAG, "debug - Run backButtonEventer.onTap()");
 				uiBuilderResult.backButtonEventer.onTap();
 			} else {
+				MyLog.d(TAG, "debug - Run popPage()");
 				popPage();
 			}
 			return true;
@@ -880,60 +1036,17 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	public void pushPageAsync(String relativePath, final TransitionParams params) {
-		final String url = uri + "/../" + relativePath;
+		final String url = getCurrentUriWithoutQuery() + "/../" + relativePath;
+		BenchmarkTimer.start();
 
 		BenchmarkTimer.mark("pushPageAsync");
 		handler.postAtFrontOfQueue(new Runnable() {
 			@Override
 			public void run() {
-				BenchmarkTimer.mark("monaca.pushPage prev");
+				BenchmarkTimer.mark("monaca.pushPageAsync.run");
 				pushPageWithIntent(url, params);
 			}
 		});
-	}
-
-	protected String getResolvedUrl(String url) {
-		if (url.startsWith("file://")) {
-			try {
-				return "file://" + new File(url.substring("file://".length())).getCanonicalPath();
-			} catch (Exception e) {
-			}
-		}
-		return url;
-	}
-
-	public void loadRelativePathAsync(String relativePath) {
-		MyLog.v(TAG, "loadRelativePathAsync. relativePath:" + relativePath);
-		uri = uri + "/../" + relativePath;
-		MyLog.v(TAG, "uri unresolved=" + uri);
-		if (uri.startsWith("file://")) {
-			try {
-				uri = "file://" + new File(uri.substring(7)).getCanonicalPath();
-				MyLog.v(TAG, "uri resolved=" + uri);
-			} catch (Exception e) {
-			}
-		}
-
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				loadCurrentUri();
-			}
-		});
-	}
-
-	public void loadRelativePathWithoutUIFile(String relativePath) {
-		MyLog.v(TAG, "loadRelativePathWithoutUIFile. relativePath:" + relativePath);
-		uri = uri + "/../" + relativePath;
-		MyLog.v(TAG, "uri unresolved=" + uri);
-		if (uri.startsWith("file://")) {
-			try {
-				uri = "file://" + new File(uri.substring(7)).getCanonicalPath();
-				MyLog.v(TAG, "uri resolved=" + uri);
-			} catch (Exception e) {
-			}
-		}
-		loadCurrentUriWithoutUIFile();
 	}
 
 	public void popPage() {
@@ -973,15 +1086,6 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	public void popPageAsync() {
-		handler.postAtFrontOfQueue(new Runnable() {
-			@Override
-			public void run() {
-				popPage();
-			}
-		});
-	}
-
 	public void popPageAsync(final TransitionParams params) {
 		handler.postAtFrontOfQueue(new Runnable() {
 			@Override
@@ -1005,39 +1109,31 @@ public class MonacaPageActivity extends DroidGap {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				pushPage(homeUrl, new TransitionParams(TransitionParams.TransitionAnimationType.NONE, null, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
-				sendBroadcast(new ClosePageIntent());
-				finish();
-				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
+				int numPages = MonacaApplication.getPages().size();
+				for(int i=numPages -1; i>0; i--){
+					 MonacaPageActivity page = MonacaApplication.getPages().get(i);
+					 page.finish();
+				}
 			}
 		});
+	}
+
+	protected WebViewClient createWebViewClient(String url, MonacaPageActivity page, CordovaWebView webView) {
+		MonacaPageGingerbreadWebViewClient client = null;
+
+		if (Integer.valueOf(android.os.Build.VERSION.SDK_INT) < 11) {
+			client =  new MonacaPageGingerbreadWebViewClient(url, page, webView);
+		} else {
+			client =  new MonacaPageHoneyCombWebViewClient(url, page, webView);
+		}
+		return client;
 	}
 
 	protected String getHomeUrl(JSONObject options) {
 		if (options == null) {
 			return "file:///android_asset/www/index.html";
 		}
-		return options.optString("url", "").equals("") ? "file:///android_asset/www/index.html" : uri + "/../" + options.optString("url");
-	}
-
-	protected WebViewClient createWebViewClient(String url, MonacaPageActivity page, CordovaWebView webView) {
-		if (Integer.valueOf(android.os.Build.VERSION.SDK) < 11) {
-			return new MonacaPageGingerbreadWebViewClient(url, page, webView);
-		} else {
-			return new MonacaPageHoneyCombWebViewClient(url, page, webView);
-		}
-	}
-
-	/** Build a http client instance. */
-	protected DefaultHttpClient buildHttpClient() {
-		DefaultHttpClient httpClient = MonacaApplication.buildHttpClient();
-
-		if (hasAuthInfo()) {
-			httpClient.getCredentialsProvider().setCredentials(new AuthScope(Monaca.DAV_DOMAIN, 80), new UsernamePasswordCredentials(userId, password));
-			httpClient.getCredentialsProvider().setCredentials(new AuthScope(Monaca.DAV_DOMAIN, 443), new UsernamePasswordCredentials(userId, password));
-		}
-
-		return httpClient;
+		return options.optString("url", "").equals("") ? "file:///android_asset/www/index.html" : getCurrentUriWithoutQuery() + "/../" + options.optString("url");
 	}
 
 	@Override
@@ -1067,29 +1163,7 @@ public class MonacaPageActivity extends DroidGap {
 		appView.invalidate();
 
 		Display display = getWindowManager().getDefaultDisplay();
-		Log.d(getClass().getSimpleName(), "metrics width: " + display.getWidth() + ", height: " + display.getHeight());
-	}
-
-	protected String getUIFileUrl(String url) {
-		if (url.endsWith(".html")) {
-			return url.substring(0, url.length() - 4) + "ui";
-		}
-
-		if (url.endsWith(".htm")) {
-			return url.substring(0, url.length() - 3) + "ui";
-		}
-
-		return null;
-	}
-
-	public boolean setHttpAuthUsernamePassword(String host, String realm, String username, String password) {
-		if (null == appView) {
-			return false;
-		}
-
-		appView.setHttpAuthUsernamePassword(host, realm, username, password);
-
-		return true;
+		MyLog.d(getClass().getSimpleName(), "metrics width: " + display.getWidth() + ", height: " + display.getHeight());
 	}
 
 	/*
@@ -1099,23 +1173,23 @@ public class MonacaPageActivity extends DroidGap {
 	public void onLoadResource(WebView view, String url) {
 	}
 
+	public MonacaURI getCurrentMonacaUri() {
+		return currentMonacaUri;
+	}
+
 	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
 	}
 
-	/**
-	 * Try loading as application html.
-	 * 
-	 * @param uri
-	 *            URI string to load as application html.
-	 * @return succeed to load the uri or not.
-	 */
-	public boolean tryLoadUrlAsApplicationHtml(String uri) {
-		if (uri.startsWith("file:///android_asset/") || uri.startsWith("file://" + getApplicationInfo().dataDir + "/www/")) {
-			this.uri = uri;
-			loadCurrentUriWithoutUIFile();
-			return true;
-		}
-
-		return false;
+	public String getCurrentUriWithoutQuery() {
+		return currentMonacaUri.getUrlWithoutQuery();
 	}
+
+	/**
+	 * update uri and currentMonacaURI
+	 * @param uri
+	 */
+	public void setCurrentUri(String uri) {
+		currentMonacaUri = new MonacaURI(uri);
+	}
+
 }

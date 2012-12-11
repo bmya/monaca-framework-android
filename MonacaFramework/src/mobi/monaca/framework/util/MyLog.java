@@ -38,10 +38,11 @@ public class MyLog {
 	}
 
 	// send debuglog to debbuger and server
-	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String logType) {
+	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String logType, String logLevel) {
 		Intent broadcastIntent = new Intent("log_message_action");
 		broadcastIntent.putExtra("message", broadcastMessage);
 		broadcastIntent.putExtra("logType", logType);
+		broadcastIntent.putExtra("logLevel", logLevel);
 		context.sendBroadcast(broadcastIntent);
 	}
 }

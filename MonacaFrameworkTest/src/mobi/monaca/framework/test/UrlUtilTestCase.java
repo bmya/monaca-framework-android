@@ -1,6 +1,6 @@
 package mobi.monaca.framework.test;
 
-import mobi.monaca.framework.UrlUtil;
+import mobi.monaca.framework.util.UrlUtil;
 import junit.framework.TestCase;
 
 public class UrlUtilTestCase extends TestCase {

@@ -20,6 +20,7 @@ import mobi.monaca.framework.template.ast.UnaryOperationNode;
 import mobi.monaca.framework.template.model.MonacaApplicationInfo;
 import mobi.monaca.framework.template.value.DictValue;
 import mobi.monaca.framework.template.value.FalseValue;
+import mobi.monaca.framework.template.value.NullValue;
 import mobi.monaca.framework.template.value.StringValue;
 import mobi.monaca.framework.template.value.SymbolValue;
 import mobi.monaca.framework.template.value.TrueValue;
@@ -42,7 +43,7 @@ public class TemplateExecuter {
     protected DictValue constants;
 
     protected TemplateResource templateResource;
-    
+
     protected MonacaApplicationInfo applicationInfo;
 
     protected TemplateExecuter(DictValue constants,
@@ -75,7 +76,7 @@ public class TemplateExecuter {
 
     /**
      * Execute template object.
-     * 
+     *
      * @param writer
      *            Writer object which the executer output.
      */
@@ -119,15 +120,9 @@ public class TemplateExecuter {
         device.put("UUID", new StringValue("stub"));
         consts.put("Device", device);
 
-        // Network
-        DictValue network = new DictValue();
-        network.put("IsReachable", TrueValue.getInstance());
-        network.put("Hostname", new StringValue("stub"));
-        consts.put("Network", network);
-        
      // Application
         DictValue application = new DictValue();
-        application.put("WWWDir", new StringValue("stub"));  
+        application.put("WWWDir", new StringValue("stub"));
         consts.put("App", application);
 
         return consts;
@@ -142,15 +137,9 @@ public class TemplateExecuter {
         device.put("UUID", new StringValue("stub"));
         consts.put("Device", device);
 
-        // Network
-        DictValue network = new DictValue();
-        network.put("IsReachable", TrueValue.getInstance());
-        network.put("Hostname", new StringValue("stub"));
-        consts.put("Network", network);
-        
         // Application
         DictValue application = new DictValue();
-        application.put("WWWDir", new StringValue("stub"));  
+        application.put("WWWDir", new StringValue("stub"));
         consts.put("App", application);
 
         return consts;
@@ -159,11 +148,8 @@ public class TemplateExecuter {
     static protected DictValue buildNormalConstants(Context context,
             DictValue consts, MonacaApplicationInfo applicationInfo) {
 //    	Log.v(TAG,"buildNormalConstants");
-    	
-        NetworkInfo info = ((ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE))
-                .getActiveNetworkInfo();
-        boolean networkReachable = info != null ? info.isConnected() : false;
+        boolean networkReachable;
+
 
         // Device
         DictValue device = new DictValue();
@@ -172,20 +158,14 @@ public class TemplateExecuter {
         device.put("UUID", new StringValue(Build.ID));
         consts.put("Device", device);
 
-        // Network
-        DictValue network = new DictValue();
-        network.put("IsReachable", networkReachable ? TrueValue.getInstance()
-                : FalseValue.getInstance());
-        network.put("Hostname", new StringValue(Build.HOST));
-        consts.put("Network", network);
         
         // Application
         DictValue application = new DictValue();
         String appRoot = "Undefined";
         if(applicationInfo != null){
-        	appRoot = applicationInfo.getWWWDir().replaceFirst("file://", "");
+        	appRoot = applicationInfo.getWWWDir().replaceFirst("file://", "").replaceFirst("/$", "");
         }
-        application.put("WWWDir", new StringValue(appRoot));  
+        application.put("WWWDir", new StringValue(appRoot));
         consts.put("App", application);
 
         return consts;

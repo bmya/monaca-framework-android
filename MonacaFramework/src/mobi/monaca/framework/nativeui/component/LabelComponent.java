@@ -1,10 +1,15 @@
 package mobi.monaca.framework.nativeui.component;
 
+import static mobi.monaca.framework.nativeui.UIUtil.buildColor;
+import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
+import static mobi.monaca.framework.nativeui.UIUtil.dip2px;
+import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 import mobi.monaca.framework.nativeui.UIContext;
 
 import org.json.JSONObject;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
+
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -18,6 +23,7 @@ public class LabelComponent implements ToolbarComponent {
         this.context = context;
         this.style = style != null ? style : new JSONObject();
         this.view = new TextView(context);
+        this.view.setGravity(Gravity.CENTER_VERTICAL);
 
         style();
     }
@@ -41,7 +47,6 @@ public class LabelComponent implements ToolbarComponent {
         if (style.has("text")) {
             view.setText(style.optString("text", ""));
         }
-
         view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
                 : View.INVISIBLE);
         view.setTextColor(buildColor(style.optString("textColor", "#ffffff")));

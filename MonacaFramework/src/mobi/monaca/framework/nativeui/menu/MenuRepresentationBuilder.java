@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
@@ -28,7 +29,7 @@ public class MenuRepresentationBuilder {
     public MenuRepresentationBuilder(Context context) {
         this.context = context;
     }
-    
+
 
     public Map<String, MenuRepresentation> build(Context context,
             JSONObject json) {
@@ -73,7 +74,7 @@ public class MenuRepresentationBuilder {
 
         return menuItem;
     }
-    
+
     // Overriden in Debugger to provide project directory.
     // Using in setIconImagePath
     protected String getWWWPath() {
@@ -85,11 +86,11 @@ public class MenuRepresentationBuilder {
     	MyLog.v(TAG, "buildFromAssets(). jsonFilePath:" + jsonFilePath);
         String jsonString = getStringFromAssets(context,
                 jsonFilePath);
-        
+
         if(jsonString.trim().equals("")){
         	 return build(context, new JSONObject());
         }
-        
+
         MyLog.v(TAG, "jsonString:" + jsonString);
         try {
             return build(context, new JSONObject(jsonString));
@@ -104,8 +105,9 @@ public class MenuRepresentationBuilder {
             String assetFilePath) {
         InputStream stream;
         try {
-            stream = context.getAssets().open(assetFilePath);
+        	stream = LocalFileBootloader.openAsset(context, assetFilePath);
         } catch (IOException e) {
+        	Log.d(TAG, "exception in getStringFromAssets");
             return "";
         }
         InputStreamReader reader = new InputStreamReader(stream);

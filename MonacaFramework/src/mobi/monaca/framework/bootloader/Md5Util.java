@@ -99,4 +99,34 @@ public class Md5Util {
         }
     }
 
+    public static String toMD5(String source) {
+    	MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+    	byte[] digest = null;
+		try {
+			digest = md.digest(source.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+    	StringBuffer buf = new StringBuffer();
+    	for(int i= 0; i< digest.length; i++){
+    	      int d = digest[i];
+    	      if (d < 0) {
+    	        d += 256;
+    	      }
+    	      if (d < 16) {
+    	        buf.append("0");
+    	      }
+    	      buf.append(Integer.toString(d, 16));
+    	      }
+    	return buf.toString();
+    }
+
+
 }

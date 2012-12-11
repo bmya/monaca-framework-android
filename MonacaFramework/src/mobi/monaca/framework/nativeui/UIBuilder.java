@@ -1,5 +1,7 @@
 package mobi.monaca.framework.nativeui;
 
+import static mobi.monaca.framework.nativeui.UIUtil.reportInvalidComponent;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +23,7 @@ import mobi.monaca.framework.util.MyLog;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
+
 import android.view.View;
 
 /** JSONをパースしてネイティブUIを構築するクラス */
@@ -36,12 +38,13 @@ public class UIBuilder {
 		public HashMap<String, Component> dict;
 		public UIEventer eventer;
 		public String menuName;
-		
+		public JSONObject pageStyle;
+
 		public String toString() {
-			return "menuName:" + menuName + ", topView:" + topView 
-					+ ", bottomView:" + bottomView + ", top:" + top 
-					+ ", bottom" + bottom + ", backButtonEventer:" + backButtonEventer 
-					+ ", eventer:" + eventer 
+			return "menuName:" + menuName + ", topView:" + topView
+					+ ", bottomView:" + bottomView + ", top:" + top
+					+ ", bottom" + bottom + ", backButtonEventer:" + backButtonEventer
+					+ ", eventer:" + eventer
 					+ ", dict:" + dict;
 		};
 	}
@@ -120,9 +123,9 @@ public class UIBuilder {
 
 		if (json.optString("container").equals("toolbar")) {
 
-			ToolbarContainer toolbar = new ToolbarContainer(context, buildToolbarComponents(json.optJSONArray("left"), resultSet), 
-																	buildToolbarComponents(json.optJSONArray("center"), resultSet), 
-																	buildToolbarComponents(json.optJSONArray("right"), resultSet), 
+			ToolbarContainer toolbar = new ToolbarContainer(context, buildToolbarComponents(json.optJSONArray("left"), resultSet),
+																	buildToolbarComponents(json.optJSONArray("center"), resultSet),
+																	buildToolbarComponents(json.optJSONArray("right"), resultSet),
 																	buildStyleJSONObject(json));
 			if (json.optString("id", "").length() > 0) {
 				resultSet.dict.put(json.optString("id", ""), toolbar);
@@ -197,6 +200,7 @@ public class UIBuilder {
 		resultSet.bottomView = buildToolbar(uiJSON.optJSONObject("bottom"), false, resultSet);
 		resultSet.eventer = new UIEventer(context, uiJSON.optJSONObject("event"));
 		resultSet.menuName = uiJSON.optString("menu", "");
+		resultSet.pageStyle = uiJSON.optJSONObject("style");
 
 		return resultSet;
 	}
@@ -213,7 +217,6 @@ public class UIBuilder {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected JSONObject buildStyleJSONObject(JSONObject component) {
 		MyLog.v(TAG, "buildStyleJSONObject(). component=" + component);
 		JSONObject style = component.optJSONObject("style");

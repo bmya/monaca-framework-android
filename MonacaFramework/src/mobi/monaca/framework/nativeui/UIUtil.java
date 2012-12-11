@@ -9,6 +9,7 @@ import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -23,6 +24,7 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.util.TypedValue;
 
 /** This class has utility methods for native component framework. */
@@ -33,7 +35,7 @@ public class UIUtil {
 
     public static final String TAG = "PhoneGapLog";
 
-    static protected Map<Integer, Integer> computedFontSizeCache = new HashMap<Integer, Integer>();
+    static protected SparseIntArray computedFontSizeCache = new SparseIntArray();
 
     /** Build color integer from color string and opacity value. */
     public static int buildColor(String colorString, double opacity) {
@@ -59,7 +61,6 @@ public class UIUtil {
     }
 
     public static void updateJSONObject(JSONObject target, JSONObject source) {
-        @SuppressWarnings("unchecked")
         Iterator<String> iterator = source.keys();
         while (iterator.hasNext()) {
             String key = iterator.next();
@@ -83,37 +84,37 @@ public class UIUtil {
 
     public static void reportJSONParseError(Context context, String msg) {
         Log.e(TAG, "JSONParseError: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:JSONParseError:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:JSONParseError:" + msg, "error", "error");
     }
 
     public static void reportInvalidJSONStructure(Context context, String msg) {
         Log.e(TAG, "InvalidJSONStructure: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidJSONStructure:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidJSONStructure:" + msg, "error", "error");
     }
 
     public static void reportInvalidComponent(Context context, String msg) {
         Log.e(TAG, "InvalidComponent: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidComponent:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidComponent:" + msg, "error", "error");
     }
 
     public static void reportInvalidContainer(Context context, String msg) {
         Log.e(TAG, "InvalidContainer: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidContainer:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidContainer:" + msg, "error", "error");
     }
 
     public static void reportUndefinedProperty(Context context, String msg) {
         Log.e(TAG, "UndefinedProperty: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:UndefinedProperty:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:UndefinedProperty:" + msg, "error", "error");
     }
 
     public static void reportInvalidStyleProperty(Context context, String msg) {
         Log.e(TAG, "InvalidStyleProperty: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidStyleProperty:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidStyleProperty:" + msg, "error", "error");
     }
 
     public static void reportIgnoredStyleProperty(Context context, String msg) {
         Log.e(TAG, "IgnoredStyleProperty: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:IgnoredStyleProperty:" + msg, "error");
+        MyLog.sendBloadcastDebugLog(context, "NativeComponent:IgnoredStyleProperty:" + msg, "error", "error");
     }
 
     public static int multiplyColor(int base, int filter) {
@@ -237,7 +238,7 @@ public class UIUtil {
     }
 
     public static int getFontSizeFromDip(Context context, int dip) {
-        if (computedFontSizeCache.containsKey(dip)) {
+        if (computedFontSizeCache.get(dip, -1) != -1) {
             return computedFontSizeCache.get(dip);
         }
         Integer result = computeFontSizeFromFontHeightDip(context, dip);

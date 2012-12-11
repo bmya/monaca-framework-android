@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 
+import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.util.MyLog;
 
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,6 +20,8 @@ import android.view.MenuItem;
 public class MenuItemRepresentation implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final String TAG = MenuItemRepresentation.class.getSimpleName();
 
 	protected String title;
 	protected String iconImagePath = "";
@@ -39,6 +43,7 @@ public class MenuItemRepresentation implements Serializable {
 		MenuItem menuItem = menu.add(title);
 
 		if (!iconImagePath.equals("")) {
+			MyLog.v(TAG, "iconImagePath:" + iconImagePath);
 			if (iconImagePath.startsWith("@")) {
 				try {
 					Field field = android.R.drawable.class.getField("ic_menu_" + iconImagePath.substring(1));
@@ -53,7 +58,7 @@ public class MenuItemRepresentation implements Serializable {
 					if (iconImagePath.startsWith("/data/")) {
 						stream = new FileInputStream(iconImagePath);
 					}else{
-						context.getAssets().open("www/" + iconImagePath);
+						stream = LocalFileBootloader.openAsset(context, "www/" + iconImagePath);
 					}
 					menuItem.setIcon(new BitmapDrawable(context.getResources(), BitmapFactory.decodeStream(stream)));
 					stream.close();

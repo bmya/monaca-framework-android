@@ -62,7 +62,7 @@ public class TabbarContainer implements Component {
      * activeIndex: 0 [int] (default: 0)
      */
     protected void style() {
-        view.setVisibility(style.optBoolean("visibility") ? View.VISIBLE
+        view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
                 : View.GONE);
 
         ColorFilter filter = new PorterDuffColorFilter(
@@ -77,7 +77,7 @@ public class TabbarContainer implements Component {
                 new BitmapDrawable(context.getResources(), bgBitmap));
         view.getContentView().getBackground()
                 .setAlpha(buildOpacity(style.optDouble("opacity")));
-        
+
         if (oldActiveIndex != null && style.optInt("activeIndex", 0) != oldActiveIndex) {
             view.setActiveIndex(style.optInt("activeIndex", 0));
         }
@@ -109,9 +109,9 @@ public class TabbarContainer implements Component {
             content.setBackgroundResource(R.drawable.monaca_tabbar_bg);
 
             addView(createBorderView(), new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT, 1));
+                    LinearLayout.LayoutParams.MATCH_PARENT, 1));
             addView(content, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
         }
 
@@ -128,8 +128,8 @@ public class TabbarContainer implements Component {
         public void addTabbarItemView(TabbarItem.TabbarItemView itemView) {
             items.add(itemView);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT,
-                    LinearLayout.LayoutParams.FILL_PARENT);
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
             params.setMargins(0, 0, 0, 0);
             params.gravity = Gravity.CENTER_VERTICAL;
             params.weight = 1;
@@ -138,7 +138,7 @@ public class TabbarContainer implements Component {
 
             int activeIndex = style.optInt("activeIndex", 0);
             if (items.size() - 1 == activeIndex) {
-                itemView.switchToSelected();
+                itemView.initializeSelected();
                 currentItemView = itemView;
             }
 

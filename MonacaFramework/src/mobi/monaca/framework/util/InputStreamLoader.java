@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import android.content.Context;
 import android.util.Log;
 
@@ -23,7 +25,7 @@ public class InputStreamLoader {
 
     public static InputStream loadAssetFile(Context context, String path) {
         try {
-            return context.getAssets().open(path);
+        	return LocalFileBootloader.openAsset(context, path);
         } catch (IOException e) {
             e.printStackTrace();
             return new ByteArrayInputStream(new byte[0]);

@@ -1,56 +1,52 @@
 {
-    "top" : {
-        "container" : "toolbar",
+    "top": {
+        "container": "toolbar",
         "id" : "header",
-        "style" : {
-            "title" : "Monaca HelloWorld!",
-            "iosBarStyle" : "UIBarStyleBlackTranslucent"
-        },
-        "right": [
+        
+        "left": [
             {
                 "component": "button",
                 "style": {
-                        "text": "Tap Me!"
+                    "text": "Button1",
+                    "image": "images/ico-list.png"
                 },
                 "event": {
-                    "onTap": "onTapButton();"
+                    "onTap": "onBack();"
+                }
+            },
+            {
+                "component": "button",
+                "style": {
+                    "text": "Button1",
+                    "innerImage": "images/ico-list.png"
                 },
-                "id": "tapme-button"
+                "event": {
+                    "onTap": "onBack();"
+                }
+            }
+        ],
+
+        "right": [
+            {
+                "component" : "button", 
+                "style" : {
+                    "text" : "non exists button",
+                    "image" : "../images/missing.png"
+                },
+                "event": {
+                    "onTap": "onLike();"
+                }                
+            },
+            {
+                "component" : "button", 
+                "style" : {
+                    "text" : "non exists button",
+                    "innerImage" : "../images/missing.png"
+                },
+                "event": {
+                    "onTap": "onLike();"
+                }                
             }
         ]
-    },
-    "bottom" : {
-        "container" : "tabbar",
-        "id" : "footer",
-        "style" : {
-            "visibility" : "true"
-        },
-        "items":
-            [
-                {
-                    "component": "tabbarItem",
-                    "style": {
-                        "text": "Home",
-                        "image": "img/icon/cube.png"
-                    },
-                     "link": "index.html"
-                },
-                {
-                    "component": "tabbarItem",
-                    "style": {
-                        "text": "PhoneGap Demo",
-                        "image": "img/icon/page.png"
-                    },
-                    "link": "phonegap-demo.html"
-                },
-                {
-                    "component": "tabbarItem",
-                    "style": {
-                        "text": "Links",
-                        "image": "img/icon/chat.png"
-                    },
-                    "link": "links.html"
-                }
-            ]
     }
 }

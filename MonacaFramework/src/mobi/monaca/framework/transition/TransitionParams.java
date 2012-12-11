@@ -68,8 +68,8 @@ public class TransitionParams implements Serializable {
                 orientation);
     }
 
-    public static TransitionParams createDefaultParams() {
+    public static TransitionParams createDefaultParams(int orientation) {
         return new TransitionParams(TransitionAnimationType.TRANSIT, "",
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+               orientation);
     }
 }

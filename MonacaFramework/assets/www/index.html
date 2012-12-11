@@ -1,43 +1,7 @@
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <title>Plain Project Skeleton</title>
-        {% if Device.Platform == IOS %}<script type="text/javascript" src="plugins/cordova.js.ios"></script>{% endif %}
-        {% if Device.Platform == Android %}<script type="text/javascript" src="plugins/cordova.js.android"></script>{% endif %}
-        <script type="text/javascript" src="plugins/monaca.js"></script>
-        <script type="text/javascript" src="plugins/monaca.viewport.js"></script>
-        <script type="text/javascript">
-            // Set virtual screen width size to 640 pixels (横幅640pxに設定)
-            monaca.viewport({width: 640});
-        </script>
-
-        <link rel="stylesheet" href="css/style.css" />
-        <script type="text/javascript" src="js/zepto.min.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
-        <script type="text/javascript">
-            document.addEventListener("deviceready", onDeviceReady, false);
-            function onDeviceReady() {
-                // Update Toolbar Header
-                monaca.updateUIStyle("header", "title", "Monaca HelloWorld!");
-                monaca.updateUIStyle("tapme-button", "disable", false);
-            }
-            function onTapButton(){
-                // Triggers when button is tapped: defined in index.ui
-                navigator.notification.alert("Hello Monaca!", function(){}, "Monaca DEMO", "OK")
-            }
-        </script>
-    </head>
-    <body style="background-color: #ccc;">
-      <div class="main top">
-        <h1><span class="invisible">Monaca</span></h1>
-        <h2><span class="invisible">Welcome to Monaca</span></h2>
-      </div>
-      <div class="wrapper">
-         <div class="topFooter">
-            <h4><span class="invisible">Produced by Asial</span></h4>
-            <small>&copy;COPYRIGHT &copy; ASIAL CORPORATION. ALL RIGHTS RESERVED.</small>
-         </div>
-      </div>
-    </body>
+<body>
+<div id="result"></div>
+Hello in Monaca Framework
+</body>
 </html>

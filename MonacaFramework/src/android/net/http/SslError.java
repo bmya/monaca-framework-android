@@ -16,6 +16,7 @@
 
 package android.net.http;
 
+import android.annotation.TargetApi;
 import java.security.cert.X509Certificate;
 
 /**
@@ -23,6 +24,7 @@ import java.security.cert.X509Certificate;
  * 
  * {@hide}
  */
+@TargetApi(8)
 public class SslError {
 
     /**
@@ -70,7 +72,8 @@ public class SslError {
      * @param certificate
      *            The associated SSL certificate
      */
-    public SslError(int error, SslCertificate certificate) {
+    @TargetApi(8)
+	public SslError(int error, SslCertificate certificate) {
         addError(error);
         mCertificate = certificate;
     }

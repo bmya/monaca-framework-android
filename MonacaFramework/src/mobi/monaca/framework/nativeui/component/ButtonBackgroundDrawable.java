@@ -62,6 +62,9 @@ public class ButtonBackgroundDrawable extends Drawable {
     public void draw(Canvas canvas) {
         Rect rect = drawable.getBounds();
 
+        if(rect.width() <= 0 || rect.height() <= 0){
+        	return;
+        }
         Bitmap bitmap = Bitmap.createBitmap(rect.width(), rect.height(),
                 Bitmap.Config.ARGB_8888);
         Canvas buttonCanvas = new Canvas(bitmap);

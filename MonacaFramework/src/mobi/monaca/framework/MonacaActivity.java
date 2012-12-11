@@ -39,7 +39,7 @@ public class MonacaActivity extends Activity {
                 @Override
                 public void run() {
                     Toast.makeText(MonacaActivity.this,
-                            "Application launch fail...", Toast.LENGTH_LONG);
+                            "Application launch fail...", Toast.LENGTH_LONG).show();
                     finish();
                 }
             });
