@@ -21,7 +21,7 @@ Installed Android SDK 2.1, 3.0 or later.
 How To Build
 -----------
 
-* for Eclipse
-  1. ant build "MonacaTemplating" project
-  2. build project "MonacaTemplating" project
-  3. build project "MonacaNativeUIFramework" (as apk)
+* For Eclipse
+  1. Import MonacaTemplateEngin, MonacaFramework, BarcodeScannerLibrary.
+  2. Ant build MonacaTemplating, BarcodeScannerLibrary project.
+  3. Build MonacaNativeUIFramework project (as apk).
