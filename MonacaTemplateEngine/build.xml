@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<project default="create_jar" name="Seb" basedir="." >
+    <!--ANT 1.7 is required                                        -->
+
+    <property name="basedir" value="." />
+    <property name="tmp" value="${basedir}/tmp" />
+    <property name="jaroutputdir" value="${basedir}" />
+    <tstamp />
+
+    <target name="create_jar" depends="clean,compile">
+        <fail unless="jaroutputdir" message="Set 'jaroutputdir' property." />
+
+        <touch datetime="01/01/2000 0:0 pm">
+            <fileset dir="${basedir}/tmp" includes="**/*.*" />
+        </touch>
+        <mkdir dir="${tmp}" />
+        <jar destfile="${jaroutputdir}/monaca_templating.${DSTAMP}${TSTAMP}.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${tmp}" includes="**/*.class" />
+            <zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/java-cup-11a-runtime.jar"/>
+        </jar>
+    </target>
+
+    <target name="recompile" depends="clean,generate,compile">
+    </target>
+
+    <target name="compile" depends="generate">
+        <touch datetime="01/01/2000 0:0 pm">
+            <fileset dir="${basedir}/generated" includes="**/*.java" />
+            <fileset dir="${basedir}/src" includes="**/*.java" />
+        </touch>
+        <mkdir dir="${tmp}" />
+        <javac destdir="${tmp}" includeAntRuntime="true" debug="true" encoding="UTF-8" fork="true"
+            classpath="${basedir}/lib/java-cup-11a-runtime.jar;${basedir}/tool/android-8.jar">
+            <compilerarg value="-J-Dfile.encoding=UTF8"/>
+            <src path="${basedir}/src" />
+            <src path="${basedir}/generated" />
+        </javac>
+    </target>
+
+    <target name="generate">
+        <delete>
+            <fileset dir="${basedir}/generated" includes="**/*.java"/>
+        </delete>
+        <mkdir dir="${basedir}/generated/mobi/monaca/framework/template" />
+        <exec dir="${basedir}/tool" executable="java">
+            <arg line="-jar JFlex.jar" />
+            <arg line="--nobak -q -d" />
+            <arg line="../generated/mobi/monaca/framework/template" />
+            <arg line="../etc/lexer.flex"/>
+        </exec>
+        <exec dir="${basedir}/tool" executable="java">
+            <arg line="-jar java-cup-11a.jar" />
+            <arg line="-package mobi.monaca.framework.template" />
+            <arg line="-parser TemplateParser" />
+            <arg line="-nosummary" />
+            <arg line="-symbols Symbols" />
+            <arg line="-destdir ../generated/mobi/monaca/framework/template" />
+            <arg line="../etc/parser.cup" />
+        </exec>
+    </target>
+
+    <target name="clean">
+        <mkdir dir="${tmp}" />
+        <delete>
+            <fileset dir="${tmp}" includes="**/*.class"/>
+            <fileset dir="${basedir}/generated" includes="**/*.java"/>
+        </delete>
+    </target>
+
+</project>
+

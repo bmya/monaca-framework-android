@@ -1,0 +1,29 @@
+{
+    "hoge" : [
+        {
+            "name" : "日本語",
+            "action" : "alert('0');",
+            "image" : "tabicon.png"
+        },
+        {
+            "name" : "英語",
+            "action" : "alert('0');",
+            "image" : "tabicon.png"
+        },
+        {
+            "name" : "英語",
+            "action" : "alert('0');",
+            "image" : "tabicon.png"
+        },
+        {
+            "name" : "英語",
+            "action" : "alert('0');",
+            "image" : "tabicon.png"
+        },
+        {
+            "name" : "英語",
+            "action" : "alert('0');",
+            "image" : "tabicon_mini.png"
+        }
+    ]
+}

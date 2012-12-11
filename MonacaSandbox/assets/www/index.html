@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=320, user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>PhoneGap</title>
+	  <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
+	  <script type="text/javascript" charset="utf-8" src="phonegap-1.2.0.js"></script>
+	  <script type="text/javascript" charset="utf-8" src="monaca.native.js"></script>
+	  <script type="text/javascript" charset="utf-8" src="main.js"></script>
+	  <script type="text/javascript">
+	  </script>
+  </head>
+  <body onload="init();" id="stage" class="theme">
+    <h1>Welcome to PhoneGap! HOGEEEEEEEEEEEEEEEEE</h1>
+    <h2>this file is located at assets/www/index.html</h2>
+    
+    <h1><a href="hoge.html">hoge.html</a></h1>
+    
+    <h1><a href="javascript: monaca.ui.updateStyleBulkily([{id : 'hoge', style : {backgroundColor : '#ff0000'}}, {id : 'fuga', style : {backgroundColor : '#0000ff'}}]); void(0);">Update bulkily</a></h1>
+    <h1><a href="javascript: monaca.transit.push('hoge.html', {bg : 'bg0.jpg'}); monaca.transit.push('hoge.html', {bg : 'bg0.jpg'}); void(0);">Transit!!!!!!</a></h1>
+    <h1><a href="javascript: monaca.ui.updateStyle('button', {text : 'updated'})">update button's label</a></h1>
+    <h1><a href="javascript: monaca.ui.info(function(obj) { alert(JSON.stringify(obj)); }); void(0);">Info!!!!!!</a></h1>
+    
+    <h1><a href="javascript: monaca.ui.retrieveStyle('searchbox', 'focus', a = function(obj) { alert(JSON.stringify(obj)); }, a); void(0);">Search!!!!!!</a></h1>
+    
+    <h1><a href="javascript: monaca.transit.push('hoge.html', {bg : 'bg0.jpg'}); void(0);">push!!!!!!</a></h1>
+    <h1><a href="javascript: monaca.transit.modal('hoge.html', {bg : 'bg0.jpg'}); void(0);">Modal!!!!!!</a></h1>
+    <h1><a href="javascript: monaca.transit.link('hoge.html'); void(0);">link!!!!!!</a></h1>
+    <h1><a href="javascript: monaca.transit.browse('http://google.com'); void(0);">browse google!!!!!!</a></h1>
+    <h1><a href="javascript: monaca.ui.updateStyle(['button_left', 'button_right'], {backgroundColor : '#ff0000'});">color red</a></h1>
+    <h1><a href="javascript: monaca.ui.updateStyle(['button_left', 'button_right'], {backgroundColor : '#0000ff'});">color blue</a></h1>
+    
+    <h1>button color: </h1>
+    
+    <ul>
+    	<li><a href="javascript: monaca.ui.updateStyle('button', {backgroundColor : '#ff0000'})">red</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('button', {backgroundColor : '#0000ff'})">blue</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('button', {backgroundColor : '#ccff00'})">yellogreen</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('button', {backgroundColor : '#555555'})">default</a></li>
+    </ul>
+    
+    <h1>toolbar: </h1>
+    <ul>
+    	<li><a href="javascript: monaca.ui.updateStyle('toolbar', {backgroundColor : '#cc0000'})">red</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {backgroundColor : '#0099cc'})">blue</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {backgroundColor : '#779900'})">yellowgreen</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {backgroundColor : '#000000'})">default</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {visibility : false})">hide</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {visibility : true})">show</a></li>
+    </ul>
+    
+    <h1>tabbar: </h1>
+    <ul>
+    	<li><a href="javascript: monaca.ui.updateStyle('tabbar', {backgroundColor : '#cc0000'})">red</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('tabbar', {backgroundColor : '#0099cc'})">blue</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('tabbar', {backgroundColor : '#779900'})">yellowgreen</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('tabbar', {backgroundColor : '#000000'})">default</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('tabbar', {visibility : false})">hide</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('tabbar', {visibility : true})">show</a></li>
+    </ul>
+    
+    <h1>increment badge: </h1>
+    <ul><li>
+    	<a href="javascript: monaca.ui.updateStyle('tab1', {badgeText : '' + (++window.i)})">increment</a>
+    </li></ul>
+   
+    <h1>segment: </h1>
+    <ul>
+    	<li><a href="javascript: monaca.ui.updateStyle('segment', {visibility : false})">hide</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('segment', {visibility : true})">show</a></li>
+    </ul>
+    
+    <h1>searchbox: </h1>
+    <ul>
+    	<li><a href="javascript: monaca.ui.updateStyle('searchbox', {visibility : false})">hide</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('searchbox', {visibility : true})">show</a></li>
+    </ul>
+        
+    
+    <h1>title: </h1>
+   	<ul>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {title : 'This is title'})">show</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('toolbar', {title : ''})">hide</a></li>
+    </ul>
+        
+    <h1>tabbar: </h1>
+    
+    <ul>
+    	<li><a href="javascript: monaca.ui.updateStyle('tabbar', {visibility : false})">hide</a></li>
+        <li><a href="javascript: monaca.ui.updateStyle('tabbar', {visibility : true})">show</a></li>
+    </ul>
+        
+    <h1><a href="javascript: monaca.ui.retrieveStyle('tab1', function(style) { alert(style.text); } )">retrieve tab1 text</a>
+        <a href="javascript: monaca.ui.updateStyle('tab1', {text : 'Japanese'})">change first tabbar's label</a></h1>
+        
+    
+    
+    <div id="info">
+        <h4>Platform: <span id="platform"> &nbsp;</span>,   Version: <span id="version">&nbsp;</span></h4>
+        <h4>UUID: <span id="uuid"> &nbsp;</span>,   Name: <span id="name">&nbsp;</span></h4>
+        <h4>Width: <span id="width"> &nbsp;</span>,   Height: <span id="height">&nbsp;
+                   </span>, Color Depth: <span id="colorDepth"></span></h4>
+     </div>
+     
+    <dl id="accel-data">
+      <dt>X:</dt><dd id="x">&nbsp;</dd>
+      <dt>Y:</dt><dd id="y">&nbsp;</dd>
+      <dt>Z:</dt><dd id="z">&nbsp;</dd>
+    </dl>
+    
+    <a href="#" class="btn large" onclick="toggleAccel();">Toggle Accelerometer</a>
+    <a href="#" class="btn large" onclick="getLocation();">Get Location</a>
+	<a href="tel:411" class="btn large">Call 411</a>
+    <a href="#" class="btn large" onclick="beep();">Beep</a>
+    <a href="#" class="btn large" onclick="vibrate();">Vibrate</a>
+    <a href="#" class="btn large" onclick="show_pic();">Get a Picture</a>
+    <a href="#" class="btn large" onclick="get_contacts();">Get Phone's Contacts</a>
+    <a href="#" class="btn large" onclick="check_network();">Check Network</a>
+    <div id="viewport" class="viewport" style="display: none;">
+      <img style="width:60px;height:60px" id="test_img" src="" />
+    </div>
+    -->
+    
+    
+  </body>
+</html>

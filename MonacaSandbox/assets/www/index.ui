@@ -1,0 +1,49 @@
+{
+    "top": {
+        "container": "toolbar",
+        "id" : "header",
+        "style": {
+            "title": "Title"
+        },
+        
+        "left": [
+            {
+                "component": "button",
+                "id" : "button",
+                "style": {
+                    "text": "Opacity Check",
+                    "opacity": "0.5"
+                },
+                "event": {
+                    "onTap": "button1();"
+                }
+            }
+        ]
+
+    },
+
+    "bottom": {
+        "container": "tabbar",
+        "id": "footer",
+        "style": {
+            "visibility": "true"
+         },
+        "items": 
+            [
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "index"
+                    },
+                    "link": "index.html"
+                },
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "reuse"
+                    },
+                    "link": "tabitem1.html"
+                }
+            ]
+    }
+}
