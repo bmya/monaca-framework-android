@@ -1,52 +1,52 @@
 {
-    "top": {
-        "container": "toolbar",
+    "top" : {
+        "container" : "toolbar",
         "id" : "header",
-        
-        "left": [
-            {
-                "component": "button",
-                "style": {
-                    "text": "Button1",
-                    "image": "images/ico-list.png"
-                },
-                "event": {
-                    "onTap": "onBack();"
-                }
-            },
-            {
-                "component": "button",
-                "style": {
-                    "text": "Button1",
-                    "innerImage": "images/ico-list.png"
-                },
-                "event": {
-                    "onTap": "onBack();"
-                }
-            }
-        ],
-
+        "style" : {
+            "title" : "",
+            "backgroundColor" : "#576F96"
+        },
         "right": [
             {
-                "component" : "button", 
-                "style" : {
-                    "text" : "non exists button",
-                    "image" : "../images/missing.png"
+                "component": "button",
+                "style": {
+                        "text": "Tap Me!",
+                        "backgroundColor" : "#576F96"
+                },
+                "androidStyle" : {
+                    "backgroundColor" : "#314A78"
                 },
                 "event": {
-                    "onTap": "onLike();"
-                }                
-            },
-            {
-                "component" : "button", 
-                "style" : {
-                    "text" : "non exists button",
-                    "innerImage" : "../images/missing.png"
+                    "onTap": "onTapButton();"
                 },
-                "event": {
-                    "onTap": "onLike();"
-                }                
+                "id": "tapme-button"
             }
         ]
+    },
+    "bottom" : {
+        "container" : "tabbar",
+        "id" : "footer",
+        "style" : {
+            "visibility" : true
+        },
+        "items":
+            [
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "Home",
+                        "image": "img/icon/cube.png"
+                    },
+                     "link": "index.html"
+                },
+                {
+                    "component": "tabbarItem",
+                    "style": {
+                        "text": "PhoneGap Demo",
+                        "image": "img/icon/page.png"
+                    },
+                    "link": "phonegap-demo.html"
+                }
+            ]
     }
 }

@@ -1,7 +1,31 @@
 <!DOCTYPE HTML>
 <html>
-<body>
-<div id="result"></div>
-Hello in Monaca Framework
-</body>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <title>Plain Project Skeleton</title>
+        <script type="text/javascript" src="plugins/plugin-loader.js"></script>
+        <script type="text/javascript">
+            // Set virtual screen width size to 640 pixels
+            monaca.viewport({width: 640});
+        </script>
+
+        <link rel="stylesheet" href="css/style.css" />
+        <script type="text/javascript" src="js/zepto.min.js"></script>
+        <script type="text/javascript">
+            document.addEventListener("deviceready", onDeviceReady, false);
+            function onDeviceReady() {
+                // Update Toolbar Header
+                monaca.updateUIStyle("header", "title", "Your First App");
+                monaca.updateUIStyle("tapme-button", "disable", false);
+                $('h1').show();
+            }
+            function onTapButton(){
+                // Triggers when button is tapped: defined in index.ui
+                navigator.notification.alert("HelloWorld", function() {}, " ", "OK")
+            }
+        </script>
+    </head>
+    <body>
+        <h1 style="display : none;">HelloWorld!</h1>
+    </body>
 </html>
