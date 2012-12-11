@@ -16,7 +16,7 @@ It includes following features.
 
 Requirement
 -----------
-Installed Android SDK 2.1, 3.0 or lator.
+Installed Android SDK 2.1, 3.0 or later.
 
 How To Build
 -----------
