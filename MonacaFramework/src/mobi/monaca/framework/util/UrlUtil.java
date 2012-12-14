@@ -3,6 +3,8 @@ package mobi.monaca.framework.util;
 import java.io.File;
 import java.net.URI;
 
+import android.content.Context;
+
 
 public class UrlUtil {
 	public static final String DELIMITTER = "/assets/www/";
@@ -22,6 +24,10 @@ public class UrlUtil {
 		}
 
 		return null;
+	}
+
+	static public boolean isMonacaUri(Context context, String uri) {
+		return uri.startsWith("file:///android_asset/") || uri.startsWith("file://" + context.getApplicationInfo().dataDir);
 	}
 
     static public String resolve(String url, String relativePath) {
