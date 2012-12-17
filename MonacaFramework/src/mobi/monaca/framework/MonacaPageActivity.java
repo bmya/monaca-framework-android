@@ -859,8 +859,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected String buildCurrentUriHtml() throws IOException {
-		String goodHtmlPath = getCurrentUriWithoutQuery().replaceFirst("file://", "");
-		String html = FileUtils.readFileToString(new File(goodHtmlPath));
+		String html = AssetUriUtil.assetToString(this, getCurrentUriWithoutQuery());
 
 		if (UrlUtil.isMonacaUri(this, currentMonacaUri.getUrlWithQuery()) && currentMonacaUri.hasQueryParams()) {
 			html = currentMonacaUri.getQueryParamsContainingHtml(html);
