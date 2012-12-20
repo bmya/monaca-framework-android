@@ -24,4 +24,4 @@ How To Build
 * For Eclipse
   1. Import MonacaTemplateEngin, MonacaFramework, BarcodeScannerLibrary.
   2. Ant build MonacaTemplating, BarcodeScannerLibrary project.
-  3. Build MonacaNativeUIFramework project (as apk).
+  3. Build MonacaSandbox project.
