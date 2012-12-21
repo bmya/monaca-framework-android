@@ -297,14 +297,14 @@ public class SegmentComponent implements ToolbarComponent {
             background.setSelected(true);
             isSelected = true;
             invalidate();
-            Log.d(getClass().getSimpleName(), "selected");
+            MyLog.d(getClass().getSimpleName(), "selected");
         }
 
         public void switchToUnselected() {
             background.setSelected(false);
             isSelected = false;
             invalidate();
-            Log.d(getClass().getSimpleName(), "unselected");
+            MyLog.d(getClass().getSimpleName(), "unselected");
         }
 
         protected void updateSwitchingEffect() {

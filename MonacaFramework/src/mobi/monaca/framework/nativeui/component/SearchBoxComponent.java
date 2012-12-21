@@ -5,6 +5,8 @@ import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.psedo.R;
+import mobi.monaca.framework.util.MyLog;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,7 +79,7 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
     	try {
 			style.put("value", searchEditText.getText().toString());
 		} catch (JSONException e) {
-			Log.d(TAG, "update value failed");
+			Log.w(TAG, "update value failed");
 		}
         return style;
     }
@@ -118,7 +120,7 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
                 try {
                     style.put("focus", hasFocus);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                	MyLog.e(TAG, e.getMessage());
                 }
             }
         });

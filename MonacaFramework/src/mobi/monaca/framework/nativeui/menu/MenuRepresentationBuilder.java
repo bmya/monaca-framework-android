@@ -95,8 +95,8 @@ public class MenuRepresentationBuilder {
         try {
             return build(context, new JSONObject(jsonString));
         } catch (JSONException e) {
-            Log.e(MenuRepresentationBuilder.class.getSimpleName(),
-                    "app.menu loading fail: " + jsonFilePath, e);
+        	MyLog.e(MenuRepresentationBuilder.class.getSimpleName(),
+                    "app.menu loading fail: " + jsonFilePath  + ". " + e);
             return build(context, new JSONObject());
         }
     }
@@ -107,7 +107,7 @@ public class MenuRepresentationBuilder {
         try {
         	stream = LocalFileBootloader.openAsset(context, assetFilePath);
         } catch (IOException e) {
-        	Log.d(TAG, "exception in getStringFromAssets");
+        	MyLog.d(TAG, "exception in getStringFromAssets");
             return "";
         }
         InputStreamReader reader = new InputStreamReader(stream);

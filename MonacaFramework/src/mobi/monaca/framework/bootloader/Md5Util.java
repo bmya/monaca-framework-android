@@ -8,11 +8,14 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
 
 public class Md5Util {
 
-    public static String getAssetFileHash(Context context, String path) {
+    private static final String TAG = Md5Util.class.getSimpleName();
+
+	public static String getAssetFileHash(Context context, String path) {
         InputStream asset = null;
         String hash = "";
         try {
@@ -105,14 +108,14 @@ public class Md5Util {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
 			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
     	byte[] digest = null;
 		try {
 			digest = md.digest(source.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
     	StringBuffer buf = new StringBuffer();
     	for(int i= 0; i< digest.length; i++){

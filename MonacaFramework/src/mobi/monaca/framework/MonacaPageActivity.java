@@ -118,8 +118,8 @@ public class MonacaPageActivity extends DroidGap {
 			if (pageIndex >= level) {
 				finish();
 			}
-			Log.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutQuery());
-			Log.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
+			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutQuery());
+			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
 		}
 	};
 
@@ -194,12 +194,12 @@ public class MonacaPageActivity extends DroidGap {
 			int backbroundColor = Color.parseColor(backgroundColorString);
 			return backbroundColor;
 		} catch (JSONException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		} catch (IOException e) {
 			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 		return Color.TRANSPARENT;
 	}
@@ -229,7 +229,7 @@ public class MonacaPageActivity extends DroidGap {
 
                 	root.addView(splashImageView);
 				} catch (IOException e) {
-					e.printStackTrace();
+					MyLog.e(TAG, e.getMessage());
 				}
 
                 // Create and show the dialog
@@ -349,7 +349,7 @@ public class MonacaPageActivity extends DroidGap {
 				Bitmap bitmap = BitmapFactory.decodeStream(LocalFileBootloader.openAsset(this.getApplicationContext(), path));
 				background = new BackgroundDrawable(bitmap, getWindowManager().getDefaultDisplay(), config.orientation);
 			} catch (Exception e) {
-				e.printStackTrace();
+				MyLog.e(TAG, e.getMessage());
 			}
 		}
 	}
@@ -378,7 +378,7 @@ public class MonacaPageActivity extends DroidGap {
 					int height = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getHeight() - root.getHeight();
 					infoForJavaScript.put("statusbarHeight", height);
 				} catch (JSONException e) {
-					Log.e(getClass().getSimpleName(), "fail to get statusbar height.");
+					MyLog.e(getClass().getSimpleName(), "fail to get statusbar height.");
 				}
 			}
 		});
@@ -547,7 +547,7 @@ public class MonacaPageActivity extends DroidGap {
 			UIUtil.reportJSONParseError(getApplicationContext(), e.getMessage());
 			return;
 		}catch (Exception e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 			MyLog.sendBloadcastDebugLog(getApplicationContext(), "NativeComponent:" + e.getMessage(), "error", "error");
 			return;
 		}
@@ -605,7 +605,7 @@ public class MonacaPageActivity extends DroidGap {
 					try {
 						infoForJavaScript.put("topViewHeight", topViewHeight);
 					} catch (JSONException e) {
-						e.printStackTrace();
+						MyLog.e(TAG, e.getMessage());
 					}
 				}
 				if (result.bottomView != null) {
@@ -615,7 +615,7 @@ public class MonacaPageActivity extends DroidGap {
 					try {
 						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
 					} catch (JSONException e) {
-						e.printStackTrace();
+						MyLog.e(TAG, e.getMessage());
 					}
 				}
 			} else {
@@ -674,7 +674,7 @@ public class MonacaPageActivity extends DroidGap {
 					BackgroundDrawable backgroundImage = new BackgroundDrawable(bitmap, getWindowManager().getDefaultDisplay(), getResources().getConfiguration().orientation);
 					layerList.add(backgroundImage);
 				} catch (Exception e) {
-					e.printStackTrace();
+					MyLog.e(TAG, e.getMessage());
 				}
 			}
 
@@ -693,7 +693,7 @@ public class MonacaPageActivity extends DroidGap {
 			return "";
 		}
 
-		Log.d(getClass().getSimpleName(), "ui file loading: " + path);
+		MyLog.d(getClass().getSimpleName(), "ui file loading: " + path);
 
 		if (path.startsWith("file:///android_asset/")) {
 			stream = LocalFileBootloader.openAsset( this.getApplicationContext(), path.substring("file:///android_asset/".length()));
@@ -746,7 +746,7 @@ public class MonacaPageActivity extends DroidGap {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				Log.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() start");
+				MyLog.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() start");
 				for (UpdateStyleQuery query : queries) {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
@@ -755,7 +755,7 @@ public class MonacaPageActivity extends DroidGap {
 							Component component = dict.get(componentId);
 							if (component != null) {
 								component.updateStyle(query.style);
-								Log.d(MonacaPageActivity.class.getSimpleName(), "updated => id: " + componentId + ", style: " + query.style.toString());
+								MyLog.d(MonacaPageActivity.class.getSimpleName(), "updated => id: " + componentId + ", style: " + query.style.toString());
 							} else {
 								Log.e(MonacaPageActivity.class.getSimpleName(), "update fail => id: " + componentId + ", style: " + query.style.toString());
 							}
@@ -764,7 +764,7 @@ public class MonacaPageActivity extends DroidGap {
 						}
 					}
 				}
-				Log.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() done");
+				MyLog.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() done");
 			}
 		});
 	}
@@ -955,7 +955,7 @@ public class MonacaPageActivity extends DroidGap {
 				try {
 					mCurrentHtml = FileUtils.readFileToString(new File(goodHtmlPath));
 				} catch (Exception e1) {
-					e1.printStackTrace();
+					MyLog.e(TAG, e1.getMessage());
 				}
 			}
 		}
@@ -969,7 +969,7 @@ public class MonacaPageActivity extends DroidGap {
 			html = html.replaceFirst("back_button_text", getString(R.string.back_button_text));
 			appView.loadDataWithBaseURL("file:///android_res/raw/error404.html", html, "text/html", "utf-8", null);
 		} catch (IOException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 	}
 
@@ -1146,7 +1146,7 @@ public class MonacaPageActivity extends DroidGap {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
-		Log.d(getClass().getSimpleName(), "onConfigurationChanged()");
+		MyLog.d(getClass().getSimpleName(), "onConfigurationChanged()");
 
 		// handling orieantation change for background image.
 		if (background != null) {

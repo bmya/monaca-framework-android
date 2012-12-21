@@ -104,9 +104,9 @@ public class MonacaWebView extends CordovaWebView {
 			am = context.createPackageContext(context.getPackageName(), 0).getAssets();
 			parser = am.openXmlResourceParser("AndroidManifest.xml");
 		} catch (NameNotFoundException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 
 		parseCordovaTagFromXml(parser);
@@ -174,9 +174,9 @@ public class MonacaWebView extends CordovaWebView {
 					}
 			 }
 		} catch (XmlPullParserException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 	}
 

@@ -279,7 +279,7 @@ public class ToolbarContainerView extends LinearLayout {
 						.parseColor(colorString));
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 	}
 
@@ -291,7 +291,7 @@ public class ToolbarContainerView extends LinearLayout {
 		try {
 			subtitleView.setTextColor(Color.parseColor(colorString));
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 	}
 
@@ -310,7 +310,7 @@ public class ToolbarContainerView extends LinearLayout {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 	}
 
@@ -324,7 +324,7 @@ public class ToolbarContainerView extends LinearLayout {
 				subtitleView.setTextSize(titleFontScaleFloat);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 	}
 

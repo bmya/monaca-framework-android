@@ -58,7 +58,7 @@ public class LocalFileBootloader {
     }
 
     protected void execute() {
-    	Log.d(TAG, "using localFileBootloader");
+    	MyLog.d(TAG, "using localFileBootloader");
         new BootloaderTask().execute();
     }
 
@@ -67,7 +67,7 @@ public class LocalFileBootloader {
     }
 
     public static void setup(Context context, Runnable runner, Runnable fail) {
-    	Log.d(TAG, "using LocalFileBootloader");
+    	MyLog.d(TAG, "using LocalFileBootloader");
         new LocalFileBootloader(context, runner, fail).execute();
     }
 
@@ -75,7 +75,7 @@ public class LocalFileBootloader {
         Map<String, String> hashMap = bootloaderPreferences.getFileHashMap();
 
         if (hashMap == null) {
-            Log.d(getClass().getSimpleName(), "all file hash validation: fail");
+            MyLog.d(getClass().getSimpleName(), "all file hash validation: fail");
             return false;
         }
 
@@ -87,28 +87,28 @@ public class LocalFileBootloader {
             try {
                 assetFileHash = Md5Util.getAssetFileHash(context, path);
             } catch (RuntimeException e) {
-                Log.d(getClass().getSimpleName(),
-                        "all file hash validation: fail", e);
+                MyLog.d(getClass().getSimpleName(),
+                        "all file hash validation: fail." + e.getMessage());
                 return false;
             }
 
-            Log.d(getClass().getSimpleName(), "file hash comparison: "
+            MyLog.d(getClass().getSimpleName(), "file hash comparison: "
                     + assetHash + " = " + localFileHash);
 
             if (assetHash == null || localFileHash == null) {
-                Log.d(getClass().getSimpleName(),
+                MyLog.d(getClass().getSimpleName(),
                         "all file hash validation: fail");
                 return false;
             }
 
             if (!(assetHash.equals(localFileHash) && assetHash
                     .equals(assetFileHash))) {
-                Log.d(getClass().getSimpleName(),
+                MyLog.d(getClass().getSimpleName(),
                         "all file hash validation: fail");
                 return false;
             }
         }
-        Log.d(getClass().getSimpleName(), "all file hash validation: ok");
+        MyLog.d(getClass().getSimpleName(), "all file hash validation: ok");
         return true;
     }
 
@@ -118,7 +118,7 @@ public class LocalFileBootloader {
         result = result
                 && bootloaderPreferences.getFileListHash().equals(
                         Md5Util.md5(join(getAssetsFileList())));
-        Log.d(getClass().getSimpleName(), "filelist hash validation: "
+        MyLog.d(getClass().getSimpleName(), "filelist hash validation: "
                 + (result ? "ok" : "fail"));
 
         return result;
@@ -127,7 +127,7 @@ public class LocalFileBootloader {
     protected boolean validateAppVersion() {
         boolean result = bootloaderPreferences.getAppVersionCode().equals(
                 getAppliationVersionCode());
-        Log.d(getClass().getSimpleName(), "app version validation: "
+        MyLog.d(getClass().getSimpleName(), "app version validation: "
                 + (result ? "ok" : "fail"));
 
         return result;
@@ -159,24 +159,24 @@ public class LocalFileBootloader {
      * @throws IOException
      */
     public static InputStream openAsset(Context context, String relativePath) throws IOException {
-    	Log.d(TAG, "getInputStream : " + relativePath);
+    	MyLog.d(TAG, "getInputStream : " + relativePath);
 
     	if (needToUseLocalFileBootloader()) {
         	String newPath = relativePath.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
-        	Log.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
+        	MyLog.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
 
     		File localAssetFile = new File(context.getApplicationInfo().dataDir + "/" + relativePath);
 
-        	Log.d(TAG, "localAssetFile :" + localAssetFile);
+        	MyLog.d(TAG, "localAssetFile :" + localAssetFile);
     		if (localAssetFile.exists()) {
-    			Log.d(TAG, "getInputStream,  loading localFile succeed");
+    			MyLog.d(TAG, "getInputStream,  loading localFile succeed");
     			return new FileInputStream(localAssetFile);
     		} else {
-    			Log.d(TAG, "getInputStream,  loading localFile failed, get from assets");
+    			MyLog.d(TAG, "getInputStream,  loading localFile failed, get from assets");
     			return context.getAssets().open(relativePath);
     		}
     	} else {
-    		Log.d(TAG, "no need to use LocalFileBootloader");
+    		MyLog.d(TAG, "no need to use LocalFileBootloader");
     		return context.getAssets().open(relativePath);
     	}
     }
@@ -185,7 +185,7 @@ public class LocalFileBootloader {
             ArrayList<String> result) {
         try {
             for (String path : context.getAssets().list(prefix)) {
-            	Log.d(TAG, "pathCheck :" + prefix + "/" + path);
+            	MyLog.d(TAG, "pathCheck :" + prefix + "/" + path);
                // if (!path.contains(".")) {
                     if (existAsset(prefix + "/" + path)) {
                         result.add(prefix + "/" + path);
@@ -198,7 +198,7 @@ public class LocalFileBootloader {
               //  }
             }
         } catch (Exception e) {
-            Log.e(getClass().getSimpleName(), "", e);
+            MyLog.e(getClass().getSimpleName(), e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -242,7 +242,7 @@ public class LocalFileBootloader {
 
         String temp = buffer.toString();
         if(temp.length() == 0){
-        	Log.e(TAG, "Warning: temp.length=0");
+        	MyLog.e(TAG, "Warning: temp.length=0");
         	return "";
         }
 
@@ -262,7 +262,7 @@ public class LocalFileBootloader {
 
     /** Copy assets to local data directory. */
     protected void copyAssetToLocal(String path) {
-    	MyLog.w(TAG, "copyAssetToLocal()");
+    	MyLog.d(TAG, "copyAssetToLocal()");
         byte[] buffer = new byte[1024 * 4];
 
         File file = new File(context.getApplicationInfo().dataDir + "/" + path);
@@ -317,10 +317,10 @@ public class LocalFileBootloader {
                 needInit = needInitialization();
                 MyLog.v(TAG, "needInit = " + needInit);
             } catch (AbortException e) {
-                Log.e(getClass().getSimpleName(), "bootloader task aborted.", e);
+                MyLog.e(getClass().getSimpleName(), "bootloader task aborted." + e);
                 return false;
             } catch (RuntimeException e) {
-                Log.e(getClass().getSimpleName(), "bootloader task fail.", e);
+                MyLog.e(getClass().getSimpleName(), "bootloader task fail." + e);
                 return false;
             }
 
@@ -347,12 +347,11 @@ public class LocalFileBootloader {
                     bootloaderPreferences.saveFileHashMap(map);
                 }
             } catch (AbortException e) {
-                Log.e(getClass().getSimpleName(),
-                        "local file bootloader abort", e);
+                MyLog.e(getClass().getSimpleName(),
+                        "local file bootloader abort." + e.getMessage());
                 return false;
             } catch (RuntimeException e) {
-                Log.e(getClass().getSimpleName(), "local file bootloader fail",
-                        e);
+                MyLog.e(getClass().getSimpleName(), "local file bootloader fail" + e.getMessage());
                 return false;
             }
 

@@ -1,75 +1,92 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="MonacaTemplateEngine" default="help">
 
-<project default="create_jar" name="Seb" basedir="." >
-    <!--ANT 1.7 is required                                        -->
+    <!-- The local.properties file is created and updated by the 'android' tool.
+         It contains the path to the SDK. It should *NOT* be checked into
+         Version Control Systems. -->
+    <property file="local.properties" />
 
-    <property name="basedir" value="." />
-    <property name="tmp" value="${basedir}/tmp" />
-    <property name="jaroutputdir" value="${basedir}" />
-    <tstamp />
+    <!-- The ant.properties file can be created by you. It is only edited by the
+         'android' tool to add properties to it.
+         This is the place to change some Ant specific build properties.
+         Here are some properties you may want to change/update:
 
-    <target name="create_jar" depends="clean,compile">
-        <fail unless="jaroutputdir" message="Set 'jaroutputdir' property." />
+         source.dir
+             The name of the source directory. Default is 'src'.
+         out.dir
+             The name of the output directory. Default is 'bin'.
 
-        <touch datetime="01/01/2000 0:0 pm">
-            <fileset dir="${basedir}/tmp" includes="**/*.*" />
-        </touch>
-        <mkdir dir="${tmp}" />
-        <jar destfile="${jaroutputdir}/monaca_templating.${DSTAMP}${TSTAMP}.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="${tmp}" includes="**/*.class" />
-            <zipfileset excludes="META-INF/*.SF" src="${basedir}/lib/java-cup-11a-runtime.jar"/>
-        </jar>
-    </target>
+         For other overridable properties, look at the beginning of the rules
+         files in the SDK, at tools/ant/build.xml
 
-    <target name="recompile" depends="clean,generate,compile">
-    </target>
+         Properties related to the SDK location or the project target should
+         be updated using the 'android' tool with the 'update' action.
 
-    <target name="compile" depends="generate">
-        <touch datetime="01/01/2000 0:0 pm">
-            <fileset dir="${basedir}/generated" includes="**/*.java" />
-            <fileset dir="${basedir}/src" includes="**/*.java" />
-        </touch>
-        <mkdir dir="${tmp}" />
-        <javac destdir="${tmp}" includeAntRuntime="true" debug="true" encoding="UTF-8" fork="true"
-            classpath="${basedir}/lib/java-cup-11a-runtime.jar;${basedir}/tool/android-8.jar">
-            <compilerarg value="-J-Dfile.encoding=UTF8"/>
-            <src path="${basedir}/src" />
-            <src path="${basedir}/generated" />
-        </javac>
-    </target>
+         This file is an integral part of the build system for your
+         application and should be checked into Version Control Systems.
 
-    <target name="generate">
-        <delete>
-            <fileset dir="${basedir}/generated" includes="**/*.java"/>
-        </delete>
-        <mkdir dir="${basedir}/generated/mobi/monaca/framework/template" />
-        <exec dir="${basedir}/tool" executable="java">
-            <arg line="-jar JFlex.jar" />
-            <arg line="--nobak -q -d" />
-            <arg line="../generated/mobi/monaca/framework/template" />
-            <arg line="../etc/lexer.flex"/>
-        </exec>
-        <exec dir="${basedir}/tool" executable="java">
-            <arg line="-jar java-cup-11a.jar" />
-            <arg line="-package mobi.monaca.framework.template" />
-            <arg line="-parser TemplateParser" />
-            <arg line="-nosummary" />
-            <arg line="-symbols Symbols" />
-            <arg line="-destdir ../generated/mobi/monaca/framework/template" />
-            <arg line="../etc/parser.cup" />
-        </exec>
-    </target>
+         -->
+    <property file="ant.properties" />
 
-    <target name="clean">
-        <mkdir dir="${tmp}" />
-        <delete>
-            <fileset dir="${tmp}" includes="**/*.class"/>
-            <fileset dir="${basedir}/generated" includes="**/*.java"/>
-        </delete>
-    </target>
+    <!-- if sdk.dir was not set from one of the property file, then
+         get it from the ANDROID_HOME env var.
+         This must be done before we load project.properties since
+         the proguard config can use sdk.dir -->
+    <property environment="env" />
+    <condition property="sdk.dir" value="${env.ANDROID_HOME}">
+        <isset property="env.ANDROID_HOME" />
+    </condition>
+
+    <!-- The project.properties file is created and updated by the 'android'
+         tool, as well as ADT.
+
+         This contains project specific properties such as project target, and library
+         dependencies. Lower level build properties are stored in ant.properties
+         (or in .classpath for Eclipse projects).
+
+         This file is an integral part of the build system for your
+         application and should be checked into Version Control Systems. -->
+    <loadproperties srcFile="project.properties" />
+
+    <!-- quick check on sdk.dir -->
+    <fail
+            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
+            unless="sdk.dir"
+    />
+
+    <!--
+        Import per project custom build rules if present at the root of the project.
+        This is the place to put custom intermediary targets such as:
+            -pre-build
+            -pre-compile
+            -post-compile (This is typically used for code obfuscation.
+                           Compiled code location: ${out.classes.absolute.dir}
+                           If this is not done in place, override ${out.dex.input.absolute.dir})
+            -post-package
+            -post-build
+            -pre-clean
+    -->
+    <import file="custom_rules.xml" optional="true" />
+
+    <!-- Import the actual build file.
+
+         To customize existing targets, there are two options:
+         - Customize only one target:
+             - copy/paste the target into this file, *before* the
+               <import> task.
+             - customize it to your needs.
+         - Customize the whole content of build.xml
+             - copy/paste the content of the rules files (minus the top node)
+               into this file, replacing the <import> task.
+             - customize to your needs.
+
+         ***********************
+         ****** IMPORTANT ******
+         ***********************
+         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
+         in order to avoid having your file be overridden by tools such as "android update project"
+    -->
+    <!-- version-tag: 1 -->
+    <import file="${sdk.dir}/tools/ant/build.xml" />
 
 </project>
-

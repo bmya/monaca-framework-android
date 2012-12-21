@@ -72,14 +72,14 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-        Log.d(TAG, "onPageFinished: " + url);
+    	MyLog.d(TAG, "onPageFinished: " + url);
         monacaPage.onPageFinished(view, url);
         super.onPageFinished(view, url);
     }
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        Log.d(TAG, "onPageStarted: " + url);
+    	MyLog.d(TAG, "onPageStarted: " + url);
         monacaPage.onPageStarted(view, url);
         super.onPageStarted(view, url, favicon);
     }
@@ -87,10 +87,10 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
     @Override
     public void onReceivedError(WebView view, int errorCode,
             String description, String failingUrl) {
-        Log.d(TAG, "received error:");
-        Log.d(TAG, "  errorCode:" + errorCode);
-        Log.d(TAG, "  description:" + description);
-        Log.d(TAG, "  failingUrl:" + failingUrl);
+    	MyLog.d(TAG, "received error:");
+    	MyLog.d(TAG, "  errorCode:" + errorCode);
+    	MyLog.d(TAG, "  description:" + description);
+    	MyLog.d(TAG, "  failingUrl:" + failingUrl);
         monacaPage.onReceivedError(view, errorCode, description, failingUrl);
 
         if(errorCode == ERROR_FILE_NOT_FOUND || errorCode == ERROR_UNKNOWN){
@@ -110,7 +110,7 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
     @Override
     public void onReceivedHttpAuthRequest(WebView webView,
             HttpAuthHandler handler, String host, String realm) {
-        Log.d(TAG, "onReceivedHttpAuthRequest: host => " + host + ", realm => "
+    	MyLog.d(TAG, "onReceivedHttpAuthRequest: host => " + host + ", realm => "
                 + realm);
         String[] up = webView.getHttpAuthUsernamePassword(host, realm);
 
