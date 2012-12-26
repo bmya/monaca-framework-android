@@ -153,19 +153,19 @@ public class LocalFileBootloader {
      * returns new inputStream from assetPath.
      * if ver4.0.x, uses LocalFileBootloader.
      * else uses getAssets()
-     * @param relativePath this method removes file:///android_asset/ and file://android_asset/
+     * @param path this method removes file:///android_asset/ and file://android_asset/
      * @param context
      * @return
      * @throws IOException
      */
-    public static InputStream openAsset(Context context, String relativePath) throws IOException {
-    	Log.d(TAG, "getInputStream : " + relativePath);
+    public static InputStream openAsset(Context context, String path) throws IOException {
+    	Log.d(TAG, "getInputStream : " + path);
 
     	if (needToUseLocalFileBootloader()) {
-        	String newPath = relativePath.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
+        	String newPath = path.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
         	Log.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
 
-    		File localAssetFile = new File(context.getApplicationInfo().dataDir + "/" + relativePath);
+    		File localAssetFile = new File(context.getApplicationInfo().dataDir + "/" + path);
 
         	Log.d(TAG, "localAssetFile :" + localAssetFile);
     		if (localAssetFile.exists()) {
@@ -173,11 +173,12 @@ public class LocalFileBootloader {
     			return new FileInputStream(localAssetFile);
     		} else {
     			Log.d(TAG, "getInputStream,  loading localFile failed, get from assets");
-    			return context.getAssets().open(relativePath);
+    			return context.getAssets().open(path);
     		}
     	} else {
     		Log.d(TAG, "no need to use LocalFileBootloader");
-    		return context.getAssets().open(relativePath);
+        	String newPath = path.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
+    		return context.getAssets().open(newPath);
     	}
     }
 
