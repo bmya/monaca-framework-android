@@ -3,6 +3,7 @@ package mobi.monaca.framework.view;
 
 import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.framework.util.UrlUtil;
 
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
@@ -40,7 +41,7 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
         		MyLog.v(TAG, "Going home from 404");
         		monacaPage.goHomeAsync(null);
         		return true;
-        	} else if (uri.startsWith("file:///android_asset/") || uri.startsWith("file://" + monacaPage.getApplicationInfo().dataDir)) {
+        	} else if (UrlUtil.isMonacaUri(monacaPage, uri)) {
         		MyLog.d(TAG, "load as monaca application : " + uri);
         		monacaPage.loadUri(uri, true);
                 return true;
