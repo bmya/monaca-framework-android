@@ -22,10 +22,6 @@ import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.template.AssetTemplateResource;
-import mobi.monaca.framework.template.LocalFileTemplateResource;
-import mobi.monaca.framework.template.TemplateEngine;
-import mobi.monaca.framework.template.model.MonacaApplicationInfo;
 import mobi.monaca.framework.transition.BackgroundDrawable;
 import mobi.monaca.framework.transition.ClosePageIntent;
 import mobi.monaca.framework.transition.TransitionParams;
@@ -101,8 +97,6 @@ public class MonacaPageActivity extends DroidGap {
 	protected HashMap<String, Component> dict;
 
 	protected Handler handler = new Handler();
-
-	protected TemplateEngine templateEngine;
 
 	protected UIBuilder.ResultSet uiBuilderResult = null;
 
@@ -298,9 +292,6 @@ public class MonacaPageActivity extends DroidGap {
 		} else {
 		}
 
-		// template engine settings
-		initTemplateEngine();
-
 		try {
 			infoForJavaScript.put("display", createDisplayInfo());
 		} catch (JSONException e) {
@@ -308,26 +299,6 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		loadBackground(getResources().getConfiguration());
-	}
-
-	private void initTemplateEngine() {
-		if (usingTemplatgeEngine()) {
-
-			int wwwIndex = getCurrentUriWithoutQuery().indexOf("/www/");
-			String appRoot = getCurrentUriWithoutQuery().substring(0, wwwIndex + 5);
-			MonacaApplicationInfo applicationInfo = new MonacaApplicationInfo(appRoot);
-
-			if (AssetUriUtil.isAssetUri(getCurrentUriWithoutQuery())) {
-				templateEngine = new TemplateEngine(this, new AssetTemplateResource(this), applicationInfo);
-			} else if (getCurrentUriWithoutQuery().startsWith("file:///")) {
-				MyLog.v(TAG, "Using FileTemplateResource");
-				templateEngine = new TemplateEngine(this, new LocalFileTemplateResource(), applicationInfo);
-			} else {
-				throw new RuntimeException("unsupported such uri: " + getCurrentUriWithoutQuery());
-			}
-		} else {
-			templateEngine = null;
-		}
 	}
 
 	/** Load background drawable from transition params and device orientation. */
@@ -871,7 +842,6 @@ public class MonacaPageActivity extends DroidGap {
 		}
 		dict = null;
 		uiBuilderResult = null;
-		templateEngine = null;
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		closePageReceiver = null;
@@ -881,7 +851,6 @@ public class MonacaPageActivity extends DroidGap {
 	/** Reload current URI. */
 	public void reload() {
 		appView.stopLoading();
-		initTemplateEngine();
 		loadUri(getCurrentUriWithoutQuery(), false);
 	}
 
@@ -889,9 +858,20 @@ public class MonacaPageActivity extends DroidGap {
 		return mCurrentHtml;
 	}
 
+	protected String buildCurrentUriHtml() throws IOException {
+		String html = AssetUriUtil.assetToString(this, getCurrentUriWithoutQuery());
+
+		if (UrlUtil.isMonacaUri(this, currentMonacaUri.getUrlWithQuery()) && currentMonacaUri.hasQueryParams()) {
+			html = currentMonacaUri.getQueryParamsContainingHtml(html);
+		}
+
+		return html;
+	}
+
 	/** Load current URI. */
 	public void loadUri(String uri, final boolean withoutUIFile) {
-		MyLog.v(TAG, "loadCurrentUri() uri:" + getCurrentUriWithoutQuery());
+		MyLog.v(TAG, "loadUri() uri:" + getCurrentUriWithoutQuery());
+
 		setCurrentUri(uri);
 
 		// check for 404
@@ -901,63 +881,25 @@ public class MonacaPageActivity extends DroidGap {
 			return;
 		}
 
-		if (usingTemplatgeEngine()) {
-			if (!withoutUIFile) {
-				loadUiFile(getCurrentUriWithoutQuery());
-			}
+		if (!withoutUIFile) {
+			loadUiFile(getCurrentUriWithoutQuery());
+		}
 
-			try {
-				String result = processTemplateEngine();
+		try {
+			mCurrentHtml = buildCurrentUriHtml();
+			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
-				if (currentMonacaUri.hasQueryParams()) {
-					result = currentMonacaUri.getQueryParamsContainingHtml(result);
-				}
+		} catch (IOException e) {
+			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
+			MyLog.d(TAG, "load as nomal url");
 
-				mCurrentHtml = result;
+			appView.setBackgroundColor(0x00000000);
+			setupBackground();
+			loadLayoutInformation();
 
-				appView.setBackgroundColor(0x00000000);
-				setupBackground();
-				loadLayoutInformation();
-
-				appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), result, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
-
-
-			} catch (Exception e) {
-				MyLog.e(TAG, e.getClass().getSimpleName() + ":" + e.getCause().getMessage());
-				show404Page(getCurrentUriWithoutQuery());
-			}
-		} else {
-			MyLog.v(TAG, "not using templateEngine");
-			if (!withoutUIFile) {
-				loadUiFile(getCurrentUriWithoutQuery());
-			}
-			String goodHtmlPath = getCurrentUriWithoutQuery().replaceFirst("file://", "");
-
-			try {
-				mCurrentHtml = FileUtils.readFileToString(new File(goodHtmlPath));
-
-				if (currentMonacaUri.hasQueryParams()) {
-					mCurrentHtml = currentMonacaUri.getQueryParamsContainingHtml(mCurrentHtml);
-				}
-				appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
-
-			} catch (IOException e) {
-				MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
-
-				appView.setBackgroundColor(0x00000000);
-				setupBackground();
-				loadLayoutInformation();
-
-				appView.loadUrl(currentMonacaUri.getUrlWithoutQuery());
-				appView.clearView();
-				appView.invalidate();
-
-				try {
-					mCurrentHtml = FileUtils.readFileToString(new File(goodHtmlPath));
-				} catch (Exception e1) {
-					MyLog.e(TAG, e1.getMessage());
-				}
-			}
+			appView.loadUrl(currentMonacaUri.getUrlWithQuery());
+			appView.clearView();
+			appView.invalidate();
 		}
 	}
 
@@ -982,18 +924,6 @@ public class MonacaPageActivity extends DroidGap {
 		intent.putExtra(TRANSITION_PARAM_NAME, params);
 		startActivity(intent);
 		finish();
-	}
-
-	protected String processTemplateEngine() {
-		String templatePath = getCurrentUriWithoutQuery().startsWith("file:///android_asset/") ? getCurrentUriWithoutQuery().substring("file:///android_asset/".length()) : getCurrentUriWithoutQuery();
-		String result = templateEngine.execute(templatePath);
-		return result;
-	}
-
-	protected String processTemplateEngine(String targetUri) {
-		String templatePath = targetUri.startsWith("file:///android_asset/") ? targetUri.substring("file:///android_asset/".length()) : targetUri;
-		String result = templateEngine.execute(templatePath);
-		return result;
 	}
 
 	public void pushPageWithIntent(String url, TransitionParams params) {
