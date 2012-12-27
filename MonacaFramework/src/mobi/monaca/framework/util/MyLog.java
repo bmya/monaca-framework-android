@@ -3,26 +3,25 @@ package mobi.monaca.framework.util;
 import mobi.monaca.framework.psedo.BuildConfig;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class MyLog {
 	public static final String PREFIX = "[MyLog] ";
 	public static void i(String TAG, String msg) {
-		Log.i(TAG, "debug flag = " + BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Log.i(PREFIX + TAG, msg);
 		}
 	}
 
 	public static void v(String TAG, String msg) {
-		Log.i(TAG, "debug flag = " + BuildConfig.DEBUG);
+		Log.i(PREFIX + TAG, "debug flag = " + BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Log.v(PREFIX + TAG, msg);
 		}
 	}
 
 	public static void w(String TAG, String msg) {
-		Log.i(TAG, "debug flag = " + BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Log.w(PREFIX + TAG, msg);
 		}
@@ -44,8 +43,8 @@ public class MyLog {
 	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String debugType, String logLevel) {
 		Intent broadcastIntent = new Intent("log_message_action");
 		broadcastIntent.putExtra("message", broadcastMessage);
-		broadcastIntent.putExtra("logType", debugType);
+		broadcastIntent.putExtra("debugType", debugType);
 		broadcastIntent.putExtra("logLevel", logLevel);
-		context.sendBroadcast(broadcastIntent);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
 	}
 }
