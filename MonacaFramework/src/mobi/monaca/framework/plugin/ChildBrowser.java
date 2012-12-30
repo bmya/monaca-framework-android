@@ -10,6 +10,8 @@ package mobi.monaca.framework.plugin;
 import java.io.IOException;
 import java.io.InputStream;
 
+import mobi.monaca.framework.psedo.R;
+
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 import org.json.JSONArray;
@@ -273,11 +275,7 @@ public class ChildBrowser extends Plugin {
                 back.setLayoutParams(backLayoutParams);
                 back.setContentDescription("Back Button");
                 back.setId(2);
-                try {
-                    back.setImageBitmap(loadDrawable("www/childbrowser/icon_arrow_left.png"));
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
-                }
+                back.setImageResource(R.drawable.childbroswer_icon_arrow_left);
                 back.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         goBack();
@@ -291,11 +289,7 @@ public class ChildBrowser extends Plugin {
                 forward.setLayoutParams(forwardLayoutParams);
                 forward.setContentDescription("Forward Button");
                 forward.setId(3);
-                try {
-                    forward.setImageBitmap(loadDrawable("www/childbrowser/icon_arrow_right.png"));
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
-                }
+                forward.setImageResource(R.drawable.childbroswer_icon_arrow_right);
                 forward.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         goForward();
@@ -332,11 +326,7 @@ public class ChildBrowser extends Plugin {
                 close.setLayoutParams(closeLayoutParams);
                 forward.setContentDescription("Close Button");
                 close.setId(5);
-                try {
-                    close.setImageBitmap(loadDrawable("www/childbrowser/icon_close.png"));
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
-                }
+                close.setImageResource(R.drawable.childbroswer_icon_close);
                 close.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         closeDialog();
