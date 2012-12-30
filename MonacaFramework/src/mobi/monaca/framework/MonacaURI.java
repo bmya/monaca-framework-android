@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mobi.monaca.framework.util.MyLog;
+
 import org.json.JSONObject;
 
 import android.util.Log;
@@ -30,16 +32,15 @@ public class MonacaURI {
 			this.uri = new URI(url);
 			this.parseQuery();
 		} catch (URISyntaxException e) {
-			Log.d(TAG, "URISyntacException! : " + url);
-			e.printStackTrace();
+			MyLog.e(TAG, "URISyntacException! : " + url);
 		}
 	}
 
 	public static String buildUrlWithQuery(String baseUrl, JSONObject queryJson) {
 
-		Log.d(TAG, "buildUrl :" + baseUrl);
+		MyLog.d(TAG, "buildUrl :" + baseUrl);
 		if (queryJson == null || (queryJson != null && queryJson.length() == 0)) {
-			Log.d(TAG, "no query");
+			MyLog.d(TAG, "no query");
 			return baseUrl;
 		}
 
@@ -67,7 +68,7 @@ public class MonacaURI {
 					newUrl += URLEncoder.encode(key, URL_ENCODE) + "=" + URLEncoder.encode(queryJson.optString(key), URL_ENCODE)  + "&";
 				}
 			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
+				MyLog.e(TAG, e.getMessage());
 			}
 		}
 		newUrl = trimLastChar(newUrl);
@@ -100,10 +101,10 @@ public class MonacaURI {
 
 	public static String removeSpecialChar(String target) {
 		String result;
-		//Log.d(TAG,"removeSpecialChar");
+		//MyLog.d(TAG,"removeSpecialChar");
 		result = target.replace("\\","\\\\").replace("\"", "\\\\\"").replace("\'", "\\\\\'").replace("/", "\\/").replace("}", "\\}");
-		Log.d(TAG, target);
-		Log.d(TAG, result);
+		MyLog.d(TAG, target);
+		MyLog.d(TAG, result);
 		return result;
 	}
 
@@ -132,18 +133,18 @@ public class MonacaURI {
 		Matcher matcher = pattern.matcher(targetHtml);
 
 		if (matcher.find()) {
-		//	Log.d(TAG, "matches");
+		//	MyLog.d(TAG, "matches");
 			return matcher.replaceFirst(matcher.group() + paramsString);
 		}else {
-		//	Log.d(TAG, "no matches");
+		//	MyLog.d(TAG, "no matches");
 			return paramsString + targetHtml;
 		}
 	}
 
 	public void parseQuery() {
 		if (uri.getQuery() != null) {
-			//Log.d(TAG, "hasQuery");
-			Log.d(TAG, uri.getRawQuery());
+			//MyLog.d(TAG, "hasQuery");
+			MyLog.d(TAG, uri.getRawQuery());
 			String[] params = uri.getRawQuery().split("&");
 			String[] keyAndValue;
 
@@ -154,7 +155,7 @@ public class MonacaURI {
 				queryParamsArrayList.add(new QueryParam(keyAndValue, params[i]));
 			}
 		} else {
-			//Log.d(TAG, "noQuery");
+			//MyLog.d(TAG, "noQuery");
 			queryParamsArrayList = null;
 		}
 	}
@@ -186,8 +187,8 @@ public class MonacaURI {
 		public QueryParam(String[] keyAndValue, String params) {
 			try{
 				if (keyAndValue == null || keyAndValue.length < 2) {
-					//Log.d(TAG, "not splitted KeyAndValue");
-					//Log.d(TAG, params);
+					//MyLog.d(TAG, "not splitted KeyAndValue");
+					//MyLog.d(TAG, params);
 					this.key = params;
 					this.value = null;
 				} else {
@@ -198,7 +199,7 @@ public class MonacaURI {
 				this.key = null;
 				this.value = null;
 			}
-		//	Log.d(TAG, keyAndValue[0] + " : " + keyAndValue[1]);
+		//	MyLog.d(TAG, keyAndValue[0] + " : " + keyAndValue[1]);
 		}
 	}
 

@@ -74,7 +74,7 @@ public class MonacaSplashActivity extends Activity {
 			intent.putExtra(SHOWS_SPLASH_KEY, !appJson.getJSONObject("splash").getJSONObject("android").getBoolean("autoHide"));
 		} catch (JSONException e) {
 			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
         startActivity(intent);
         finish();
@@ -88,11 +88,11 @@ public class MonacaSplashActivity extends Activity {
 			appJson = new JSONObject(new String(buffer,"UTF-8"));
 			return;
 		} catch (IOException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		} catch (JSONException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
     	appJson = new JSONObject();
     }
@@ -106,9 +106,9 @@ public class MonacaSplashActivity extends Activity {
 			int backbroundColor = Color.parseColor(backgroundColorString);
 			return backbroundColor;
 		} catch (JSONException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			MyLog.e(TAG, e.getMessage());
 		}
 		return Color.TRANSPARENT;
 	}

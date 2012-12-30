@@ -13,11 +13,13 @@ import android.util.Log;
 
 public class InputStreamLoader {
 
-    public static InputStream loadLocalFile(String path) {
+    private static final String TAG = InputStreamLoader.class.getSimpleName();
+
+	public static InputStream loadLocalFile(String path) {
         try {
             return new FileInputStream(new File(path));
         } catch (FileNotFoundException e) {
-            Log.d(InputStreamLoader.class.getSimpleName(), "file not found: "
+        	MyLog.d(InputStreamLoader.class.getSimpleName(), "file not found: "
                     + path);
             return new ByteArrayInputStream(new byte[0]);
         }
@@ -27,7 +29,7 @@ public class InputStreamLoader {
         try {
         	return LocalFileBootloader.openAsset(context, path);
         } catch (IOException e) {
-            e.printStackTrace();
+        	MyLog.e(TAG, e.getMessage());
             return new ByteArrayInputStream(new byte[0]);
         }
     }

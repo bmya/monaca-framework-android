@@ -36,7 +36,7 @@ public class BenchmarkTimer {
 
     static protected void dump() {
         Entry prev = null;
-        Log.d(BenchmarkTimer.class.getSimpleName(),
+        MyLog.d(BenchmarkTimer.class.getSimpleName(),
                 "---------------------------------------------");
         long duration = 0;
         long total = 0;
@@ -44,23 +44,23 @@ public class BenchmarkTimer {
             if (prev != null) {
                 duration = entry.time
 				        - prev.time;
-				Log.d(BenchmarkTimer.class.getSimpleName(),
+                MyLog.d(BenchmarkTimer.class.getSimpleName(),
                         String.format(" %30s > %-10d", "", duration));
             }
-            Log.d(BenchmarkTimer.class.getSimpleName(),
+            MyLog.d(BenchmarkTimer.class.getSimpleName(),
                     String.format(" %30s ", entry.label));
 
             total += duration;
             prev = entry;
         }
-        Log.d(BenchmarkTimer.class.getSimpleName(),
+        MyLog.d(BenchmarkTimer.class.getSimpleName(),
                 "------------------ TOTAL=" + total + "---------------------------");
     }
 
     static public void mark(String label) {
         synchronized (entryList) {
             entryList.add(new Entry(label, System.currentTimeMillis()));
-            Log.d(BenchmarkTimer.class.getSimpleName(),
+            MyLog.d(BenchmarkTimer.class.getSimpleName(),
                     "================> mark: " + label + " <==================");
 
         }

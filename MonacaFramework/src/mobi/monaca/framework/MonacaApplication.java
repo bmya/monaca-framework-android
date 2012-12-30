@@ -71,7 +71,7 @@ public class MonacaApplication extends Application {
             try {
                 url = new URI(url).normalize().toString();
             } catch (Exception e) {
-            	e.printStackTrace();
+            	MyLog.e(TAG, e.getMessage());
                 return false;
             }
             
@@ -206,7 +206,7 @@ public class MonacaApplication extends Application {
         ClientConnectionManager connManager = getClientConnectionManager();
         connManager.closeExpiredConnections();
         connManager.closeIdleConnections(5, TimeUnit.SECONDS);
-        Log.d(MonacaApplication.class.getSimpleName(),
+        MyLog.d(MonacaApplication.class.getSimpleName(),
                 "closeStaleConnections() is called.");
     }
     

@@ -71,7 +71,7 @@ public class UIContext extends ContextWrapper {
 				pageActivity.loadUri("file://" + new File(newUri.substring(7)).getCanonicalPath(), true);
 				MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutQuery());
 			} catch (Exception e) {
-				e.printStackTrace();
+				MyLog.e(TAG, e.getMessage());
 				pageActivity.loadUri(pageActivity.getCurrentUriWithoutQuery(), true);
 			}
 		} else {
@@ -112,7 +112,7 @@ public class UIContext extends ContextWrapper {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
+        	MyLog.e(TAG, e.getMessage());
         }
         return null;
     }
