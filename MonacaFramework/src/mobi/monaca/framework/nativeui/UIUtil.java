@@ -83,37 +83,37 @@ public class UIUtil {
     }
 
     public static void reportJSONParseError(Context context, String msg) {
-        Log.e(TAG, "JSONParseError: " + msg);
+    	MyLog.e(TAG, "JSONParseError: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:JSONParseError:" + msg, "error", "error");
     }
 
     public static void reportInvalidJSONStructure(Context context, String msg) {
-        Log.e(TAG, "InvalidJSONStructure: " + msg);
+    	MyLog.e(TAG, "InvalidJSONStructure: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidJSONStructure:" + msg, "error", "error");
     }
 
     public static void reportInvalidComponent(Context context, String msg) {
-        Log.e(TAG, "InvalidComponent: " + msg);
+    	MyLog.e(TAG, "InvalidComponent: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidComponent:" + msg, "error", "error");
     }
 
     public static void reportInvalidContainer(Context context, String msg) {
-        Log.e(TAG, "InvalidContainer: " + msg);
+    	MyLog.e(TAG, "InvalidContainer: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidContainer:" + msg, "error", "error");
     }
 
     public static void reportUndefinedProperty(Context context, String msg) {
-        Log.e(TAG, "UndefinedProperty: " + msg);
+    	MyLog.e(TAG, "UndefinedProperty: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:UndefinedProperty:" + msg, "error", "error");
     }
 
     public static void reportInvalidStyleProperty(Context context, String msg) {
-        Log.e(TAG, "InvalidStyleProperty: " + msg);
+    	MyLog.e(TAG, "InvalidStyleProperty: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidStyleProperty:" + msg, "error", "error");
     }
 
     public static void reportIgnoredStyleProperty(Context context, String msg) {
-        Log.e(TAG, "IgnoredStyleProperty: " + msg);
+    	MyLog.e(TAG, "IgnoredStyleProperty: " + msg);
         MyLog.sendBloadcastDebugLog(context, "NativeComponent:IgnoredStyleProperty:" + msg, "error", "error");
     }
 
