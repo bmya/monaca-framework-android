@@ -174,12 +174,8 @@ public class TabbarItem implements Component {
 
                 textView.setTextColor(0xffffffff);
                 isSelected = true;
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        context.changeCurrentUri(link);
-                    }
-                });
+
+                context.changeCurrentUri(link);
             }
             imageView.setAlpha(0xff);
             invalidate();
