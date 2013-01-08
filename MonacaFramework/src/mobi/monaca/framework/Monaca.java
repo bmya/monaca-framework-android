@@ -8,11 +8,9 @@ public class Monaca {
 
     public static final String DAV_DOMAIN = "dav.monaca.mobi";
     public static final String IDE_DOMAIN = "stg-ide.monaca.mobi";
-    public static final String PING_DOMAIN = "ping.monaca.mobi";
 
     public static final String IDE_HOST = "https://" + IDE_DOMAIN;
     public static final String DAV_HOST = "https://" + DAV_DOMAIN;
-    public static final String PING_HOST = "https://" + PING_DOMAIN;
 
     public static final String DAV_AUTH_NAME = "Monaca DAV Authentication";
 }
