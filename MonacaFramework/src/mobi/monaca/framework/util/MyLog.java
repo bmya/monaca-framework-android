@@ -15,7 +15,7 @@ public class MyLog {
 	}
 
 	public static void v(String TAG, String msg) {
-		Log.i(PREFIX + TAG, "debug flag = " + BuildConfig.DEBUG);
+//		Log.i(PREFIX + TAG, "debug flag = " + BuildConfig.DEBUG);
 		if (BuildConfig.DEBUG) {
 			Log.v(PREFIX + TAG, msg);
 		}
