@@ -31,6 +31,7 @@ import org.apache.http.params.HttpParams;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Environment;
 import android.util.Log;
 
 /** This class manage the application's global state and variable. */
@@ -87,7 +88,9 @@ public class MonacaApplication extends Application {
             if (url.startsWith("file:///mnt/")){
             	return true;
             }
-            
+            if (url.startsWith("file://"+Environment.getExternalStorageDirectory().getPath())) {
+                return true;
+            }
             return false;
         }
         
