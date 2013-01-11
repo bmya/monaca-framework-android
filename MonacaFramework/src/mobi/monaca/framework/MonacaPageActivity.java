@@ -843,29 +843,34 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Load current URI. */
 	public void loadUri(String uri, final boolean withoutUIFile) {
-		MyLog.v(TAG, "loadUri() uri:" + getCurrentUriWithoutQuery());
+		String currentUriWithoutQuery = getCurrentUriWithoutQuery();
+		MyLog.v(TAG, "loadUri() uri:" + currentUriWithoutQuery);
 
 		setCurrentUri(uri);
 
 		// check for 404
-		if (getCurrentUriWithoutQuery().equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
+		if (currentUriWithoutQuery.equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
 			String failingUrl = getIntent().getStringExtra("error_url");
 			show404Page(failingUrl);
 			return;
 		}
 
 		if (!withoutUIFile) {
-			loadUiFile(getCurrentUriWithoutQuery());
+			loadUiFile(currentUriWithoutQuery);
 		}
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
-			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+			appView.loadDataWithBaseURL(currentUriWithoutQuery, mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
 			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
-			MyLog.d(TAG, "load as nomal url");
-
+			MyLog.d(TAG, "load as nomal url:" + currentUriWithoutQuery);
+			if(uri.startsWith("file://")){
+				show404Page(uri);
+				return;
+			}
+			
 			appView.setBackgroundColor(0x00000000);
 			setupBackground();
 			loadLayoutInformation();
