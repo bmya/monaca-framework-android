@@ -36,11 +36,9 @@ import mobi.monaca.framework.view.MonacaWebView;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
 import org.apache.cordova.DroidGap;
-import org.apache.cordova.api.CordovaInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,7 +71,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.webkit.JsPromptResult;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -381,30 +378,6 @@ public class MonacaPageActivity extends DroidGap {
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
 		this.initMonaca();
-	}
-
-	protected class MonacaChromeClient extends CordovaChromeClient {
-
-		public MonacaChromeClient(CordovaInterface ctx) {
-			super(ctx);
-		}
-
-		public MonacaChromeClient(MonacaPageActivity monacaPageActivity, CordovaWebView webView) {
-			super(monacaPageActivity, webView);
-		}
-
-		@Override
-		public boolean onJsPrompt(WebView webView, String url, String message, String defaultValue, JsPromptResult jsPromtResult) {
-			 MyLog.v(TAG, "onJsPromt:arg1:" + url + ", arg2:" + message +
-			 ", arg3:" + defaultValue);
-			if (url.equalsIgnoreCase("uri")) {
-				// MyLog.v(TAG, "url null-> return true");
-				return true;
-			}
-
-			return super.onJsPrompt(webView, url, message, defaultValue, jsPromtResult);
-		}
-
 	}
 
 	/** Setup background drawable for app View and root view. */
@@ -870,29 +843,34 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Load current URI. */
 	public void loadUri(String uri, final boolean withoutUIFile) {
-		MyLog.v(TAG, "loadUri() uri:" + getCurrentUriWithoutQuery());
+		String currentUriWithoutQuery = getCurrentUriWithoutQuery();
+		MyLog.v(TAG, "loadUri() uri:" + currentUriWithoutQuery);
 
 		setCurrentUri(uri);
 
 		// check for 404
-		if (getCurrentUriWithoutQuery().equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
+		if (currentUriWithoutQuery.equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
 			String failingUrl = getIntent().getStringExtra("error_url");
 			show404Page(failingUrl);
 			return;
 		}
 
 		if (!withoutUIFile) {
-			loadUiFile(getCurrentUriWithoutQuery());
+			loadUiFile(currentUriWithoutQuery);
 		}
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
-			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+			appView.loadDataWithBaseURL(currentUriWithoutQuery, mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
 			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
-			MyLog.d(TAG, "load as nomal url");
-
+			MyLog.d(TAG, "load as nomal url:" + currentUriWithoutQuery);
+			if(uri.startsWith("file://")){
+				show404Page(uri);
+				return;
+			}
+			
 			appView.setBackgroundColor(0x00000000);
 			setupBackground();
 			loadLayoutInformation();
