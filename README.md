@@ -25,5 +25,6 @@ How To Build
 
 * For Eclipse
   1. Import MonacaFramework, BarcodeScannerLibrary.
-  2. Ant build MonacaFramework, BarcodeScannerLibrary project.
-  3. Build MonacaSandbox project.
+  2. Build BarcodeScannerLibrary project.
+  3. Build MonacaFamework project.
+  4. Run MonacaSandbox project.
