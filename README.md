@@ -25,6 +25,6 @@ How To Build
 
 * For Eclipse
   1. Import MonacaFramework, BarcodeScannerLibrary and MonacaSandbox.
-  2. Build BarcodeScannerLibrary project(Select BarcodeScannerLibrary and select Menu -> Project -> Build Project).
-  3. Build MonacaFamework project(Select MonacaFramework and select Menu -> Project -> Build Project).
+  2. To create barcodescannerlibrary.jar (for PhoneGap-plugin), build BarcodeScannerLibrary project (Select BarcodeScannerLibrary and select Menu -> Project -> Build Project).
+  3. To create monacaframeork jar, build MonacaFamework project (Select MonacaFramework and select Menu -> Project -> Build Project).
   4. Run MonacaSandbox project.
