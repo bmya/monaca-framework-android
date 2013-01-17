@@ -140,18 +140,18 @@ public class MonacaPageActivity extends DroidGap {
        //  WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN); in DroidGap class
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 		MyLog.v(TAG, "MonacaApplication.getPages().size():" + MonacaApplication.getPages().size());
-		Intent i = getIntent();
-		final String uri = i.hasExtra(URL_PARAM_NAME) ? i.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
+
+		//currentMonacaUri is set in prepare()
 		if (MonacaApplication.getPages().size() == 1) {
 			init();
-			loadUri(uri ,false);
+			loadUri(currentMonacaUri.getUrlWithQuery(), false);
 		} else {
 			init();
 			loadUiFile(getCurrentUriWithoutQuery());
 			handler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					loadUri(uri, true);
+					loadUri(currentMonacaUri.getUrlWithQuery(), true);
 				}
 			}, 100);
 		}
