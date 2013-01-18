@@ -7,6 +7,7 @@ MonacaFramework/tmp
 .DS_Store
 *jarlist.cache
 *.class
+*local.properties
 
 # template project
 MonacaTemplateEngine/gen/
