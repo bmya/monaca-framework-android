@@ -12,7 +12,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Message;
-import android.util.Log;
 import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
@@ -43,8 +42,9 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
         		return true;
         	} else if (UrlUtil.isMonacaUri(monacaPage, uri)) {
         		MyLog.d(TAG, "load as monaca application : " + uri);
-        		monacaPage.loadUri(uri, true);
-                return true;
+//        		monacaPage.loadUri(uri, false);
+        		monacaPage.loadUiFile(uri);
+//                return true;
             } else {
             	MyLog.d(TAG, "return super.shouldOverrideUrlLoading");
                 return super.shouldOverrideUrlLoading(view, uri);
@@ -73,14 +73,14 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-    	MyLog.d(TAG, "onPageFinished: " + url);
+//    	MyLog.d(TAG, "onPageFinished: " + url);
         monacaPage.onPageFinished(view, url);
         super.onPageFinished(view, url);
     }
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-    	MyLog.d(TAG, "onPageStarted: " + url);
+//    	MyLog.d(TAG, "onPageStarted: " + url);
         monacaPage.onPageStarted(view, url);
         super.onPageStarted(view, url, favicon);
     }
