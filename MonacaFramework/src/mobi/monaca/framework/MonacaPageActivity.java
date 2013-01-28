@@ -861,7 +861,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
-			appView.loadDataWithBaseURL(currentUriWithoutQuery, mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
 			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
