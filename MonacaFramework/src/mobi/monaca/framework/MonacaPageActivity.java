@@ -472,7 +472,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	/** Load local ui file */
-	protected void loadUiFile(String uri) {
+	public void loadUiFile(String uri) {
 		MyLog.v(TAG, "loadUiFile()");
 		String uiString = null;
 
@@ -725,7 +725,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	public void onPageFinished(View view, String url) {
-		BenchmarkTimer.mark("page finish:" + url);
+//		BenchmarkTimer.mark("page finish:" + url);
 //		if(!url.startsWith("about:blank")){
 //			BenchmarkTimer.finish();
 //		}
@@ -857,12 +857,12 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		if (!withoutUIFile) {
-			loadUiFile(currentUriWithoutQuery);
+			loadUiFile(getCurrentUriWithoutQuery());
 		}
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
-			appView.loadDataWithBaseURL(currentUriWithoutQuery, mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
 			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
