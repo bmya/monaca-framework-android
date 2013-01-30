@@ -41,17 +41,18 @@ public class MyLog {
 
 	// send debuglog to debbuger and server
 	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String debugType, String logLevel) {
+		MyLog.v("MyLog", "sendBloadcastDebugLog. message:" + broadcastMessage);
 		Intent broadcastIntent = new Intent("log_message_action");
 		broadcastIntent.putExtra("message", broadcastMessage);
 		broadcastIntent.putExtra("debugType", debugType);
 		broadcastIntent.putExtra("logLevel", logLevel);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
 	}
 	
 	public static void sendBloadcastPongLog(Context context) {
 		MyLog.i("MyLog", "sendBloadcastPongLog");
 		Intent broadcastIntent = new Intent("log_message_action");
 		broadcastIntent.putExtra("pong", true);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
 	}
 }
