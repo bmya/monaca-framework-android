@@ -164,6 +164,7 @@ public class MonacaPageActivity extends DroidGap {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
+		root.setBackgroundColor(Color.WHITE);
 	}
 
 	protected Drawable getSplashDrawable() throws IOException {
@@ -861,7 +862,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
-			appView.loadDataWithBaseURL(currentUriWithoutQuery, mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
 			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
