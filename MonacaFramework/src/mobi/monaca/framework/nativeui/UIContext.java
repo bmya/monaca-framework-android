@@ -78,7 +78,7 @@ public class UIContext extends ContextWrapper {
 		pageActivity.setCurrentUri(resolvedUri);
 	}
 
-    public Bitmap readBitmap(String path) {
+    public Bitmap readScaledBitmap(String path) {
         path = resolve(path);
 
         try {

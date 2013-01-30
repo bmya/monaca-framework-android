@@ -168,7 +168,7 @@ public class PageComponent implements Component {
 		boolean shouldSkipBackgroundPosition = false;
 		if (!backgroundImageFile.equalsIgnoreCase("")) {
 			try {
-				Bitmap bitmap = uiContext.readBitmap(backgroundImageFile);
+				Bitmap bitmap = uiContext.readScaledBitmap(backgroundImageFile);
 				BitmapDrawable backgroundImage = new BitmapDrawable(uiContext.getResources(), bitmap);
 				layerList.add(backgroundImage);
 				float bitmapWidth = bitmap.getWidth();

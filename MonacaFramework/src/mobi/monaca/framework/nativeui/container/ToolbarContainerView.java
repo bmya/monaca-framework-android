@@ -10,12 +10,15 @@ import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
 import mobi.monaca.framework.util.MyLog;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,12 +29,13 @@ public class ToolbarContainerView extends LinearLayout {
 
 	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper,
-			titleSubtitleWrapper;
+			titleSubtitleWrapper, titleImageWrapper;
 	protected UIContext context;
 	protected FrameLayout content;
 	private TextView titleView;
 	private TextView subTitleMainTitleView;
 	private TextView subtitleView;
+	private ImageView titleImageView;
 
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
@@ -110,12 +114,25 @@ public class ToolbarContainerView extends LinearLayout {
 		titleView.setTypeface(null, Typeface.BOLD);
 		titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
 				context.getFontSizeFromDip(Component.BIG_TITLE_TEXT_DIP));
+		
+		
+		titleImageView = new ImageView(context);
 
 		titleWrapper = new LinearLayout(context);
 		titleWrapper.setOrientation(LinearLayout.HORIZONTAL);
 		titleWrapper.setVisibility(View.GONE);
 		titleWrapper.setGravity(Gravity.CENTER);
 		titleWrapper.addView(titleView);
+		
+		titleImageWrapper = new LinearLayout(context);
+		titleImageWrapper.setOrientation(LinearLayout.HORIZONTAL);
+		titleImageWrapper.setVisibility(View.GONE);
+		titleImageWrapper.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
+		titleImageWrapper.addView(titleImageView, new LinearLayout.LayoutParams(
+	        LinearLayout.LayoutParams.WRAP_CONTENT, 
+	        LinearLayout.LayoutParams.WRAP_CONTENT,
+	        Gravity.CENTER)
+        );
 
 		subTitleMainTitleView = new TextView(context);
 		subTitleMainTitleView.setId(TITLE_ID);
@@ -164,6 +181,7 @@ public class ToolbarContainerView extends LinearLayout {
 				FrameLayout.LayoutParams.WRAP_CONTENT,
 				FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
 		center.setGravity(Gravity.CENTER);
+		content.addView(titleImageWrapper, p);
 		content.addView(titleWrapper, p);
 		content.addView(titleSubtitleWrapper, p);
 	}
@@ -171,29 +189,43 @@ public class ToolbarContainerView extends LinearLayout {
 	public View getContentView() {
 		return content;
 	}
+	
+	public void setTitleImage(Drawable drawable) {
+	}
 
-	public void setTitleSubtitle(String title, String subtitle) {
+	public void setTitleSubtitle(String title, String subtitle, Bitmap titleImage) {
 		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:"
 				+ subtitle);
 
-		if (subtitle.length() > 0) {
+		if (titleImage != null) {
+			titleImageWrapper.setVisibility(View.VISIBLE);
+			titleSubtitleWrapper.setVisibility(View.GONE);
+			titleWrapper.setVisibility(View.GONE);
+			center.setVisibility(View.GONE);
+		} else if (subtitle.length() > 0) {
 			titleSubtitleWrapper.setVisibility(View.VISIBLE);
 			titleWrapper.setVisibility(View.GONE);
 			center.setVisibility(View.GONE);
+			titleImageWrapper.setVisibility(View.GONE);
 		} else if (title.length() > 0) {
 			titleWrapper.setVisibility(View.VISIBLE);
 			center.setVisibility(View.GONE);
 			titleSubtitleWrapper.setVisibility(View.GONE);
+			titleImageWrapper.setVisibility(View.GONE);
 		} else {
 			titleWrapper.setVisibility(View.GONE);
 			center.setVisibility(View.VISIBLE);
 			titleSubtitleWrapper.setVisibility(View.GONE);
+			titleImageWrapper.setVisibility(View.GONE);
 		}
 
 		((TextView) titleWrapper.findViewById(TITLE_ID)).setText(title);
 		((TextView) titleSubtitleWrapper.findViewById(TITLE_ID)).setText(title);
 		((TextView) titleSubtitleWrapper.findViewById(SUBTITLE_ID))
 				.setText(subtitle);
+		if (titleImage != null) {
+    		titleImageView.setImageBitmap(titleImage);
+		}
 	}
 
 	public void setRightView(List<ToolbarComponent> list) {

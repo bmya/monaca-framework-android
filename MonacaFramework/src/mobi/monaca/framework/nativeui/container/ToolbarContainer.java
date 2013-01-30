@@ -7,6 +7,7 @@ import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
@@ -30,7 +31,7 @@ import android.view.animation.LinearInterpolator;
 
 public class ToolbarContainer implements Component {
     private static final int TOP_BOTTOM_PADDING = 5;
-	protected Context context;
+	protected UIContext context;
     protected ToolbarContainerView view;
     protected ToolbarComponent left, center, right;
     protected JSONObject style;
@@ -74,6 +75,7 @@ public class ToolbarContainer implements Component {
      * 1.0) backgroundColor: #000000 [string] (default: undefined) position :
      * "fixed" | "scroll" (default: "fixed") => androidだと無理ぽい title : [string]
      * (default : "") (このスタイルが指定された場合、center属性は無視される)
+     * titleImage : [string] (default : "") このスタイルが指定された時、center属性は無視)
      */
     protected void style() {
         if (isTransparent(style.optDouble("opacity", 1.0)) && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE
@@ -112,8 +114,10 @@ public class ToolbarContainer implements Component {
             view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
         }
         
+        /*
         view.setTitleSubtitle(style.optString("title"),
                 style.optString("subtitle"));
+                */
         
         // titleColor
         view.setTitleColor(style.optString("titleColor", "#ffffff"));
@@ -126,6 +130,12 @@ public class ToolbarContainer implements Component {
         
         // subtitleFontScale
         view.setSubitleFontScale(style.optString("subtitleFontScale", ""));
+        
+        String titleImagePath = style.optString("titleImage", "");
+        view.setTitleSubtitle(
+                style.optString("title"),
+                style.optString("subtitle"),
+                titleImagePath.equals("") ? null : context.readScaledBitmap(titleImagePath));
 
         ColorFilter filter = new PorterDuffColorFilter(
                 buildColor(style.optString("backgroundColor", "#000000")),
