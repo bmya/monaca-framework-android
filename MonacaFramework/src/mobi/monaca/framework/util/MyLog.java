@@ -47,4 +47,11 @@ public class MyLog {
 		broadcastIntent.putExtra("logLevel", logLevel);
 		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
 	}
+	
+	public static void sendBloadcastPongLog(Context context) {
+		MyLog.i("MyLog", "sendBloadcastPongLog");
+		Intent broadcastIntent = new Intent("log_message_action");
+		broadcastIntent.putExtra("pong", true);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
+	}
 }
