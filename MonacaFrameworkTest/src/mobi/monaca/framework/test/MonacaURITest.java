@@ -53,8 +53,8 @@ public class MonacaURITest extends TestCase {
 		eq("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo")).getUrlWithoutQuery());
 		eq("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo")).getUrlWithoutQuery());
 
-	//	eq("", (new MonacaURI("")).getUrlWithoutQuery());
-	//	eq("hoge", (new MonacaURI("hoge")).getUrlWithoutQuery());
+		eq("", (new MonacaURI("")).getUrlWithoutQuery());
+		eq("hoge", (new MonacaURI("hoge")).getUrlWithoutQuery());
 	}
 
 	public void testBuildUrlWithQuery() {
@@ -62,6 +62,17 @@ public class MonacaURITest extends TestCase {
 		try {
 			eq("file:///android_asset/www/hoge.html?foo=bar", MonacaURI.buildUrlWithQuery("file:///android_asset/www/hoge.html",
 					new JSONObject("{\"foo\":\"bar\"}")));
+
+
+			eq("file:///android_asset/www/hoge.html?key1=bar&key2=piyo", MonacaURI.buildUrlWithQuery("file:///android_asset/www/hoge.html",
+					new JSONObject("{\"key1\":\"bar\" , \"key2\":\"piyo\"}")));
+
+			eq("file:///android_asset/www/hoge.html?%2e=value", MonacaURI.buildUrlWithQuery("file:///android_asset/www/hoge.html",
+					new JSONObject("{\".\":\"value\"}")));
+
+			eq("file:///android_asset/www/hoge.html?hoge&piyo=1", MonacaURI.buildUrlWithQuery("file:///android_asset/www/hoge.html",
+					new JSONObject("{\"hoge\" : null, \"piyo\" : \"1\"}")));
+
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
