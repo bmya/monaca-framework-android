@@ -33,6 +33,10 @@ import mobi.monaca.framework.util.UrlUtil;
 import mobi.monaca.framework.view.MonacaPageGingerbreadWebViewClient;
 import mobi.monaca.framework.view.MonacaPageHoneyCombWebViewClient;
 import mobi.monaca.framework.view.MonacaWebView;
+import mobi.monaca.utils.TimeStamp;
+import mobi.monaca.utils.log.LogItem;
+import mobi.monaca.utils.log.LogItem.LogLevel;
+import mobi.monaca.utils.log.LogItem.Source;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -493,7 +497,7 @@ public class MonacaPageActivity extends DroidGap {
 			return;
 		}catch (Exception e) {
 			MyLog.e(TAG, e.getMessage());
-			MyLog.sendBloadcastDebugLog(getApplicationContext(), "NativeComponent:" + e.getMessage(), "error", "error");
+			LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
 			return;
 		}
 
