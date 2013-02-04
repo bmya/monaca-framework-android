@@ -41,10 +41,13 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
         		monacaPage.goHomeAsync(null);
         		return true;
         	} else if (UrlUtil.isMonacaUri(monacaPage, uri)) {
-        		MyLog.d(TAG, "load as monaca application : " + uri);
+//       		MyLog.d(TAG, "load as monaca application : " + uri);
 //        		monacaPage.loadUri(uri, false);
-        		monacaPage.loadUiFile(uri);
-//                return true;
+//              return true;
+
+        		// MyLog.d(TAG, "update currentPageUri and UI : " + uri);
+        		monacaPage.setCurrentUri(uri);
+        		monacaPage.loadUiFile(monacaPage.getCurrentUriWithoutQuery());
             } else {
             	MyLog.d(TAG, "return super.shouldOverrideUrlLoading");
                 return super.shouldOverrideUrlLoading(view, uri);
