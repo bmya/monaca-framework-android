@@ -820,6 +820,13 @@ public class MonacaPageActivity extends DroidGap {
 		root.setBackgroundDrawable(null);
 		closePageReceiver = null;
 		unregisterReceiver(mScreenReceiver);
+
+		appView.stopLoading();
+		appView.setWebChromeClient(null);
+		appView.setWebViewClient(null);
+		unregisterForContextMenu(appView);
+		appView.destroy();
+		appView = null;
 	}
 
 	/** Reload current URI. */
