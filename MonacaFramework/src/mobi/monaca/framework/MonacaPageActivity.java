@@ -79,6 +79,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
@@ -342,7 +343,12 @@ public class MonacaPageActivity extends DroidGap {
 		appView.setFocusable(true);
 		appView.setFocusableInTouchMode(true);
 
-		loadUrl("about:blank?");
+		/*
+		 * to initialize cordova webView,
+		 * MonacaWebView detects this symbol and passes "javascript:" to CordovaWebView#loadUrlIntoView
+		 * and MonacaPageActivity supresses timeout error message caused by this
+		 */
+		this.loadUrl(MonacaWebView.INITIALIZATION_REQUEST_URL);
 
 		root.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 			@Override
@@ -825,12 +831,13 @@ public class MonacaPageActivity extends DroidGap {
 		closePageReceiver = null;
 		unregisterReceiver(mScreenReceiver);
 
+		root.removeView(appView);
 		appView.stopLoading();
 		appView.setWebChromeClient(null);
 		appView.setWebViewClient(null);
 		unregisterForContextMenu(appView);
 		appView.destroy();
-		appView = null;
+		//appView = null; this causes null pointer on some devices
 	}
 
 	/** Reload current URI. */
@@ -1098,6 +1105,23 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+	}
+
+	@Override
+	public void onReceivedError(int errorCode, String description, String failingUrl) {
+		//MyLog.d(TAG, "got error :" + Integer.toString(errorCode) + ", " + description + ", " + failingUrl);
+		if (isInitializationMessage(errorCode, description, failingUrl)) {
+			MyLog.d(TAG, "supressed initialize message");
+			return;
+		} else {
+			super.onReceivedError(errorCode, description, failingUrl);
+		}
+	}
+
+	protected boolean isInitializationMessage(int errorCode, String description, String failingUrl) {
+		return (errorCode == MonacaWebView.INITIALIZATION_ERROR_CODE
+				&& description.contains(MonacaWebView.INITIALIZATION_DESCRIPTION)
+				&& failingUrl.startsWith(MonacaWebView.INITIALIZATION_MADIATOR));
 	}
 
 	public String getCurrentUriWithoutQuery() {
