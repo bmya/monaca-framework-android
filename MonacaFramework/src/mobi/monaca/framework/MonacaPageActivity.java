@@ -835,9 +835,12 @@ public class MonacaPageActivity extends DroidGap {
 		appView.stopLoading();
 		appView.setWebChromeClient(null);
 		appView.setWebViewClient(null);
-		unregisterForContextMenu(appView);
-		appView.destroy();
-		//appView = null; this causes null pointer on some devices
+
+		// this causes null pointer on some devices
+		// for DroidGap posts delayed message to appView
+		// unregisterForContextMenu(appView);
+		// appView.destroy();
+		// appView = null;
 	}
 
 	/** Reload current URI. */
