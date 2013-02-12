@@ -8,6 +8,7 @@ import android.content.Context;
 
 public class UrlUtil {
 	public static final String DELIMITTER = "/assets/www/";
+	public static final String EMBEDDING_HASH ="#embedding";
 
     static public boolean isUrl(String url) {
         return url.startsWith("http://") || url.startsWith("https://");
@@ -28,6 +29,10 @@ public class UrlUtil {
 
 	static public boolean isMonacaUri(Context context, String uri) {
 		return uri.startsWith("file:///android_asset/") || uri.startsWith("file://" + context.getApplicationInfo().dataDir);
+	}
+
+	static public boolean isEmbedding(String uri) {
+		return uri.endsWith(EMBEDDING_HASH);
 	}
 
     static public String resolve(String url, String relativePath) {
