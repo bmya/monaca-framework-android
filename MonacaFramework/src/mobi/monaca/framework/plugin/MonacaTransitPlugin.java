@@ -91,8 +91,8 @@ public class MonacaTransitPlugin extends Plugin {
             return new PluginResult(PluginResult.Status.OK);
         }
 
-        if (action.equals("clearWithoutTop")) {
-            clearWithoutTop();
+        if (action.equals("clearPageStack")) {
+            clearPageStack();
             return new PluginResult(PluginResult.Status.OK);
         }
 
@@ -145,7 +145,7 @@ public class MonacaTransitPlugin extends Plugin {
         getMonacaPageActivity().pushPageAsync(url, params);
     }
 
-    protected void clearWithoutTop() {
+    protected void clearPageStack() {
         List<MonacaPageActivity> pages = new ArrayList<MonacaPageActivity>(MonacaApplication.getPages());
         pages = pages.subList(0, pages.size() - 1);
         Collections.reverse(pages);
