@@ -865,10 +865,9 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Load current URI. */
 	public void loadUri(String uri, final boolean withoutUIFile) {
+		setCurrentUri(uri);
 		String currentUriWithoutQuery = getCurrentUriWithoutQuery();
 		MyLog.v(TAG, "loadUri() uri:" + currentUriWithoutQuery);
-
-		setCurrentUri(uri);
 
 		// check for 404
 		if (currentUriWithoutQuery.equalsIgnoreCase("file:///android_asset/www/404/404.html")) {
