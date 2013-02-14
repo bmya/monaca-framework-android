@@ -1,11 +1,13 @@
 package mobi.monaca.framework.nativeui;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.utils.TimeStamp;
+import mobi.monaca.utils.log.LogItem;
+import mobi.monaca.utils.log.LogItem.LogLevel;
+import mobi.monaca.utils.log.LogItem.Source;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +25,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
 
@@ -84,37 +85,48 @@ public class UIUtil {
 
     public static void reportJSONParseError(Context context, String msg) {
     	MyLog.e(TAG, "JSONParseError: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:JSONParseError:" + msg, "error", "error");
+    	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:JSONParseError:" + msg, "", 0);
+    	MyLog.sendBloadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidJSONStructure(Context context, String msg) {
     	MyLog.e(TAG, "InvalidJSONStructure: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidJSONStructure:" + msg, "error", "error");
+        LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidJSONStructure:" + msg, "", 0);
+    	MyLog.sendBloadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidComponent(Context context, String msg) {
     	MyLog.e(TAG, "InvalidComponent: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidComponent:" + msg, "error", "error");
+        LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidComponent:" + msg, "", 0);
+     	MyLog.sendBloadcastDebugLog(context, logItem);
+  
     }
 
     public static void reportInvalidContainer(Context context, String msg) {
     	MyLog.e(TAG, "InvalidContainer: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidContainer:" + msg, "error", "error");
+        LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidContainer:" + msg, "", 0);
+     	MyLog.sendBloadcastDebugLog(context, logItem);
+  
     }
 
     public static void reportUndefinedProperty(Context context, String msg) {
     	MyLog.e(TAG, "UndefinedProperty: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:UndefinedProperty:" + msg, "error", "error");
+        LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:UndefinedProperty:" + msg, "", 0);
+     	MyLog.sendBloadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidStyleProperty(Context context, String msg) {
     	MyLog.e(TAG, "InvalidStyleProperty: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:InvalidStyleProperty:" + msg, "error", "error");
+        LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidStyleProperty:" + msg, "", 0);
+     	MyLog.sendBloadcastDebugLog(context, logItem);
+  
     }
 
     public static void reportIgnoredStyleProperty(Context context, String msg) {
     	MyLog.e(TAG, "IgnoredStyleProperty: " + msg);
-        MyLog.sendBloadcastDebugLog(context, "NativeComponent:IgnoredStyleProperty:" + msg, "error", "error");
+        LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:IgnoredStyleProperty:" + msg, "", 0);
+     	MyLog.sendBloadcastDebugLog(context, logItem);
+  
     }
 
     public static int multiplyColor(int base, int filter) {

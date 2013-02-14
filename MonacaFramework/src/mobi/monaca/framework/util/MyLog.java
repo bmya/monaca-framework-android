@@ -1,6 +1,8 @@
 package mobi.monaca.framework.util;
 
 import mobi.monaca.framework.psedo.BuildConfig;
+import mobi.monaca.utils.log.LogItem;
+import mobi.monaca.utils.log.LogSource;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
@@ -40,11 +42,32 @@ public class MyLog {
 	}
 
 	// send debuglog to debbuger and server
-	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String debugType, String logLevel) {
+	public static void sendBloadcastDebugLog(Context context, LogItem logItem) {
+		MyLog.v("MyLog", "sendBloadcastDebugLog. message:" + logItem.getMessage());
 		Intent broadcastIntent = new Intent("log_message_action");
-		broadcastIntent.putExtra("message", broadcastMessage);
-		broadcastIntent.putExtra("debugType", debugType);
-		broadcastIntent.putExtra("logLevel", logLevel);
-		LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
+		broadcastIntent.putExtra("message", logItem.getMessage());
+		broadcastIntent.putExtra("source", logItem.getSource().toString());
+		broadcastIntent.putExtra("url", logItem.getUrl());
+		broadcastIntent.putExtra("line", logItem.getLineNumber());
+		broadcastIntent.putExtra("logLevel", logItem.getLogLevel().toString());
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
+	}
+	
+//	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String logLevel, LogSource source, String url, int lineNumber) {
+//		MyLog.v("MyLog", "sendBloadcastDebugLog. message:" + broadcastMessage);
+//		Intent broadcastIntent = new Intent("log_message_action");
+//		broadcastIntent.putExtra("message", broadcastMessage);
+//		broadcastIntent.putExtra("source", source);
+//		broadcastIntent.putExtra("url", url);
+//		broadcastIntent.putExtra("line", lineNumber);
+//		broadcastIntent.putExtra("logLevel", logLevel);
+//		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
+//	}
+	
+	public static void sendBloadcastPongLog(Context context) {
+		MyLog.i("MyLog", "sendBloadcastPongLog");
+		Intent broadcastIntent = new Intent("log_message_action");
+		broadcastIntent.putExtra("pong", true);
+		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
 	}
 }

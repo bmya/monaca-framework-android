@@ -1,4 +1,4 @@
-package mobi.monaca.framework.util;
+package mobi.monaca.utils;
 
 import android.os.AsyncTask.Status;
 import android.os.Handler;

@@ -1,0 +1,3 @@
+[submodule "cordova-android"]
+	path = cordova-android
+	url = git@github.com:monaca/cordova-android.git

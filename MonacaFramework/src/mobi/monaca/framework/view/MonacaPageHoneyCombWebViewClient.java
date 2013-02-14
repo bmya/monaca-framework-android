@@ -5,6 +5,10 @@ import java.io.ByteArrayInputStream;
 import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.utils.TimeStamp;
+import mobi.monaca.utils.log.LogItem;
+import mobi.monaca.utils.log.LogItem.LogLevel;
+import mobi.monaca.utils.log.LogItem.Source;
 
 import org.apache.cordova.CordovaWebView;
 
@@ -26,7 +30,8 @@ public class MonacaPageHoneyCombWebViewClient extends MonacaPageGingerbreadWebVi
 	public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
         if (!MonacaApplication.allowAccess(url)) {
         	MyLog.w(TAG, "Not allowing access to url:" + url);
-        	MyLog.sendBloadcastDebugLog(monacaPage, "Not allowing access to " + url, "error", "error");
+        	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "Not allowing access to " + url, "", 0);
+        	MyLog.sendBloadcastDebugLog(monacaPage.getApplicationContext(), logItem);
             WebResourceResponse response = new WebResourceResponse(
                 "text/html", "UTF-8", 
                 new ByteArrayInputStream("<font color='#999'>not allowed</font>".getBytes())

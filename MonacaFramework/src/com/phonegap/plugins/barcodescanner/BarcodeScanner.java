@@ -19,6 +19,9 @@ import android.util.Log;
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 
+import com.google.zxing.client.android.CaptureActivity;
+import com.google.zxing.client.android.encode.EncodeActivity;
+
 /**
  * This calls out to the ZXing barcode reader and returns the result.
  */
@@ -95,9 +98,9 @@ public class BarcodeScanner extends Plugin {
      * Starts an intent to scan and decode a barcode.
      */
     public void scan() {
-        Intent intentScan = new Intent(SCAN_INTENT);
-        intentScan.addCategory(Intent.CATEGORY_DEFAULT);
-
+    	Intent intentScan = new Intent(cordova.getActivity(), CaptureActivity.class);
+    	intentScan.setAction(SCAN_INTENT);
+    	
         this.cordova.startActivityForResult((Plugin) this, intentScan, REQUEST_CODE);
     }
 
@@ -143,7 +146,9 @@ public class BarcodeScanner extends Plugin {
      * @param data2
      */
     public void encode(String type, String data) {
-        Intent intentEncode = new Intent(ENCODE_INTENT);
+//        Intent intentEncode = new Intent(ENCODE_INTENT);
+        Intent intentEncode = new Intent(cordova.getActivity(), EncodeActivity.class);
+        intentEncode.setAction(ENCODE_INTENT);
         intentEncode.putExtra(ENCODE_TYPE, type);
         intentEncode.putExtra(ENCODE_DATA, data);
 

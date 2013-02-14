@@ -12,7 +12,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Message;
-import android.util.Log;
 import android.webkit.HttpAuthHandler;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
@@ -34,19 +33,23 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String uri) {
-    	MyLog.v(TAG, "shouldOverrideUrlLoading url:" + uri);
+    	//MyLog.v(TAG, "shouldOverrideUrlLoading url:" + uri);
 
         if (uri != null) {
         	if (uri.contains("file:///android_res/raw/home")) {
         		MyLog.v(TAG, "Going home from 404");
         		monacaPage.goHomeAsync(null);
         		return true;
-        	} else if (UrlUtil.isMonacaUri(monacaPage, uri)) {
+        	} else if (UrlUtil.isMonacaUri(monacaPage, uri) && !UrlUtil.isEmbedding(uri)) {
         		MyLog.d(TAG, "load as monaca application : " + uri);
-        		monacaPage.loadUri(uri, true);
-                return true;
+        		monacaPage.loadUri(uri, false);
+        		return true;
+
+        		// MyLog.d(TAG, "update currentPageUri and UI : " + uri);
+        	//	monacaPage.setCurrentUri(uri);
+        	//	monacaPage.loadUiFile(monacaPage.getCurrentUriWithoutQuery());
             } else {
-            	MyLog.d(TAG, "return super.shouldOverrideUrlLoading");
+            	//MyLog.d(TAG, "return super.shouldOverrideUrlLoading");
                 return super.shouldOverrideUrlLoading(view, uri);
             }
         }
@@ -73,14 +76,14 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 
     @Override
     public void onPageFinished(WebView view, String url) {
-    	MyLog.d(TAG, "onPageFinished: " + url);
+//    	MyLog.d(TAG, "onPageFinished: " + url);
         monacaPage.onPageFinished(view, url);
         super.onPageFinished(view, url);
     }
 
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
-    	MyLog.d(TAG, "onPageStarted: " + url);
+//    	MyLog.d(TAG, "onPageStarted: " + url);
         monacaPage.onPageStarted(view, url);
         super.onPageStarted(view, url, favicon);
     }

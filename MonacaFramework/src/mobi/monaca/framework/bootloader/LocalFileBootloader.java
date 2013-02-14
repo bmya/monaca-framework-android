@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mobi.monaca.framework.util.MyAsyncTask;
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.utils.MyAsyncTask;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;

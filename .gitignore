@@ -7,10 +7,7 @@ MonacaFramework/tmp
 .DS_Store
 *jarlist.cache
 *.class
-
-# template project
-MonacaTemplateEngine/gen/
-MonacaTemplateEngineTest/gen/
+*local.properties
 
 # Library
 BarcodeScannerLibrary/gen/
@@ -18,4 +15,3 @@ BarcodeScannerLibrary/bin/
 
 # build
 MonacaTemplateEngine/monaca_templating.[0-9]*.jar
-
