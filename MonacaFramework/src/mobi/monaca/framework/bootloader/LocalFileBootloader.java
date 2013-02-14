@@ -165,7 +165,7 @@ public class LocalFileBootloader {
     	if (needToUseLocalFileBootloader()) {
         	MyLog.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
 
-    		File localAssetFile = new File(context.getApplicationInfo().dataDir + "/" + newPath);
+    		File localAssetFile = new File(newPath.startsWith("file:///data/") ? newPath.substring(8) : context.getApplicationInfo().dataDir + "/" + newPath);
 
         	MyLog.d(TAG, "localAssetFile :" + localAssetFile);
     		if (localAssetFile.exists()) {
