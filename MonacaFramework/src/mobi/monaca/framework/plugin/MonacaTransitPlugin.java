@@ -92,7 +92,8 @@ public class MonacaTransitPlugin extends Plugin {
         }
 
         if (action.equals("clearPageStack")) {
-            clearPageStack();
+        	boolean clearAll = args.optBoolean(0, false);
+            clearPageStack(clearAll);
             return new PluginResult(PluginResult.Status.OK);
         }
 
@@ -145,14 +146,21 @@ public class MonacaTransitPlugin extends Plugin {
         getMonacaPageActivity().pushPageAsync(url, params);
     }
 
-    protected void clearPageStack() {
+    protected void clearPageStack(boolean clearAll) {
         List<MonacaPageActivity> pages = new ArrayList<MonacaPageActivity>(MonacaApplication.getPages());
-        pages = pages.subList(0, pages.size() - 1);
-        Collections.reverse(pages);
+    	if (clearAll) {
+    		pages = pages.subList(0, pages.size() - 1);
+    		Collections.reverse(pages);
 
-        for (MonacaPageActivity page : pages) {
-            page.finish();
-        }
+    		for (MonacaPageActivity page : pages) {
+    			page.finish();
+    		}
+    	} else {
+    		if (pages.size() > 1) {
+    			MonacaPageActivity previousPage = pages.get(pages.size() - 2);
+    			previousPage.finish();
+    		}
+    	}
     }
 
 }
