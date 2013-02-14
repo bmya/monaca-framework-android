@@ -931,7 +931,7 @@ public class MonacaPageActivity extends DroidGap {
 
 			isCapableForTransition = false;
 			startActivity(intent);
-			if (params.needToFinishCurrentPage()) {
+			if (params.needsToClearStack()) {
 			    finish();
 			}
 		}
