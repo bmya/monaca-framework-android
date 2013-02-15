@@ -12,6 +12,7 @@ import mobi.monaca.framework.nativeui.component.BackButtonComponent;
 import mobi.monaca.framework.nativeui.component.ButtonComponent;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.LabelComponent;
+import mobi.monaca.framework.nativeui.component.PageBackgroundComponent;
 import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.SegmentComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
@@ -39,6 +40,7 @@ public class UIBuilder {
 		public UIEventer eventer;
 		public String menuName;
 		public JSONObject pageStyle;
+		public PageBackgroundComponent pageBackgroundComponent;
 
 		public String toString() {
 			return "menuName:" + menuName + ", topView:" + topView
@@ -201,10 +203,22 @@ public class UIBuilder {
 		resultSet.eventer = new UIEventer(context, uiJSON.optJSONObject("event"));
 		resultSet.menuName = uiJSON.optString("menu", "");
 		resultSet.pageStyle = uiJSON.optJSONObject("style");
+		
+		JSONObject pageBackgroundStyle = uiJSON.optJSONObject("style");
+		if(pageBackgroundStyle != null ){
+			resultSet.pageBackgroundComponent = buildPageBackgroundComponent(pageBackgroundStyle);
+			if (uiJSON.optString("id").length() > 0) {
+				resultSet.dict.put(uiJSON.optString("id"), resultSet.pageBackgroundComponent);
+			}
+		}
 
 		return resultSet;
 	}
 
+	private PageBackgroundComponent buildPageBackgroundComponent(JSONObject style){
+		return new PageBackgroundComponent(context, style);
+	}
+	
 	public class UIBuilderException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 
