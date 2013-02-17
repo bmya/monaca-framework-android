@@ -12,7 +12,7 @@ import mobi.monaca.framework.nativeui.component.BackButtonComponent;
 import mobi.monaca.framework.nativeui.component.ButtonComponent;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.LabelComponent;
-import mobi.monaca.framework.nativeui.component.PageBackgroundComponent;
+import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.SegmentComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
@@ -40,14 +40,11 @@ public class UIBuilder {
 		public UIEventer eventer;
 		public String menuName;
 		public JSONObject pageStyle;
-		public PageBackgroundComponent pageBackgroundComponent;
+		public PageComponent pageComponent;
 
 		public String toString() {
-			return "menuName:" + menuName + ", topView:" + topView
-					+ ", bottomView:" + bottomView + ", top:" + top
-					+ ", bottom" + bottom + ", backButtonEventer:" + backButtonEventer
-					+ ", eventer:" + eventer
-					+ ", dict:" + dict;
+			return "menuName:" + menuName + ", topView:" + topView + ", bottomView:" + bottomView + ", top:" + top + ", bottom" + bottom
+					+ ", backButtonEventer:" + backButtonEventer + ", eventer:" + eventer + ", dict:" + dict;
 		};
 	}
 
@@ -57,13 +54,14 @@ public class UIBuilder {
 	protected JSONObject uiJSON;
 
 	public UIBuilder(UIContext context, JSONObject uiJSON) {
-//		MyLog.v(TAG, "UIBuilder. constructor: uiJson:" + uiJSON);
+		// MyLog.v(TAG, "UIBuilder. constructor: uiJson:" + uiJSON);
 		this.context = context;
 		this.uiJSON = uiJSON;
 	}
 
 	public List<ToolbarComponent> buildToolbarComponents(JSONArray json, ResultSet resultSet) {
-//		MyLog.v(TAG, "buildToolbarComponents(). json=" + json + ", resultSet:" + resultSet);
+		// MyLog.v(TAG, "buildToolbarComponents(). json=" + json +
+		// ", resultSet:" + resultSet);
 		ArrayList<ToolbarComponent> result = new ArrayList<ToolbarComponent>();
 
 		if (json != null) {
@@ -79,7 +77,8 @@ public class UIBuilder {
 	}
 
 	public List<ToolbarComponent> buildToolbarComponent(JSONObject json, ResultSet resultSet) {
-//		MyLog.v(TAG, "buildToolbarComponent(). json=" + json + ", resultSet:" + resultSet);
+		// MyLog.v(TAG, "buildToolbarComponent(). json=" + json + ", resultSet:"
+		// + resultSet);
 		if (json == null) {
 			return Collections.emptyList();
 		}
@@ -114,7 +113,8 @@ public class UIBuilder {
 	}
 
 	public View buildToolbar(JSONObject json, boolean isTop, ResultSet resultSet) {
-//		MyLog.v(TAG, "buildToolbar(). json=" + json + ", isTop=" + isTop + ", resultSet:" + resultSet);
+		// MyLog.v(TAG, "buildToolbar(). json=" + json + ", isTop=" + isTop +
+		// ", resultSet:" + resultSet);
 		if (json == null) {
 			return null;
 		}
@@ -125,10 +125,8 @@ public class UIBuilder {
 
 		if (json.optString("container").equals("toolbar")) {
 
-			ToolbarContainer toolbar = new ToolbarContainer(context, buildToolbarComponents(json.optJSONArray("left"), resultSet),
-																	buildToolbarComponents(json.optJSONArray("center"), resultSet),
-																	buildToolbarComponents(json.optJSONArray("right"), resultSet),
-																	buildStyleJSONObject(json));
+			ToolbarContainer toolbar = new ToolbarContainer(context, buildToolbarComponents(json.optJSONArray("left"), resultSet), buildToolbarComponents(
+					json.optJSONArray("center"), resultSet), buildToolbarComponents(json.optJSONArray("right"), resultSet), buildStyleJSONObject(json));
 			if (json.optString("id", "").length() > 0) {
 				resultSet.dict.put(json.optString("id", ""), toolbar);
 			}
@@ -160,7 +158,8 @@ public class UIBuilder {
 	}
 
 	protected List<TabbarItem> buildTabbarItems(JSONArray json, ResultSet resultSet) {
-//		MyLog.v(TAG, "buildTabbarItems(). json=" + json + ", resultSet:" + resultSet);
+		// MyLog.v(TAG, "buildTabbarItems(). json=" + json + ", resultSet:" +
+		// resultSet);
 		if (json == null) {
 			return new ArrayList<TabbarItem>();
 		}
@@ -177,7 +176,8 @@ public class UIBuilder {
 	}
 
 	protected TabbarItem buildTabbarItem(JSONObject json, ResultSet resultSet) {
-//		MyLog.v(TAG, "buildTabbarItem(). json=" + json + ", resultSet:" + resultSet);
+		// MyLog.v(TAG, "buildTabbarItem(). json=" + json + ", resultSet:" +
+		// resultSet);
 		String componentId = json.optString("component");
 		JSONObject style = buildStyleJSONObject(json);
 
@@ -203,22 +203,26 @@ public class UIBuilder {
 		resultSet.eventer = new UIEventer(context, uiJSON.optJSONObject("event"));
 		resultSet.menuName = uiJSON.optString("menu", "");
 		resultSet.pageStyle = uiJSON.optJSONObject("style");
+
+		JSONObject pageBackgroundStyleJsonObject = null;
+		try {
+			pageBackgroundStyleJsonObject = uiJSON.getJSONObject("style");
+		} catch (JSONException e) {
+			pageBackgroundStyleJsonObject = new JSONObject();
+		}
 		
-		JSONObject pageBackgroundStyle = uiJSON.optJSONObject("style");
-		if(pageBackgroundStyle != null ){
-			resultSet.pageBackgroundComponent = buildPageBackgroundComponent(pageBackgroundStyle);
-			if (uiJSON.optString("id").length() > 0) {
-				resultSet.dict.put(uiJSON.optString("id"), resultSet.pageBackgroundComponent);
-			}
+		resultSet.pageComponent = buildPageComponent(pageBackgroundStyleJsonObject);
+		if (uiJSON.optString("id").length() > 0) {
+			resultSet.dict.put(uiJSON.optString("id"), resultSet.pageComponent);
 		}
 
 		return resultSet;
 	}
 
-	private PageBackgroundComponent buildPageBackgroundComponent(JSONObject style){
-		return new PageBackgroundComponent(context, style);
+	private PageComponent buildPageComponent(JSONObject style) {
+		return new PageComponent(context, style);
 	}
-	
+
 	public class UIBuilderException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 
@@ -232,7 +236,7 @@ public class UIBuilder {
 	}
 
 	protected JSONObject buildStyleJSONObject(JSONObject component) {
-//		MyLog.v(TAG, "buildStyleJSONObject(). component=" + component);
+		// MyLog.v(TAG, "buildStyleJSONObject(). component=" + component);
 		JSONObject style = component.optJSONObject("style");
 		style = style != null ? style : new JSONObject();
 

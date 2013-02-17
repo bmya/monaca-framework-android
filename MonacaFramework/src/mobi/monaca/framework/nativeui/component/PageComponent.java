@@ -25,6 +25,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.text.TextUtils;
 import android.util.FloatMath;
 import android.view.Gravity;
 import android.view.View;
@@ -33,14 +34,16 @@ import android.view.View;
  * Used for manipulating MonacaPageActivity background style
  * 
  */
-public class PageBackgroundComponent implements Component {
+public class PageComponent implements Component {
 
-	private static final String TAG = PageBackgroundComponent.class.getSimpleName();
+	private static final String TAG = PageComponent.class.getSimpleName();
 	private UIContext uiContext;
 	private JSONObject style;
-	private LayerDrawable layerDrawable;
-
-	public PageBackgroundComponent(UIContext uiContext, JSONObject style) {
+	private LayerDrawable mLayeredBackgroundDrawable;
+	private PageOrientation mScreenOrientation;
+	
+	
+	public PageComponent(UIContext uiContext, JSONObject style) {
 		this.uiContext = uiContext;
 		this.style = style;
 		style();
@@ -50,16 +53,20 @@ public class PageBackgroundComponent implements Component {
 	public View getView() {
 		return null;
 	}
+	
+	public PageOrientation getScreenOrientation() {
+		return mScreenOrientation;
+	}
 
-	public Drawable getDrawable() {
-		return layerDrawable;
+	public Drawable getBackgroundDrawable() {
+		return mLayeredBackgroundDrawable;
 	}
 
 	@Override
 	public void updateStyle(JSONObject update) {
 		UIUtil.updateJSONObject(style, update);
 		style();
-		uiContext.getPageActivity().setupBackground(layerDrawable);
+		uiContext.getPageActivity().setupBackground(mLayeredBackgroundDrawable);
 	}
 
 	@Override
@@ -69,13 +76,28 @@ public class PageBackgroundComponent implements Component {
 
 	private void style() {
 		ArrayList<Drawable> layerList = new ArrayList<Drawable>();
+		
+		processScreenOrientation();
 
 		processPageStyleBackgroundColor(style, layerList);
 		processPageStyleBackgroundImage(style, layerList);
 		processPageStyleBackgroundRepeat(layerList);
 
 		Drawable[] layers = new Drawable[layerList.size()];
-		layerDrawable = new LayerDrawable(layerList.toArray(layers));
+		mLayeredBackgroundDrawable = new LayerDrawable(layerList.toArray(layers));
+	}
+	
+	private void processScreenOrientation(){
+		String screenOrientationString = style.optString("screenOrientation").trim();
+		if(TextUtils.isEmpty(screenOrientationString)){
+			mScreenOrientation = PageOrientation.INHERIT;
+		}else if(screenOrientationString.equalsIgnoreCase("portrait")){
+			mScreenOrientation = PageOrientation.PORTRAIT;
+		}else if(screenOrientationString.equalsIgnoreCase("landscape")){
+			mScreenOrientation = PageOrientation.LANDSCAPE;
+		}else{
+			mScreenOrientation = PageOrientation.SENSOR;
+		}
 	}
 
 	private void processPageStyleBackgroundRepeat(ArrayList<Drawable> layerList) {
