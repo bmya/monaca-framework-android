@@ -46,6 +46,10 @@ public class UIContext extends ContextWrapper {
     public DisplayMetrics getDisplayMetrics() {
         return metrics;
     }
+    
+    public MonacaPageActivity getPageActivity() {
+		return pageActivity;
+	}
 
     public void showSoftInput(View view) {
         ((InputMethodManager)pageActivity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(view, 0);

@@ -169,7 +169,7 @@ public class MonacaPageActivity extends DroidGap {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
-		root.setBackgroundColor(Color.WHITE);
+//		root.setBackgroundColor(Color.WHITE);
 	}
 
 	protected Drawable getSplashDrawable() throws IOException {
@@ -301,7 +301,7 @@ public class MonacaPageActivity extends DroidGap {
 			throw new RuntimeException(e);
 		}
 
-		loadBackground(getResources().getConfiguration());
+//		loadBackground(getResources().getConfiguration());
 	}
 
 	/** Load background drawable from transition params and device orientation. */
@@ -362,7 +362,7 @@ public class MonacaPageActivity extends DroidGap {
 			}
 		});
 
-		setupBackground();
+//		setupBackground();
 
 		// for focus problem between native component and webView
 		appView.setOnTouchListener(new View.OnTouchListener() {
@@ -392,8 +392,9 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	/** Setup background drawable for app View and root view. */
-	protected void setupBackground() {
+	public void setupBackground(Drawable background) {
 		MyLog.v(TAG, "setupBackground()");
+		appView.setBackgroundColor(0x00000000);
 		if (background != null) {
 			MyLog.v(TAG, "background != null");
 			if (appView != null) {
@@ -453,17 +454,6 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getUrlWithQuery());
 	}
 
-	protected boolean usingTemplatgeEngine() {
-		try {
-			ApplicationInfo appInfo = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-			if (appInfo.metaData == null || !appInfo.metaData.containsKey("disable_monaca_template_engine")) {
-				return true;
-			}
-			return !appInfo.metaData.getBoolean("disable_monaca_template_engine");
-		} catch (NameNotFoundException e) {
-			return true;
-		}
-	}
 
 	public JSONObject getInfoForJavaScript() {
 		return infoForJavaScript;
@@ -515,9 +505,10 @@ public class MonacaPageActivity extends DroidGap {
 		uiBuilderResult = result;
 		this.dict = result.dict;
 
-		JSONObject pageStyle = uiBuilderResult.pageStyle;
-		processPageStyle(pageStyle);
-
+		if(result.pageBackgroundComponent != null){
+			setupBackground(result.pageBackgroundComponent.getDrawable());
+		}
+		
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		params.setMargins(0, 0, 0, 0);
 
@@ -601,44 +592,6 @@ public class MonacaPageActivity extends DroidGap {
 			this.dict = new HashMap<String, Component>();
 		}
 	}
-
-	private void processPageStyle(JSONObject pageStyle) {
-		if(uiBuilderResult.pageStyle != null){
-			ArrayList<Drawable> layerList = new ArrayList<Drawable>();
-
-			// background color
-			String backgroundColor = pageStyle.optString("backgroundColor");
-			if(!backgroundColor.equalsIgnoreCase("")){
-				ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor(backgroundColor));
-				layerList.add(colorDrawable);
-			}
-
-			String backgroundImageFile = pageStyle.optString("backgroundImage");
-			if(!backgroundImageFile.equalsIgnoreCase("")){
-				MyLog.w(TAG, "backgroundImage:" + backgroundImageFile);
-				String path = null;
-				String preferedPath = "www/" + UIContext.getPreferredPath(backgroundImageFile);
-				if (AssetUriUtil.existsAsset(this, preferedPath)) {
-					path = preferedPath;
-				} else {
-					path = "www/" + backgroundImageFile;
-				}
-				MyLog.v(TAG, "loadBackground(). path:" + path);
-				try {
-					Bitmap bitmap = BitmapFactory.decodeStream(LocalFileBootloader.openAsset(this.getApplicationContext(), path));
-					BackgroundDrawable backgroundImage = new BackgroundDrawable(bitmap, getWindowManager().getDefaultDisplay(), getResources().getConfiguration().orientation);
-					layerList.add(backgroundImage);
-				} catch (Exception e) {
-					MyLog.e(TAG, e.getMessage());
-				}
-			}
-
-			Drawable[] layers = new Drawable[layerList.size()];
-			LayerDrawable layerDrawable = new LayerDrawable(layerList.toArray(layers));
-			background = layerDrawable;
-		}
-	}
-
 
 	protected String getUIFile(String path) throws IOException {
 		Reader reader;
@@ -766,7 +719,7 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.i(TAG, "onRestart");
 		super.onRestart();
 		loadBackground(getResources().getConfiguration());
-		setupBackground();
+//		setupBackground();
 		if (background != null) {
 			background.invalidateSelf();
 		}
@@ -894,7 +847,7 @@ public class MonacaPageActivity extends DroidGap {
 			}
 			
 			appView.setBackgroundColor(0x00000000);
-			setupBackground();
+//			setupBackground();
 			loadLayoutInformation();
 
 			appView.loadUrl(currentMonacaUri.getUrlWithQuery());
@@ -1081,7 +1034,7 @@ public class MonacaPageActivity extends DroidGap {
 		// handling orieantation change for background image.
 		if (background != null) {
 			loadBackground(newConfig);
-			setupBackground();
+//			setupBackground();
 			if (background != null) {
 				background.invalidateSelf();
 			}
