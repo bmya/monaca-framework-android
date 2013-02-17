@@ -394,6 +394,7 @@ public class MonacaPageActivity extends DroidGap {
 	/** Setup background drawable for app View and root view. */
 	public void setupBackground(Drawable background) {
 		MyLog.v(TAG, "setupBackground()");
+		appView.setBackgroundColor(0x00000000);
 		if (background != null) {
 			MyLog.v(TAG, "background != null");
 			if (appView != null) {

@@ -71,8 +71,8 @@ public class PageBackgroundComponent implements Component {
 		ArrayList<Drawable> layerList = new ArrayList<Drawable>();
 
 		processPageStyleBackgroundColor(style, layerList);
-//		processPageStyleBackgroundImage(style, layerList);
-//		processPageStyleBackgroundRepeat(layerList);
+		processPageStyleBackgroundImage(style, layerList);
+		processPageStyleBackgroundRepeat(layerList);
 
 		Drawable[] layers = new Drawable[layerList.size()];
 		layerDrawable = new LayerDrawable(layerList.toArray(layers));
