@@ -115,10 +115,10 @@ public class PageBackgroundComponent implements Component {
 	private void processPageStyleBackgroundColor(JSONObject pageStyle, ArrayList<Drawable> layerList) {
 		// // background color
 		String backgroundColorString = pageStyle.optString("backgroundColor").trim();
+		
+		// default
+		int color = Color.WHITE;
 		if (!backgroundColorString.equalsIgnoreCase("")) {
-			// default
-			int color = Color.WHITE;
-
 			// #xxxxxx format
 			if (backgroundColorString.startsWith("#")) {
 				try {
@@ -134,11 +134,10 @@ public class PageBackgroundComponent implements Component {
 						+ backgroundColorString, "", 0);
 				MyLog.sendBloadcastDebugLog(uiContext, logItem);
 			}
-
-			ColorDrawable colorDrawable = new ColorDrawable(color);
-			layerList.add(colorDrawable);
-
 		}
+		
+		ColorDrawable colorDrawable = new ColorDrawable(color);
+		layerList.add(colorDrawable);
 	}
 
 	private void processPageStyleBackgroundImage(JSONObject pageStyle, ArrayList<Drawable> layerList) {

@@ -507,6 +507,9 @@ public class MonacaPageActivity extends DroidGap {
 
 		if(result.pageBackgroundComponent != null){
 			setupBackground(result.pageBackgroundComponent.getDrawable());
+		}else{
+			ColorDrawable whiteDrawable = new ColorDrawable(Color.WHITE);
+			setupBackground(whiteDrawable);
 		}
 		
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
