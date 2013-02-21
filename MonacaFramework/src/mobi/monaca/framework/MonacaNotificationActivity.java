@@ -13,7 +13,17 @@ public class MonacaNotificationActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
-		Bundle b = getIntent().getExtras();
+		process(getIntent());
+		this.finish();
+	}
+
+	@Override
+	protected void onNewIntent(Intent arg) {
+		process(arg);
+		this.finish();
+	}
+	private void process(Intent arg) {
+		Bundle b = arg.getExtras();
 		GCMPushDataset pushData = (GCMPushDataset)b.getSerializable(GCMPushDataset.KEY);
 		if (pushData == null) {
 			finish();
@@ -25,14 +35,10 @@ public class MonacaNotificationActivity extends Activity {
 			Intent i = new Intent(this,  MonacaSplashActivity.class);
 			i.putExtra(GCMPushDataset.KEY, pushData);
 			startActivity(i);
-			this.finish();
-			return;
 		} else {
 			Intent i = new Intent(ACTION_RECEIVED_PUSH);
 			i.putExtra(GCMPushDataset.KEY, pushData);
 			sendBroadcast(i);
-			this.finish();
-			return;
 		}
 	}
 }

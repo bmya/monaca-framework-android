@@ -35,18 +35,19 @@ public class GCMIntentService extends GCMBaseIntentService {
 		String title = b.getString("title") != null ? b.getString("title") : getString(R.string.app_name) + " Received Push";
 
 		Intent intent = new Intent(this,MonacaNotificationActivity.class);
-		PendingIntent pending = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
 		intent.putExtra(GCMPushDataset.KEY, data);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
+		PendingIntent pending = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		Notification notification = new Notification();
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 		notification.icon = R.drawable.icon;
 		notification.tickerText = getString(R.string.app_name);
 		notification.setLatestEventInfo(this, title, message, pending);
-
+		int id = (int)System.currentTimeMillis();
 		NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-		notificationManager.notify(0, notification);
+		notificationManager.notify(id, notification);
 	}
 
 	@Override
