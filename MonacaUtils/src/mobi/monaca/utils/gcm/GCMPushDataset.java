@@ -7,6 +7,10 @@ import org.json.JSONObject;
 
 public class GCMPushDataset implements Serializable{
 	private static final long serialVersionUID = -2053523995979076876L;
+
+	/**
+	 * used to pass GCMPushDataset between Activities
+	 */
 	public static final String KEY = "get_pushdata_key";
 
 	private String pushProjectId;
@@ -25,5 +29,13 @@ public class GCMPushDataset implements Serializable{
 		} catch (JSONException e) {
 			return null;
 		}
+	}
+
+	public String getExtraJSONString() {
+		return extraJsonString;
+	}
+
+	public String getPushProjectId() {
+		return pushProjectId;
 	}
 }

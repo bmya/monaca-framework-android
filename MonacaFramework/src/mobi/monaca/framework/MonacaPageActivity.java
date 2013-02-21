@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -35,11 +36,11 @@ import mobi.monaca.framework.view.MonacaPageGingerbreadWebViewClient;
 import mobi.monaca.framework.view.MonacaPageHoneyCombWebViewClient;
 import mobi.monaca.framework.view.MonacaWebView;
 import mobi.monaca.utils.TimeStamp;
+import mobi.monaca.utils.gcm.GCMPushDataset;
 import mobi.monaca.utils.log.LogItem;
 import mobi.monaca.utils.log.LogItem.LogLevel;
 import mobi.monaca.utils.log.LogItem.Source;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
@@ -55,16 +56,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -81,7 +77,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
@@ -93,6 +88,7 @@ public class MonacaPageActivity extends DroidGap {
 	public static final String TRANSITION_PARAM_NAME = "monaca.transition";
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
+	protected static final String MONACA_READY_URL = "file:///android_asset/www/plugins/monaca.js/monaca_ready.js";
 
 	protected MonacaURI currentMonacaUri;
 
@@ -121,6 +117,16 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	};
 
+	protected BroadcastReceiver pushReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (isIndex()) {
+				GCMPushDataset p = (GCMPushDataset)intent.getExtras().get(GCMPushDataset.KEY);
+				sendPushToWebView(p);
+			}
+		}
+	};
+
 	/** If this flag is true, activity is capable of transition. */
 	protected boolean isCapableForTransition = true;
 
@@ -132,8 +138,11 @@ public class MonacaPageActivity extends DroidGap {
 	protected String mCurrentHtml;
 	private ScreenReceiver mScreenReceiver;
 
+	protected GCMPushDataset pushData;
+
 	@Override
 	public void onCreate(Bundle savedInstance) {
+		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
 
 		// initialize receiver
@@ -176,6 +185,12 @@ public class MonacaPageActivity extends DroidGap {
 		// root.setBackgroundColor(Color.WHITE);
 
 	}
+
+
+	protected boolean isIndex() {
+		return pageIndex == MonacaApplication.getPages().size() - 1;
+	}
+
 
 	protected Drawable getSplashDrawable() throws IOException {
 		InputStream is = getResources().getAssets().open(MonacaSplashActivity.SPLASH_IMAGE_PATH);
@@ -262,7 +277,6 @@ public class MonacaPageActivity extends DroidGap {
 
 			menu.clear();
 			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
-
 			MyLog.v(TAG, "menuRepresentation:" + menuRepresentation);
 			if (menuRepresentation != null) {
 				menuRepresentation.configureMenu(uiContext, menu);
@@ -276,9 +290,15 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected void prepare() {
 		Bundle bundle = getIntent().getExtras();
-		if (bundle != null && bundle.getBoolean(MonacaSplashActivity.SHOWS_SPLASH_KEY, false)) {
-			showMonacaSplash();
-			getIntent().getExtras().remove(MonacaSplashActivity.SHOWS_SPLASH_KEY);
+		if (bundle != null) {
+			if (bundle.getBoolean(MonacaSplashActivity.SHOWS_SPLASH_KEY, false)) {
+				showMonacaSplash();
+				getIntent().getExtras().remove(MonacaSplashActivity.SHOWS_SPLASH_KEY);
+			}
+			Serializable s = bundle.getSerializable(GCMPushDataset.KEY);
+			if (s != null) {
+				pushData = (GCMPushDataset)s;
+			}
 		}
 
 		loadParams();
@@ -501,21 +521,21 @@ public class MonacaPageActivity extends DroidGap {
 
 		applyUiToView(result);
 	}
-	
+
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
 		switch (pageOrientation) {
 		case PORTRAIT:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			break;
-		
+
 		case LANDSCAPE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			break;
-			
+
 		case SENSOR:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 			break;
-			
+
 		case INHERIT:
 			// no override. Do nothing.
 			break;
@@ -787,6 +807,7 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public void onDestroy() {
 		MyLog.i(TAG, "onDestroy");
+		unregisterReceiver(pushReceiver);
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		this.removeMonacaSplash();
@@ -1081,6 +1102,20 @@ public class MonacaPageActivity extends DroidGap {
 	 * publish log message
 	 */
 	public void onLoadResource(WebView view, String url) {
+		processMonacaReady(url);
+	}
+
+	protected void processMonacaReady(String url) {
+		if (pushData != null) {
+			if (url.equals(MONACA_READY_URL)) {
+				sendPushToWebView(pushData);
+				pushData = null;
+			}
+		}
+	}
+
+	protected void sendPushToWebView(GCMPushDataset pushData) {
+		appView.loadUrl("javascript:monaca.sendPush(" + pushData.getExtraJSONString() + ")");
 	}
 
 	public MonacaURI getCurrentMonacaUri() {
@@ -1113,7 +1148,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	/**
 	 * update uri and currentMonacaURI
-	 * 
+	 *
 	 * @param uri
 	 */
 	public void setCurrentUri(String uri) {

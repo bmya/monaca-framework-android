@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.utils.gcm.GCMPushDataset;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,10 +62,19 @@ public class MonacaSplashActivity extends Activity {
         	goNextActivityWithoutSplash();
         }
     }
-    
+
     protected Intent createActivityIntent() {
 		Intent intent = new Intent(MonacaSplashActivity.this,
                 MonacaPageActivity.class);
+
+    	Intent i = getIntent();
+    	Bundle b;
+    	if (i != null && (b = i.getExtras()) != null) {
+    		GCMPushDataset pushdata = (GCMPushDataset)b.get(GCMPushDataset.KEY);
+    		if (pushdata != null) {
+        		intent.putExtra(GCMPushDataset.KEY, pushdata);
+    		}
+    	}
 		return intent;
 	}
 
