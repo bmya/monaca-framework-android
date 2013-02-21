@@ -126,7 +126,7 @@ public class UIBuilder {
 		if (json.optString("container").equals("toolbar")) {
 
 			ToolbarContainer toolbar = new ToolbarContainer(context, buildToolbarComponents(json.optJSONArray("left"), resultSet), buildToolbarComponents(
-					json.optJSONArray("center"), resultSet), buildToolbarComponents(json.optJSONArray("right"), resultSet), buildStyleJSONObject(json));
+					json.optJSONArray("center"), resultSet), buildToolbarComponents(json.optJSONArray("right"), resultSet), buildStyleJSONObject(json), isTop);
 			if (json.optString("id", "").length() > 0) {
 				resultSet.dict.put(json.optString("id", ""), toolbar);
 			}

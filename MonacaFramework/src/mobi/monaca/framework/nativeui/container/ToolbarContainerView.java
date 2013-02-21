@@ -8,14 +8,18 @@ import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
+import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
+import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -32,6 +36,8 @@ public class ToolbarContainerView extends LinearLayout {
 	private TextView titleView;
 	private TextView subTitleMainTitleView;
 	private TextView subtitleView;
+	private View shadowView;
+	boolean isTop = true;
 
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
@@ -72,16 +78,25 @@ public class ToolbarContainerView extends LinearLayout {
 		return result;
 	}
 
-	public ToolbarContainerView(UIContext context) {
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public ToolbarContainerView(UIContext context, boolean isTop) {
 		super(context);
 
 		this.context = context;
+		this.isTop = isTop;
 
 		setOrientation(LinearLayout.VERTICAL);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 
 		content = new FrameLayout(context);
+		
+		// bottom toolbar -> shadow on top
+		if(!isTop){
+			shadowView = new View(getContext());
+			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, UIUtil.dip2px(getContext(), 3));
+		}
 
 		addView(createBorderView(), new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, 1));
@@ -90,7 +105,15 @@ public class ToolbarContainerView extends LinearLayout {
 				UIUtil.dip2px(getContext(), CONTAINER_HEIGHT)) );
 		addView(createBorderView(), new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, 1));
-
+		
+		// top toolbar -> shadow is under
+		if(isTop){
+			shadowView = new View(getContext());
+			shadowView.setBackgroundResource(R.drawable.shadow_bg);
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, UIUtil.dip2px(getContext(), 3));
+		}
+		
+		
 		left = new LinearLayout(context);
 		left.setOrientation(LinearLayout.HORIZONTAL);
 		left.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
@@ -171,7 +194,11 @@ public class ToolbarContainerView extends LinearLayout {
 	public View getContentView() {
 		return content;
 	}
-
+	
+	public View getShadowView() {
+		return shadowView;
+	}
+	
 	public void setTitleSubtitle(String title, String subtitle) {
 		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:"
 				+ subtitle);
