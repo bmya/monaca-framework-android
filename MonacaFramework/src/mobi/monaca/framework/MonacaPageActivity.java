@@ -812,7 +812,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		root.removeView(appView);
 		appView.stopLoading();
-		appView.setWebChromeClient(null);
+//		appView.setWebChromeClient(null);  // this caused Android 2.3.5 to crash. Null Pointer Exception
 		appView.setWebViewClient(null);
 
 		// this causes null pointer on some devices
