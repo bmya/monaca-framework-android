@@ -33,20 +33,23 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String uri) {
-    	MyLog.v(TAG, "shouldOverrideUrlLoading url:" + uri);
+    	//MyLog.v(TAG, "shouldOverrideUrlLoading url:" + uri);
 
         if (uri != null) {
         	if (uri.contains("file:///android_res/raw/home")) {
         		MyLog.v(TAG, "Going home from 404");
         		monacaPage.goHomeAsync(null);
         		return true;
-        	} else if (UrlUtil.isMonacaUri(monacaPage, uri)) {
+        	} else if (UrlUtil.isMonacaUri(monacaPage, uri) && !UrlUtil.isEmbedding(uri)) {
         		MyLog.d(TAG, "load as monaca application : " + uri);
-//        		monacaPage.loadUri(uri, false);
-        		monacaPage.loadUiFile(uri);
-//                return true;
+        		monacaPage.loadUri(uri, false);
+        		return true;
+
+        		// MyLog.d(TAG, "update currentPageUri and UI : " + uri);
+        	//	monacaPage.setCurrentUri(uri);
+        	//	monacaPage.loadUiFile(monacaPage.getCurrentUriWithoutQuery());
             } else {
-            	MyLog.d(TAG, "return super.shouldOverrideUrlLoading");
+            	//MyLog.d(TAG, "return super.shouldOverrideUrlLoading");
                 return super.shouldOverrideUrlLoading(view, uri);
             }
         }

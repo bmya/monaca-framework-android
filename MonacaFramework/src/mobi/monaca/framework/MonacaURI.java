@@ -35,7 +35,7 @@ public class MonacaURI {
 			MyLog.e(TAG, "URISyntacException! : " + url);
 		}
 	}
-
+	
 	public static String buildUrlWithQuery(String baseUrl, JSONObject queryJson) {
 
 		MyLog.d(TAG, "buildUrl :" + baseUrl);
@@ -144,7 +144,7 @@ public class MonacaURI {
 	public void parseQuery() {
 		if (uri.getQuery() != null) {
 			//MyLog.d(TAG, "hasQuery");
-			MyLog.d(TAG, uri.getRawQuery());
+			MyLog.d(TAG, "rawQuery:"+ uri.getRawQuery());
 			String[] params = uri.getRawQuery().split("&");
 			String[] keyAndValue;
 

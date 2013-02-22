@@ -12,6 +12,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.FrameLayout.LayoutParams;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 public class MonacaTextButton extends Button {
@@ -67,6 +69,11 @@ public class MonacaTextButton extends Button {
                         "#000000")));
         background.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
         setBackgroundDrawable(new ButtonDrawable(background));
+        
+        setLayoutParams(new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            background.getIntrinsicHeight()
+        ));
 
         setText(style.optString("text", ""));
         setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE

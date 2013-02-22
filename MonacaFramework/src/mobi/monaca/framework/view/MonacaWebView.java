@@ -2,6 +2,7 @@ package mobi.monaca.framework.view;
 
 import java.io.IOException;
 
+import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.util.MyLog;
 
 import org.apache.cordova.CordovaWebView;
@@ -18,10 +19,17 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 
 public class MonacaWebView extends CordovaWebView {
-	public static String TAG = MonacaWebView.class.getSimpleName();
+	public static final String TAG = MonacaWebView.class.getSimpleName();
+
+	public static final String INITIALIZATION_REQUEST_URL = "INITIALIZATION";
+	public static final String INITIALIZATION_MADIATOR = "javascript:";
+	public static final String INITIALIZATION_DESCRIPTION = "The connection to the server was unsuccessful.";
+	public static final int INITIALIZATION_ERROR_CODE = -6;
 
 	protected Context context;
 	private boolean notBackButton = true;
+
+	protected MonacaPageActivity pageActivity;
 
 	public MonacaWebView(Context context, AttributeSet attrs, int defStyle,
 			boolean privateBrowsing) {
@@ -42,6 +50,14 @@ public class MonacaWebView extends CordovaWebView {
 	public MonacaWebView(Context context) {
 		super(context);
 		this.context = context;
+		init();
+	}
+
+	public MonacaWebView(MonacaPageActivity pageActivity) {
+		super(pageActivity);
+		this.context = pageActivity;
+		this.pageActivity = pageActivity;
+
 		init();
 	}
 
@@ -70,6 +86,15 @@ public class MonacaWebView extends CordovaWebView {
 
 		notBackButton = true;
 		return supersReturn;
+	}
+
+	@Override
+	public void loadUrlIntoView(final String url) {
+		if (url.equals(INITIALIZATION_REQUEST_URL)) {
+			super.loadUrlIntoView(INITIALIZATION_MADIATOR);
+		} else {
+			super.loadUrlIntoView(url);
+		}
 	}
 
 	@Override

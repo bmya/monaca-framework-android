@@ -46,6 +46,10 @@ public class UIContext extends ContextWrapper {
     public DisplayMetrics getDisplayMetrics() {
         return metrics;
     }
+    
+    public MonacaPageActivity getPageActivity() {
+		return pageActivity;
+	}
 
     public void showSoftInput(View view) {
         ((InputMethodManager)pageActivity.getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(view, 0);
@@ -64,24 +68,14 @@ public class UIContext extends ContextWrapper {
     }
 	public void loadRelativePathWithoutUIFile(String relativePath) {
 		MyLog.v(TAG, "loadRelativePathWithoutUIFile. relativePath:" + relativePath);
-		String newUri = pageActivity.getCurrentUriWithoutQuery() + "/../" + relativePath;
-		MyLog.v(TAG, "uri unresolved=" + newUri);
-		if (newUri.startsWith("file://")) {
-			try {
-				pageActivity.loadUri("file://" + new File(newUri.substring(7)).getCanonicalPath(), true);
-				MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutQuery());
-			} catch (Exception e) {
-				MyLog.e(TAG, e.getMessage());
-				pageActivity.loadUri(pageActivity.getCurrentUriWithoutQuery(), true);
-			}
-		} else {
-			pageActivity.loadUri(pageActivity.getCurrentUriWithoutQuery(), true);
-		}
+		String resolved = resolve(relativePath);
+		pageActivity.loadUri(resolved, true);
+		MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutQuery());
 	}
 
 	public void changeCurrentUri(String uri) {
-		String newUri = pageActivity.getCurrentUriWithoutQuery() + "/../" + uri;
-		pageActivity.setCurrentUri(newUri);
+		String resolvedUri = resolve(uri);
+		pageActivity.setCurrentUri(resolvedUri);
 	}
 
     public Bitmap readBitmap(String path) {
