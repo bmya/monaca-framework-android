@@ -26,7 +26,7 @@ import android.widget.TextView;
 /**
  * This class represents toolbar view on native ui framework.
  */
-public class ToolbarContainerView extends LinearLayout {
+public class ToolbarContainerView extends LinearLayout implements ContainerViewInterface{
 
 	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper,
@@ -38,11 +38,13 @@ public class ToolbarContainerView extends LinearLayout {
 	private TextView subtitleView;
 	private View shadowView;
 	boolean isTop = true;
+	private int mShadowHeight;
 
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
 	private static final String TAG = ToolbarContainerView.class
 			.getSimpleName();
+	private static final int CONTENT_VIEW_ID = 10000;
 
 	protected View createBorderView() {
 		View v = new FrameLayout(context);
@@ -81,6 +83,7 @@ public class ToolbarContainerView extends LinearLayout {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public ToolbarContainerView(UIContext context, boolean isTop) {
 		super(context);
+		mShadowHeight = UIUtil.dip2px(getContext(), 3);
 
 		this.context = context;
 		this.isTop = isTop;
@@ -90,12 +93,13 @@ public class ToolbarContainerView extends LinearLayout {
 		setFocusableInTouchMode(true);
 
 		content = new FrameLayout(context);
+		content.setId(CONTENT_VIEW_ID);
 		
 		// bottom toolbar -> shadow on top
 		if(!isTop){
 			shadowView = new View(getContext());
 			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
-			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, UIUtil.dip2px(getContext(), 3));
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
 		}
 
 		addView(createBorderView(), new LinearLayout.LayoutParams(
@@ -110,7 +114,7 @@ public class ToolbarContainerView extends LinearLayout {
 		if(isTop){
 			shadowView = new View(getContext());
 			shadowView.setBackgroundResource(R.drawable.shadow_bg);
-			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, UIUtil.dip2px(getContext(), 3));
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
 		}
 		
 		
@@ -190,7 +194,7 @@ public class ToolbarContainerView extends LinearLayout {
 		content.addView(titleWrapper, p);
 		content.addView(titleSubtitleWrapper, p);
 	}
-
+	
 	public View getContentView() {
 		return content;
 	}
@@ -353,6 +357,11 @@ public class ToolbarContainerView extends LinearLayout {
 		} catch (Exception e) {
 			MyLog.e(TAG, e.getMessage());
 		}
+	}
+
+	@Override
+	public int getShadowHeight() {
+		return mShadowHeight;
 	}
 
 }
