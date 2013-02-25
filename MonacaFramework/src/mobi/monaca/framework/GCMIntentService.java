@@ -35,6 +35,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		String title = b.getString("title") != null ? b.getString("title") : getString(R.string.app_name) + " Received Push";
 		Intent intent = new Intent(this, MonacaNotificationActivity.class);
 		intent.putExtra(GCMPushDataset.KEY, data);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		int id = (int)System.currentTimeMillis();
 		PendingIntent pending = PendingIntent.getActivity(this, id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
