@@ -84,7 +84,6 @@ import android.widget.LinearLayout;
  * This class represent a page of Monaca application.
  */
 public class MonacaPageActivity extends DroidGap {
-
 	public static final String TRANSITION_PARAM_NAME = "monaca.transition";
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
@@ -105,6 +104,8 @@ public class MonacaPageActivity extends DroidGap {
 	protected JSONObject appJson;
 
 	protected Dialog monacaSplashDialog;
+
+	private boolean isOnDestroyMonacaCalled = false;
 
 	protected BroadcastReceiver closePageReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
@@ -802,16 +803,36 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.i(TAG, "onPause");
 		super.onPause();
 		this.removeMonacaSplash();
+
+		if (isFinishing()) {
+			onDestroyMonacaCaller();
+		}
 	}
 
-	@Override
-	public void onDestroy() {
-		MyLog.i(TAG, "onDestroy");
+	/**
+	 * @see MonacaPageActivity#onDestroyMonaca()
+	 */
+	private final void onDestroyMonacaCaller() {
+		//MyLog.d(TAG, "monacaOnDestroyCaller()");
+		if (!isOnDestroyMonacaCalled) {
+			// prevent from multiple calls
+			onDestroyMonaca();
+			isOnDestroyMonacaCalled = true;
+		}
+	}
+
+	/**
+	 * to call onDestroy surely, this is called in onPause or onDestroy
+	 * since Activity#finish doesn't guarantee calling onDestroy.
+	 * this should be called through onDestroyMonacaCaller
+	 * @see MonacaPageActivity#onDestroyMonacaCaller()
+	 */
+	protected void onDestroyMonaca() {
+		MyLog.d(TAG, "onDestroyMonaca");
 		unregisterReceiver(pushReceiver);
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		this.removeMonacaSplash();
-		super.onDestroy();
 
 		MonacaApplication.removePage(this);
 		unregisterReceiver(closePageReceiver);
@@ -841,6 +862,13 @@ public class MonacaPageActivity extends DroidGap {
 		// unregisterForContextMenu(appView);
 		// appView.destroy();
 		// appView = null;
+	}
+
+	@Override
+	public void onDestroy() {
+		MyLog.i(TAG, "onDestroy");
+		onDestroyMonacaCaller();
+		super.onDestroy();
 	}
 
 	/** Reload current URI. */
@@ -1069,6 +1097,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	protected void onStop() {
+		MyLog.d(TAG, "onStop");
 		super.onStop();
 		unloadBackground();
 	}
