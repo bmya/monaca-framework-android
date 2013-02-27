@@ -1,5 +1,7 @@
 package mobi.monaca.framework;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +9,13 @@ import java.util.Map;
 
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentationBuilder;
+import mobi.monaca.framework.task.GCMRegistrationIdSenderTask;
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.utils.MonacaAPIUrl;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -21,6 +29,8 @@ public class MonacaApplication extends Application {
     protected static Map<String, MenuRepresentation> menuMap = null;
     protected static MonacaApplication self = null;
 
+    protected JSONObject appJson;
+
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -32,35 +42,59 @@ public class MonacaApplication extends Application {
     	MyLog.i(TAG, "onCreate()");
         super.onCreate();
         self = this;
-        
+
         createMenuMap();
+    }
+
+    protected void loadAppJson() {
+    	try {
+    		InputStream stream = getResources().getAssets().open("app.json");
+			byte[] buffer = new byte[stream.available()];
+			stream.read(buffer);
+			appJson = new JSONObject(new String(buffer,"UTF-8"));
+			return;
+		} catch (IOException e) {
+			MyLog.e(TAG, e.getMessage());
+		} catch (JSONException e) {
+			MyLog.e(TAG, e.getMessage());
+		} catch (IllegalArgumentException e) {
+			MyLog.e(TAG, e.getMessage());
+		}
+    	appJson = new JSONObject();
+    }
+
+    public JSONObject getAppJson() {
+    	if (appJson == null) {
+    		loadAppJson();
+    	}
+    	return appJson;
     }
 
 	protected void createMenuMap() {
 		menuMap = new MenuRepresentationBuilder(getApplicationContext()).buildFromAssets(this, "www/app.menu");
 	}
-    
-    
+
+
     public static boolean allowAccess(String url) {
-        
+
         if (url.startsWith("file://")) {
             Context context = self.getApplicationContext();
-            
+
             try {
                 url = new URI(url).normalize().toString();
             } catch (Exception e) {
             	MyLog.e(TAG, e.getMessage());
                 return false;
             }
-            
+
             if (url.startsWith("file:///android_asset/")) {
                 return true;
             }
-            
+
             if (url.startsWith("file://" + context.getApplicationInfo().dataDir)) {
                 return !url.startsWith("file://" + context.getApplicationInfo().dataDir + "/shared_prefs/");
             }
-            
+
             //allow access to SD card (some app need access to photos in SD card)
             if (url.startsWith("file:///mnt/")){
             	return true;
@@ -70,7 +104,7 @@ public class MonacaApplication extends Application {
             }
             return false;
         }
-        
+
         return true;
     }
 
@@ -113,5 +147,28 @@ public class MonacaApplication extends Application {
         self = null;
 
         super.onTerminate();
+    }
+
+    public void sendGCMRegisterIdToAppAPI(String regId) {
+    	String pushProjectId = "";
+    	if (getAppJson().has("push_project_id")) {
+			try {
+				pushProjectId = appJson.getString("push_project_id");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+    	}
+
+		new GCMRegistrationIdSenderTask(this, MonacaAPIUrl.getPushRegistrationAPIUrl(pushProjectId), regId) {
+			@Override
+			protected void onSucceededRegistration(JSONObject resultJson) {
+			}
+			@Override
+			protected void onFailedRegistration(JSONObject resultJson) {
+			}
+			@Override
+			protected void onClosedTask() {
+			}
+		}.setEnv("prod").execute();//TODO change this in test
     }
 }

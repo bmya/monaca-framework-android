@@ -53,7 +53,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	@Override
 	protected void onRegistered(Context arg0, String arg1) {
-		MyLog.d(TAG, "onRegisterd :" + arg1);
+		((MonacaApplication)getApplication()).sendGCMRegisterIdToAppAPI(arg1);
 	}
 
 	@Override

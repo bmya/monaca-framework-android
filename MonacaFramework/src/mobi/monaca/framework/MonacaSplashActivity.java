@@ -18,6 +18,8 @@ import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import com.google.android.gcm.GCMRegistrar;
+
 public class MonacaSplashActivity extends Activity {
 	private static final String TAG = MonacaSplashActivity.class.getSimpleName();
     protected static final String SPLASH_IMAGE_PATH = "android/splash_default.png";
@@ -29,7 +31,7 @@ public class MonacaSplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadAppJson();
-
+        registerGCM();
         if (hasSplashScreenExists()) {
             splashView = new ImageView(this);
             splashView.setScaleType(ScaleType.FIT_CENTER);
@@ -63,6 +65,29 @@ public class MonacaSplashActivity extends Activity {
         }
     }
 
+    protected void loadAppJson() {
+    	this.appJson = ((MonacaApplication)getApplication()).getAppJson();
+    }
+
+    protected void registerGCM() {
+		try {
+			String senderId = appJson.getString("sender_id");
+			// GCM registration process
+			GCMRegistrar.checkDevice(this);
+			GCMRegistrar.checkManifest(this);
+			final String regId = GCMRegistrar.getRegistrationId(this);
+			if (regId.equals("")) {
+				GCMRegistrar.register(this, senderId);
+			} else {
+				((MonacaApplication)getApplication()).sendGCMRegisterIdToAppAPI(regId);
+			}
+
+		} catch (Exception e) {
+			MyLog.d(TAG, "this device or application does not support GCM");
+			e.printStackTrace();
+		}
+    }
+
     protected Intent createActivityIntent() {
 		Intent intent = new Intent(MonacaSplashActivity.this,
                 MonacaPageActivity.class);
@@ -88,23 +113,6 @@ public class MonacaSplashActivity extends Activity {
 		}
         startActivity(intent);
         finish();
-    }
-
-    protected void loadAppJson() {
-    	try {
-    		InputStream stream = getResources().getAssets().open("app.json");
-			byte[] buffer = new byte[stream.available()];
-			stream.read(buffer);
-			appJson = new JSONObject(new String(buffer,"UTF-8"));
-			return;
-		} catch (IOException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (JSONException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (IllegalArgumentException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
-    	appJson = new JSONObject();
     }
 
     protected int getBackgroundColor() {
