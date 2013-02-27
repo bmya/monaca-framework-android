@@ -151,9 +151,10 @@ public class MonacaApplication extends Application {
 
     public void sendGCMRegisterIdToAppAPI(String regId) {
     	String pushProjectId = "";
-    	if (getAppJson().has("push_project_id")) {
+    	if (getAppJson().has("pushNotification")) {
 			try {
-				pushProjectId = appJson.getString("push_project_id");
+				JSONObject pathNotification = appJson.getJSONObject("pushNotification");
+				pushProjectId = pathNotification.getString("pushProjectId");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

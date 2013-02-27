@@ -71,7 +71,7 @@ public class MonacaSplashActivity extends Activity {
 
     protected void registerGCM() {
 		try {
-			String senderId = appJson.getString("sender_id");
+			String senderId = appJson.getJSONObject("pushNotification").getJSONObject("android").getString("senderId");
 			// GCM registration process
 			GCMRegistrar.checkDevice(this);
 			GCMRegistrar.checkManifest(this);

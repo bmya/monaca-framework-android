@@ -6,6 +6,6 @@ public class MonacaAPIUrl {
     public static final String API_HOST = "https://" + API_DOMAIN;
 
     public static String getPushRegistrationAPIUrl(String pushProjectId) {
-    	return API_HOST + "/v1/push/register/:";
+    	return API_HOST + "/v1/push/register/";
     }
 }
