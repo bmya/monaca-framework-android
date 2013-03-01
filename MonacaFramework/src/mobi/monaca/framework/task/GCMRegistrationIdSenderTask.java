@@ -121,6 +121,12 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 		super.cancel(b);
 	}
 
+	public static void clearAlreadyRegisteredPreference(Context context, String regId) {
+		Editor e = context.getSharedPreferences(KEY_PREF, Context.MODE_PRIVATE).edit();
+		e.putBoolean(KEY_PREF_ALREADY_REGISTERED + regId, false);
+		e.commit();
+	}
+
 	public GCMRegistrationIdSenderTask setEnv(String env) {
 		this.env = env;
 		return this;
