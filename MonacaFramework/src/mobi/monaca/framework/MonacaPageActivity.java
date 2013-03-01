@@ -82,6 +82,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
@@ -92,7 +93,7 @@ public class MonacaPageActivity extends DroidGap {
 	public static final String TRANSITION_PARAM_NAME = "monaca.transition";
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
-	protected static final String MONACA_READY_URL = "file:///android_asset/www/plugins/monaca.js/monaca_ready.js";
+	protected static final String MONACA_READY_URL = "file:///android_asset/www/plugins/monaca.js/monaca.ready.js";
 
 	protected MonacaURI currentMonacaUri;
 
