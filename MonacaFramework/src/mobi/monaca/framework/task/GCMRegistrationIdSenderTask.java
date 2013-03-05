@@ -37,7 +37,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 	private static final String TAG = GCMRegistrationIdSenderTask.class.getSimpleName();
 	private static final String KEY_PREF = "gcm_pref";
 	/**
-	 * should use "PREF_KEY_ALREADY_REGISTERED + GCMRegistrar.getRegistrationId(this)" form
+	 * should use "KEY_PREF_ALREADY_REGISTERED + GCMRegistrar.getRegistrationId(this)" form
 	 */
 	static final String KEY_PREF_ALREADY_REGISTERED = "already_registered";
 	final private String REGISTRATION_API_URL;
@@ -72,7 +72,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 	@Override
 	final protected void onPostExecute(JSONObject resultJson) {
 		if (alreadyRegistered) {
-			//MyLog.d(TAG, "already registered to server");
+			MyLog.d(TAG, "already registered to server");
 			// do nothing
 		} else {
 			try {
@@ -96,10 +96,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 	}
 
 	private void preOnSucceededRegistration(JSONObject resultJson) {
-		if (resultJson != null) {
-			Log.d(TAG, "response :" + resultJson.toString());
-		}
-
+		MyLog.d(TAG, "succeeded GCM registration to server!");
 		Editor e = configPreference.edit();
 		e.putBoolean(KEY_PREF_ALREADY_REGISTERED + regId, true);
 		e.commit();
@@ -108,10 +105,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 	}
 
 	private void preOnFailedRegistration(JSONObject resultJson) {
-		if (resultJson != null) {
-			Log.d(TAG, "response :" + resultJson.toString());
-		}
-
+		MyLog.d(TAG, "Failed GCM registration to server");
 		onFailedRegistration(resultJson);
 	}
 
