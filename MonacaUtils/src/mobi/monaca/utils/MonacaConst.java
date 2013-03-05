@@ -38,6 +38,9 @@ public class MonacaConst {
 	}
 
 	private static String getConst(Context context, String key) {
+		if (context == null) {
+			throw new NullPointerException();
+		}
 		if (constMap == null) {
 			loadMonacaConst(context);
 		}
@@ -53,28 +56,30 @@ public class MonacaConst {
 		Resources res = context.getResources();
 		int id = res.getIdentifier("monaca_const", "xml", context.getPackageName());
 		if (id != 0) {
+			Log.d("MonacaConst", "found monaca_const.xml");
 			XmlResourceParser xml = res.getXml(id);
 			int eventType = -1;
 			while (eventType != XmlResourceParser.END_DOCUMENT) {
-				if (eventType == XmlResourceParser.START_TAG) {
-					String node = xml.getName();
-					if (node.equals("monaca")) {
-						int count = xml.getAttributeCount();
+				String node = xml.getName();
+				if (eventType == XmlResourceParser.START_TAG && node.equalsIgnoreCase("monaca")) {
+					int count = xml.getAttributeCount();
 					//	Log.d("consts", "found monaca tag, has options :" + count);
-						for (int i = 0; i < count; i++) {
-						//	Log.d("MonacaConst", xml.getAttributeName(i) + ":" + xml.getAttributeValue(i));
-							constMap.put(xml.getAttributeName(i), xml.getAttributeValue(i));
-						}
+					for (int i = 0; i < count; i++) {
+					//	Log.d("MonacaConst", xml.getAttributeName(i) + ":" + xml.getAttributeValue(i));
+						constMap.put(xml.getAttributeName(i), xml.getAttributeValue(i));
 					}
-				}
-				try {
-					eventType = xml.next();
-				} catch (XmlPullParserException e) {
+					// only uses first Monaca tag
 					eventType = XmlResourceParser.END_DOCUMENT;
-					e.printStackTrace();
-				} catch (IOException e) {
-					eventType = XmlResourceParser.END_DOCUMENT;
-					e.printStackTrace();
+				} else {
+					try {
+						eventType = xml.next();
+					} catch (XmlPullParserException e) {
+						eventType = XmlResourceParser.END_DOCUMENT;
+						e.printStackTrace();
+					} catch (IOException e) {
+						eventType = XmlResourceParser.END_DOCUMENT;
+						e.printStackTrace();
+					}
 				}
 			}
 		}
