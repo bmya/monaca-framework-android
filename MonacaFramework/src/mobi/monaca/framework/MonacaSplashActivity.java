@@ -24,6 +24,9 @@ public class MonacaSplashActivity extends Activity {
 	protected ImageView splashView;
 	protected JSONObject appJson;
 
+	protected Handler handler;
+	protected Runnable pageLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,34 +37,34 @@ public class MonacaSplashActivity extends Activity {
             splashView.setScaleType(ScaleType.FIT_CENTER);
             InputStream stream = getSplashFileStream();
             splashView.setImageBitmap(BitmapFactory.decodeStream(stream));
-
             splashView.setBackgroundColor(getBackgroundColor());
-
             try {
                 stream.close();
             } catch (Exception e) {
             }
             setContentView(splashView);
 
-            new Handler().postDelayed(new Runnable() {
+            handler = new Handler();
+            pageLauncher = new Runnable() {
                 @Override
                 public void run() {
                     Intent intent = createActivityIntent();
                     startActivity(intent);
-                    new Handler().postDelayed(new Runnable() {
+                    handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             finish();
                         }
                     }, 500);
                 }
+            };
 
-            }, 1000);
+            handler.postDelayed(pageLauncher, 1000);
         } else {
         	goNextActivityWithoutSplash();
         }
     }
-    
+
     protected Intent createActivityIntent() {
 		Intent intent = new Intent(MonacaSplashActivity.this,
                 MonacaPageActivity.class);
@@ -73,7 +76,6 @@ public class MonacaSplashActivity extends Activity {
         try {
 			intent.putExtra(SHOWS_SPLASH_KEY, !appJson.getJSONObject("splash").getJSONObject("android").getBoolean("autoHide"));
 		} catch (JSONException e) {
-			// TODO 自動生成された catch ブロック
 			MyLog.e(TAG, e.getMessage());
 		}
         startActivity(intent);
@@ -130,6 +132,14 @@ public class MonacaSplashActivity extends Activity {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+    	if (handler != null && pageLauncher != null) {
+    		handler.removeCallbacks(pageLauncher);
+    	}
+    	super.onBackPressed();
     }
 
     protected InputStream getSplashFileStream() {
