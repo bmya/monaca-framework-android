@@ -93,7 +93,6 @@ public class MonacaPageActivity extends DroidGap {
 	public static final String TRANSITION_PARAM_NAME = "monaca.transition";
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
-	protected static final String MONACA_READY_URL = "file:///android_asset/www/plugins/monaca.js/monaca.ready.js";
 
 	protected MonacaURI currentMonacaUri;
 
@@ -756,7 +755,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		// check if this is 404 page
 		String errorUrl = getIntent().getStringExtra("error_url");
-
+		processMonacaReady(url);
 		if (errorUrl != null && url.endsWith("/404/404.html")) {
 			String backButtonText = getString(R.string.back_button_text);
 			errorUrl = UrlUtil.cutHostInUri(errorUrl);
@@ -923,6 +922,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
+		//	appView.loadUrl(getCurrentUriWithoutQuery());
 			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
@@ -1143,15 +1143,17 @@ public class MonacaPageActivity extends DroidGap {
 	 * publish log message
 	 */
 	public void onLoadResource(WebView view, String url) {
-		processMonacaReady(url);
+		//MyLog.d(TAG, "onLoadResource :" + url);
 	}
 
 	protected void processMonacaReady(String url) {
 		if (pushData != null) {
-			if (url.equals(MONACA_READY_URL)) {
+			if (UrlUtil.isMonacaUri(this, url)) {
 				sendPushToWebView(pushData);
 				pushData = null;
 			}
+		} else {
+			MyLog.d(TAG, "no Push");
 		}
 	}
 
