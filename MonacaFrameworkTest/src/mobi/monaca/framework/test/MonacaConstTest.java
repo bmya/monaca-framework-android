@@ -41,15 +41,4 @@ public class MonacaConstTest extends AndroidTestCase {
 		} catch (NullPointerException e) {
 		}
 	}
-
-	public void testGetEnv() {
-		String env = MonacaConst.getEnv(mContext);
-		assertEquals("fine", env); //first monaca tag is used
-
-		try {
-			MonacaConst.getEnv(null);
-			fail("should be thrown NullPointerException");
-		} catch (NullPointerException e) {
-		}
-	}
 }

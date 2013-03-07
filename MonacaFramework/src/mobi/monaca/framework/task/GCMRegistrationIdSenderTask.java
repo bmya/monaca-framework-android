@@ -48,7 +48,6 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 
 	private boolean alreadyRegistered;
 
-	private String env;
 	private String isCustom;
 
 	/**
@@ -63,7 +62,6 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 		this.configPreference = context.getSharedPreferences(KEY_PREF, Context.MODE_PRIVATE);
 		this.REGISTRATION_API_URL = regAPIUrl;
 
-		this.env = MonacaConst.getEnv(context);
 		this.isCustom = MonacaConst.getIsCustom(context);
 
 		alreadyRegistered = configPreference.getBoolean(KEY_PREF_ALREADY_REGISTERED + regId, false);
@@ -121,10 +119,6 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 		e.commit();
 	}
 
-	public GCMRegistrationIdSenderTask setEnv(String env) {
-		this.env = env;
-		return this;
-	}
 	public GCMRegistrationIdSenderTask setIsCustom(String isCustom) {
 		this.isCustom = isCustom;
 		return this;
@@ -145,7 +139,6 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 			List<NameValuePair> list = new ArrayList<NameValuePair>();
 			list.add(new BasicNameValuePair("platform", "android"));
 			list.add(new BasicNameValuePair("deviceId", MonacaDevice.getDeviceId(context)));
-			list.add(new BasicNameValuePair("env", env));
 			list.add(new BasicNameValuePair("isCustom", isCustom));
 			list.add(new BasicNameValuePair("version",  Integer.toString(versionCode)));
 			list.add(new BasicNameValuePair("registrationId", regId));

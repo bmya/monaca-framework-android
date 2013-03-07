@@ -33,9 +33,6 @@ public class MonacaConst {
 	public static String getIsCustom(Context context) {
 		return getConst(context, KEY_ISCUSTOM);
 	}
-	public static String getEnv(Context context) {
-		return getConst(context, KEY_ENV);
-	}
 
 	private static String getConst(Context context, String key) {
 		if (context == null) {
