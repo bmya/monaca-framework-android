@@ -44,18 +44,15 @@ public class MonacaSplashActivity extends Activity {
             }
             setContentView(splashView);
 
+            overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
+
             handler = new Handler();
             pageLauncher = new Runnable() {
                 @Override
                 public void run() {
                     Intent intent = createActivityIntent();
                     startActivity(intent);
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            finish();
-                        }
-                    }, 500);
+                    finish();
                 }
             };
 
