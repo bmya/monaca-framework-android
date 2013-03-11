@@ -50,6 +50,7 @@ import org.json.JSONObject;
 
 import receiver.ScreenReceiver;
 import android.R.color;
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -61,6 +62,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -405,9 +410,15 @@ public class MonacaPageActivity extends DroidGap {
 
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	public void init() {
 		CordovaWebView webView = new MonacaWebView(this);
+
+		// Fix webview bug on ICS_MR1 where webview background is always white when hardware accerleration is on
+		if(VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
+			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		}
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(getCurrentUriWithoutQuery(), this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
@@ -534,7 +545,7 @@ public class MonacaPageActivity extends DroidGap {
 			break;
 
 		case SENSOR:
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			break;
 
 		case INHERIT:
