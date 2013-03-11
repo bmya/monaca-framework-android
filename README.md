@@ -6,9 +6,9 @@ This framework is part of [Monaca platform](http://monaca.mobi "monaca.mobi") fo
 <br>
 It includes following features.
 
-* Building WebView application with [PhoneGap](http://phonegap.com/ "PhoneGap").
-* Native Component
-* Transition with [monaca.js](https://github.com/monaca/monaca.js "monaca.js")
+* Building Hybrid HTML5 application with [PhoneGap](http://phonegap.com/ "PhoneGap").
+* Use json file to compose Native Component
+* Native Transition with [monaca.js](https://github.com/monaca/monaca.js "monaca.js")
 
 
 Requirement
