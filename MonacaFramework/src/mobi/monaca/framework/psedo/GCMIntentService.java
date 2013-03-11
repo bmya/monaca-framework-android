@@ -1,8 +1,6 @@
 package mobi.monaca.framework.psedo;
 
-import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaNotificationActivity;
-import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;
 import android.app.Notification;
@@ -34,7 +32,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		String message = b.getString("message");
 		String pushProjectId = b.getString("push_project_id");
 		String extraJsonString = b.getString("extra_json");
-		GCMPushDataset data = new GCMPushDataset(pushProjectId, message, extraJsonString);
+		GCMPushDataset data = new GCMPushDataset(pushProjectId, extraJsonString);
 
 		int id = (int)System.currentTimeMillis();
 		String title = b.getString("title") != null ? b.getString("title") : getString(R.string.app_name) + " Received Push";
