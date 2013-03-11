@@ -126,6 +126,7 @@ public class MonacaPageActivity extends DroidGap {
 	protected BroadcastReceiver pushReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			MyLog.d(TAG, "push broadcast received");
 			if (isIndex()) {
 				GCMPushDataset p = (GCMPushDataset)intent.getExtras().get(GCMPushDataset.KEY);
 				sendPushToWebView(p);

@@ -1,6 +1,8 @@
 package mobi.monaca.framework.psedo;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaNotificationActivity;
+import mobi.monaca.framework.task.GCMUnregistrationTask;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;
 import android.app.Notification;
@@ -37,7 +39,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 		int id = (int)System.currentTimeMillis();
 		String title = b.getString("title") != null ? b.getString("title") : getString(R.string.app_name) + " Received Push";
-		Intent intent = new Intent(context, MonacaNotificationActivity.class);
+		Intent intent = new Intent(context, mobi.monaca.framework.MonacaNotificationActivity.class);
 		intent.putExtra(GCMPushDataset.KEY, data);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setAction("dummy_action" + id);// prevent from being discarded by system
@@ -66,5 +68,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onUnregistered(Context arg0, String arg1) {
 		MyLog.d(TAG, "onUnregistered :" + arg1);
+
+		new GCMUnregistrationTask((MonacaApplication)getApplication(), arg1).execute();
 	}
 }

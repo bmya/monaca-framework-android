@@ -162,7 +162,7 @@ public class MonacaApplication extends Application {
         super.onTerminate();
     }
 
-    public void sendGCMRegisterIdToAppAPI(String regId) {
+    public String getPushProjectId() {
     	String pushProjectId = "";
     	if (getAppJson().has("pushNotification")) {
 			try {
@@ -173,8 +173,11 @@ public class MonacaApplication extends Application {
 				e.printStackTrace();
 			}
     	}
+    	return pushProjectId;
+    }
 
-		new GCMRegistrationIdSenderTask(this, MonacaConst.getPushRegistrationAPIUrl(this, pushProjectId), regId) {
+    public void sendGCMRegisterIdToAppAPI(String regId) {
+		new GCMRegistrationIdSenderTask(this, MonacaConst.getPushRegistrationAPIUrl(this, getPushProjectId()), regId) {
 			@Override
 			protected void onSucceededRegistration(JSONObject resultJson) {
 			}

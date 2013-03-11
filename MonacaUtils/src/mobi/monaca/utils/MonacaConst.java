@@ -30,6 +30,15 @@ public class MonacaConst {
 			return null;
 		}
 	}
+
+	public static String getPushUnegistrationAPIUrl(Context context, String pushProjectId) {
+		try {
+			return SCHEME + getConst(context, KEY_DOMAIN) + "/v1/push/unregister/" + URLEncoder.encode(pushProjectId, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return null;
+		}
+	}
+
 	public static String getIsCustom(Context context) {
 		return getConst(context, KEY_ISCUSTOM);
 	}

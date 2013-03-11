@@ -1,5 +1,6 @@
 package mobi.monaca.framework;
 
+import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,12 +13,14 @@ public class MonacaNotificationActivity extends Activity {
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
+		MyLog.d("MonacaNotificationActivity", "received push");
 		super.onCreate(savedInstance);
 		process(getIntent());
 	}
 
 	@Override
 	protected void onNewIntent(Intent arg) {
+		MyLog.d("MonacaNotificationActivity", "received push");
 		process(arg);
 	}
 	private void process(Intent arg) {
