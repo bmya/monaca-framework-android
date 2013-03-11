@@ -1,4 +1,21 @@
-window.openDatabase = undefined;
+/*
+       Licensed to the Apache Software Foundation (ASF) under one
+       or more contributor license agreements.  See the NOTICE file
+       distributed with this work for additional information
+       regarding copyright ownership.  The ASF licenses this file
+       to you under the Apache License, Version 2.0 (the
+       "License"); you may not use this file except in compliance
+       with the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing,
+       software distributed under the License is distributed on an
+       "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+       KIND, either express or implied.  See the License for the
+       specific language governing permissions and limitations
+       under the License.
+*/
 
 var deviceInfo = function() {
     document.getElementById("platform").innerHTML = device.platform;
@@ -8,28 +25,6 @@ var deviceInfo = function() {
     document.getElementById("width").innerHTML = screen.width;
     document.getElementById("height").innerHTML = screen.height;
     document.getElementById("colorDepth").innerHTML = screen.colorDepth;
-    
-    /*
-    var db = DroidDB_openDatabase("test", "1.0", "Test DB", 1000000);
-    db.transaction(populateDB, errorCB, successCB);
-	
-	// データベースの操作 
-	function populateDB(tx) {
-	     tx.executeSql('DROP TABLE IF EXISTS DEMO');
-	     tx.executeSql('CREATE TABLE IF NOT EXISTS DEMO (id unique, data)');
-	     tx.executeSql('INSERT INTO DEMO (id, data) VALUES (1, "First row")');
-	     tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
-	}
-	
-	// トランザクション失敗時のコールバック
-	function errorCB(tx, err) {
-	    alert("エラーが発生しました: " + err);
-	}
-	
-	// トランザクション成功時のコールバック
-	function successCB() {
-	    //alert("成功しました。");
-	}*/
 };
 
 var getLocation = function() {
@@ -42,7 +37,15 @@ var getLocation = function() {
 };
 
 var beep = function() {
-    navigator.notification.beep(2);
+    var my_media = new Media("beep.wav",
+        // success callback
+        function() {
+            console.log("playAudio():Audio Success");
+        },
+        // error callback
+        function(err) {
+            console.log("playAudio():Audio Error: "+err);
+    }).play();
 };
 
 var vibrate = function() {
@@ -93,7 +96,7 @@ function dump_pic(data) {
     viewport.style.position = "absolute";
     viewport.style.top = "10px";
     viewport.style.left = "10px";
-    document.getElementById("test_img").src = "data:image/jpeg;base64," + data;
+    document.getElementById("test_img").src = data;
 }
 
 function fail(msg) {
@@ -119,13 +122,17 @@ function contacts_success(contacts) {
                     : ''));
 }
 
+function contacts_failed(msgObject){
+    alert("Failed to access contact list:" + JSON.stringify(msgObject));
+}
+
 function get_contacts() {
     var obj = new ContactFindOptions();
     obj.filter = "";
     obj.multiple = true;
     navigator.contacts.find(
             [ "displayName", "name" ], contacts_success,
-            fail, obj);
+            contacts_failed, obj);
 }
 
 function check_network() {
@@ -143,10 +150,28 @@ function check_network() {
     confirm('Connection type:\n ' + states[networkState]);
 }
 
+var watchID = null;
+
+function updateHeading(h) {
+    document.getElementById('h').innerHTML = h.magneticHeading;
+}
+
+function toggleCompass() {
+    if (watchID !== null) {
+        navigator.compass.clearWatch(watchID);
+        watchID = null;
+        updateHeading({ magneticHeading : "Off"});
+    } else {        
+        var options = { frequency: 1000 };
+        watchID = navigator.compass.watchHeading(updateHeading, function(e) {
+            alert('Compass Error: ' + e.code);
+        }, options);
+    }
+}
+
 function init() {
     // the next line makes it impossible to see Contacts on the HTC Evo since it
     // doesn't have a scroll button
     // document.addEventListener("touchmove", preventBehavior, false);
     document.addEventListener("deviceready", deviceInfo, true);
 }
-
