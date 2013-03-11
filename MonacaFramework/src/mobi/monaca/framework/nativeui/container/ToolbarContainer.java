@@ -11,6 +11,7 @@ import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.component.ToolbarBackgroundDrawable;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
 import mobi.monaca.framework.psedo.R;
 
@@ -139,20 +140,12 @@ public class ToolbarContainer implements Component {
         ColorFilter filter = new PorterDuffColorFilter(
                 buildColor(style.optString("backgroundColor", "#000000")),
                 PorterDuff.Mode.SCREEN);
-        Bitmap bgBitmap = UIUtil.createBitmapWithColorFilter(context
-                .getResources().getDrawable(R.drawable.monaca_toolbar_bg),
-                filter);
 
-        Drawable original = context.getResources().getDrawable(
-                R.drawable.monaca_toolbar_bg);
-        Rect padding = new Rect();
-        original.getPadding(padding);
+        Drawable toolbarBackground = new ToolbarBackgroundDrawable(context);
+        toolbarBackground.setColorFilter(filter);
+        toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
 
-        view.getContentView().setBackgroundDrawable(
-                new BitmapDrawable(context.getResources(), bgBitmap));
-        view.getContentView().setPadding(padding.left, dip2px(context, TOP_BOTTOM_PADDING), padding.right, dip2px(context, TOP_BOTTOM_PADDING));
-        view.getContentView().getBackground()
-                .setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+        view.getContentView().setBackgroundDrawable(toolbarBackground);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override

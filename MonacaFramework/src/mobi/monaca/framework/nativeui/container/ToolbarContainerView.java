@@ -27,7 +27,6 @@ import android.widget.TextView;
  */
 public class ToolbarContainerView extends LinearLayout {
 
-	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper,
 			titleSubtitleWrapper, titleImageWrapper;
 	protected UIContext context;
@@ -93,7 +92,7 @@ public class ToolbarContainerView extends LinearLayout {
 				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 		addView(content, new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
-				UIUtil.dip2px(getContext(), CONTAINER_HEIGHT)) );
+				LinearLayout.LayoutParams.WRAP_CONTENT));
 		addView(createBorderView(), new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 
@@ -235,7 +234,7 @@ public class ToolbarContainerView extends LinearLayout {
 		for (Component component : list) {
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
-					LinearLayout.LayoutParams.MATCH_PARENT);
+					LinearLayout.LayoutParams.WRAP_CONTENT);
 			params.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
 			params.setMargins(dip2px(context, 4), 0, 0, 0);
 			right.addView(component.getView(), params);
@@ -247,7 +246,7 @@ public class ToolbarContainerView extends LinearLayout {
 		for (Component component : list) {
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
-					LinearLayout.LayoutParams.MATCH_PARENT);
+					LinearLayout.LayoutParams.WRAP_CONTENT);
 			params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
 			params.setMargins(0, 0, dip2px(context, 4), 0);
 			left.addView(component.getView(), params);
@@ -272,7 +271,7 @@ public class ToolbarContainerView extends LinearLayout {
 
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.WRAP_CONTENT,
-						LinearLayout.LayoutParams.MATCH_PARENT);
+						LinearLayout.LayoutParams.WRAP_CONTENT);
 				params.setMargins(dip2px(context, 2), 0, dip2px(context, 2), 0);
 				params.weight = 1;
 
@@ -287,7 +286,7 @@ public class ToolbarContainerView extends LinearLayout {
 			for (Component component : list) {
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.WRAP_CONTENT,
-						LinearLayout.LayoutParams.MATCH_PARENT);
+						LinearLayout.LayoutParams.WRAP_CONTENT);
 				params.setMargins(dip2px(context, 2), 0, dip2px(context, 2), 0);
 
 				if (component instanceof SearchBoxComponent) {
