@@ -1,6 +1,7 @@
 package mobi.monaca.framework.nativeui.component;
 
 import android.graphics.Canvas;
+import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.psedo.R;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 public class ToolbarBackgroundDrawable extends Drawable {
@@ -43,10 +45,10 @@ public class ToolbarBackgroundDrawable extends Drawable {
         }
         drawable.draw(new Canvas(bitmap));
 
-        Paint paint = new Paint();
-        paint.setAlpha(alpha);
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-        
+        Drawable filteredDrawable = new NonScaleBitmapDrawable(bitmap);
+        filteredDrawable.setAlpha(alpha);
+        filteredDrawable.draw(canvas);
+        filteredDrawable = null;
 
         bitmap.recycle();
     }
@@ -54,12 +56,14 @@ public class ToolbarBackgroundDrawable extends Drawable {
     @Override
     public void setBounds(Rect bounds) {
         drawable.setBounds(bounds);
+        super.setBounds(bounds);
         invalidateSelf();
     }
 
     @Override
     public void setBounds(int left, int top, int width, int height) {
         drawable.setBounds(left, top, width, height);
+        super.setBounds(left, top, width, height);
         invalidateSelf();
     }
 
