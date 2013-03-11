@@ -30,8 +30,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 
 public class ToolbarContainer implements Component {
-    private static final int TOP_BOTTOM_PADDING = 5;
-	protected UIContext context;
+    protected UIContext context;
     protected ToolbarContainerView view;
     protected ToolbarComponent left, center, right;
     protected JSONObject style;

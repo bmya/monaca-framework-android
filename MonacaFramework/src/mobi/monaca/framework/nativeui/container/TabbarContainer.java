@@ -3,6 +3,7 @@ package mobi.monaca.framework.nativeui.container;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.container.TabbarItem.TabbarItemView;
@@ -29,7 +30,7 @@ public class TabbarContainer implements Component {
     protected List<TabbarItem> items;
     protected Integer oldActiveIndex = null;
 
-    public TabbarContainer(Context context, List<TabbarItem> items,
+    public TabbarContainer(UIContext context, List<TabbarItem> items,
             JSONObject style) {
     	MyLog.v(TAG, "TabbarContainer constructor. items:" + items + ", style:" + style);
         this.context = context;
@@ -98,7 +99,7 @@ public class TabbarContainer implements Component {
         protected TabbarItemView currentItemView = null;
         protected LinearLayout content;
 
-        public TabbarContainerView(Context context) {
+        public TabbarContainerView(UIContext context) {
             super(context);
             setOrientation(LinearLayout.VERTICAL);
 
@@ -108,8 +109,9 @@ public class TabbarContainer implements Component {
             content.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
             content.setBackgroundResource(R.drawable.monaca_tabbar_bg);
 
+    		int borderWidth = context.getUISettings().disableToolbarBorder ? 0 : 1;
             addView(createBorderView(), new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                    LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
             addView(content, new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));

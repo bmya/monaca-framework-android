@@ -86,14 +86,16 @@ public class ToolbarContainerView extends LinearLayout {
 		setFocusableInTouchMode(true);
 
 		content = new FrameLayout(context);
+		
+		int borderWidth = context.getUISettings().disableToolbarBorder ? 0 : 1;
 
 		addView(createBorderView(), new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, 1));
+				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 		addView(content, new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
 				UIUtil.dip2px(getContext(), CONTAINER_HEIGHT)) );
 		addView(createBorderView(), new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, 1));
+				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 
 		left = new LinearLayout(context);
 		left.setOrientation(LinearLayout.HORIZONTAL);
