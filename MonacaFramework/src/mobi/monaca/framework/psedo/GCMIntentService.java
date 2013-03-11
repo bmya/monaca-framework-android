@@ -29,6 +29,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		if (b == null) {
 			return;
 		}
+		Context context = arg0.getApplicationContext();
 		String message = b.getString("message");
 		String pushProjectId = b.getString("push_project_id");
 		String extraJsonString = b.getString("extra_json");
@@ -36,20 +37,19 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 		int id = (int)System.currentTimeMillis();
 		String title = b.getString("title") != null ? b.getString("title") : getString(R.string.app_name) + " Received Push";
-		Intent intent = new Intent(this, MonacaNotificationActivity.class);
+		Intent intent = new Intent(context, MonacaNotificationActivity.class);
 		intent.putExtra(GCMPushDataset.KEY, data);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.setAction("dummy_action" + id);// prevent from being discarded by system
-
-		PendingIntent pending = PendingIntent.getActivity(this, id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent pending = PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 		Notification notification = new Notification();
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 		notification.icon = R.drawable.icon;
 		notification.tickerText = title;
-		notification.setLatestEventInfo(this, title, message, pending);
+		notification.setLatestEventInfo(context, title, message, pending);
 
-		NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager notificationManager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
 		notificationManager.notify(id, notification);
 	}
 
@@ -59,7 +59,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Intent i = new Intent();
 		i.setAction(ACTION_GCM_REGISTERED);
 		i.putExtra(KEY_REGID, arg1);
-		sendBroadcast(i);
+		sendBroadcast(i); // received by MonacaApplication
 		//((MonacaApplication)getApplication()).sendGCMRegisterIdToAppAPI(arg1);//cannnot use this for handler dead thread sending
 	}
 

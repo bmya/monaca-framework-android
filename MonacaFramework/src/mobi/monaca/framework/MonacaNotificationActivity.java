@@ -14,13 +14,11 @@ public class MonacaNotificationActivity extends Activity {
 	public void onCreate(Bundle savedInstance) {
 		super.onCreate(savedInstance);
 		process(getIntent());
-		this.finish();
 	}
 
 	@Override
 	protected void onNewIntent(Intent arg) {
 		process(arg);
-		this.finish();
 	}
 	private void process(Intent arg) {
 		Bundle b = arg.getExtras();
@@ -40,5 +38,7 @@ public class MonacaNotificationActivity extends Activity {
 			i.putExtra(GCMPushDataset.KEY, pushData);
 			sendBroadcast(i);
 		}
+
+		this.finish();
 	}
 }
