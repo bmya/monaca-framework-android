@@ -11,10 +11,13 @@ import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -33,6 +36,7 @@ public class UIContext extends ContextWrapper {
     protected DisplayMetrics metrics;
     protected SparseIntArray computedFontSizeCache = new SparseIntArray();
     protected ArrayList<OnRotateListener> onRotateListeners = new ArrayList<OnRotateListener>();
+    protected UISettings settings;
 
     public UIContext(String uiFilePath, MonacaPageActivity pageActivity) {
         super(pageActivity);
@@ -41,8 +45,19 @@ public class UIContext extends ContextWrapper {
 
         metrics = new DisplayMetrics();
         pageActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        
+        try {
+            this.settings = new UISettings(pageActivity.getPackageManager().getActivityInfo(pageActivity.getComponentName(), PackageManager.GET_META_DATA).metaData);
+        } catch (Exception e) {
+            Log.d(getClass().getSimpleName(), "UISettings Initialization fail", e);
+            this.settings = new UISettings(new Bundle());
+        }
     }
-
+    
+    public UISettings getUISettings() {
+        return this.settings;
+    }
+    
     public DisplayMetrics getDisplayMetrics() {
         return metrics;
     }
@@ -200,5 +215,4 @@ public class UIContext extends ContextWrapper {
     public int getUIOrientation() {
         return pageActivity.getResources().getConfiguration().orientation;
     }
-
 }
