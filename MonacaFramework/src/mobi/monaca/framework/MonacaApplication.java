@@ -9,27 +9,39 @@ import java.util.Map;
 
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentationBuilder;
+import mobi.monaca.framework.psedo.GCMIntentService;
 import mobi.monaca.framework.task.GCMRegistrationIdSenderTask;
 import mobi.monaca.framework.util.MyLog;
-import mobi.monaca.utils.MonacaAPIUrl;
+import mobi.monaca.utils.MonacaConst;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Environment;
 
 /** This class manage the application's global state and variable. */
 public class MonacaApplication extends Application {
-
     private static final String TAG = MonacaApplication.class.getSimpleName();
     protected static List<MonacaPageActivity> pages = null;
     protected static Map<String, MenuRepresentation> menuMap = null;
     protected static MonacaApplication self = null;
 
     protected JSONObject appJson;
+
+    private BroadcastReceiver registeredReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String regId = intent.getStringExtra(GCMIntentService.KEY_REGID);
+			sendGCMRegisterIdToAppAPI(regId);
+			unregisterReceiver(this);
+		}
+	};
 
 
     @Override
@@ -43,6 +55,7 @@ public class MonacaApplication extends Application {
         super.onCreate();
         self = this;
 
+        registerReceiver(registeredReceiver, new IntentFilter(GCMIntentService.ACTION_GCM_REGISTERED));
         createMenuMap();
     }
 
@@ -155,12 +168,13 @@ public class MonacaApplication extends Application {
 			try {
 				JSONObject pathNotification = appJson.getJSONObject("pushNotification");
 				pushProjectId = pathNotification.getString("pushProjectId");
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
     	}
 
-		new GCMRegistrationIdSenderTask(this, MonacaAPIUrl.getPushRegistrationAPIUrl(pushProjectId), regId) {
+		new GCMRegistrationIdSenderTask(this, MonacaConst.getPushRegistrationAPIUrl(this, pushProjectId), regId) {
 			@Override
 			protected void onSucceededRegistration(JSONObject resultJson) {
 			}
@@ -170,6 +184,6 @@ public class MonacaApplication extends Application {
 			@Override
 			protected void onClosedTask() {
 			}
-		}.setEnv("prod").execute();//TODO change this in test
+		}.execute();
     }
 }

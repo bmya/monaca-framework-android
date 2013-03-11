@@ -92,10 +92,10 @@ public class MonacaSplashActivity extends Activity {
 		Intent intent = new Intent(MonacaSplashActivity.this,
                 MonacaPageActivity.class);
 
-    	Intent i = getIntent();
-    	Bundle b;
-    	if (i != null && (b = i.getExtras()) != null) {
-    		GCMPushDataset pushdata = (GCMPushDataset)b.get(GCMPushDataset.KEY);
+    	Intent received = getIntent();
+    	Bundle bundle = received.getExtras();
+    	if (received != null && bundle != null) {
+    		GCMPushDataset pushdata = (GCMPushDataset)bundle.get(GCMPushDataset.KEY);
     		if (pushdata != null) {
         		intent.putExtra(GCMPushDataset.KEY, pushdata);
     		}

@@ -1,5 +1,7 @@
-package mobi.monaca.framework;
+package mobi.monaca.framework.psedo;
 
+import mobi.monaca.framework.MonacaApplication;
+import mobi.monaca.framework.MonacaNotificationActivity;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;
@@ -15,6 +17,8 @@ import com.google.android.gcm.GCMBaseIntentService;
 public class GCMIntentService extends GCMBaseIntentService {
 	private static final String TAG = GCMIntentService.class.getSimpleName();
 
+	public static final String ACTION_GCM_REGISTERED = "gcm_registered";
+	public static final String KEY_REGID = "gcm_registered_regid";
 	@Override
 	protected void onError(Context arg0, String arg1) {
 		MyLog.d(TAG, "onError :" + arg1);
@@ -53,7 +57,12 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	@Override
 	protected void onRegistered(Context arg0, String arg1) {
-		((MonacaApplication)getApplication()).sendGCMRegisterIdToAppAPI(arg1);
+		MyLog.d(TAG, "onReceive :" +arg0 );
+		Intent i = new Intent();
+		i.setAction(ACTION_GCM_REGISTERED);
+		i.putExtra(KEY_REGID, arg1);
+		sendBroadcast(i);
+		//((MonacaApplication)getApplication()).sendGCMRegisterIdToAppAPI(arg1);//cannnot use this for handler dead thread sending
 	}
 
 	@Override

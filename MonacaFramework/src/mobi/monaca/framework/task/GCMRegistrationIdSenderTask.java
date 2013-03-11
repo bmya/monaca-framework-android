@@ -10,7 +10,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.monaca.framework.psedo.BuildConfig;
+import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.APIUtil;
+import mobi.monaca.utils.MonacaConst;
 import mobi.monaca.utils.MonacaDevice;
 import mobi.monaca.utils.MyAsyncTask;
 
@@ -24,13 +27,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.util.Log;
 
 /**
  * Send GCM Registration ID to Monaca Server
  *
  */
 public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void, JSONObject> {
-	//private static final String TAG = GCMRegistrationIdSenderTask.class.getSimpleName();
+	private static final String TAG = GCMRegistrationIdSenderTask.class.getSimpleName();
 	private static final String KEY_PREF = "gcm_pref";
 	/**
 	 * should use "PREF_KEY_ALREADY_REGISTERED + GCMRegistrar.getRegistrationId(this)" form
@@ -38,14 +42,14 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 	static final String KEY_PREF_ALREADY_REGISTERED = "already_registered";
 	final private String REGISTRATION_API_URL;
 
-	private String env;
-	private boolean isCustom;
-
 	private Context context;
 	private String regId;
 	private SharedPreferences configPreference;
 
 	private boolean alreadyRegistered;
+
+	private String env;
+	private String isCustom;
 
 	/**
 	 *constructor
@@ -59,8 +63,8 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 		this.configPreference = context.getSharedPreferences(KEY_PREF, Context.MODE_PRIVATE);
 		this.REGISTRATION_API_URL = regAPIUrl;
 
-		this.env = "prod";
-		this.isCustom = false;
+		this.env = MonacaConst.getEnv(context);
+		this.isCustom = MonacaConst.getIsCustom(context);
 
 		alreadyRegistered = configPreference.getBoolean(KEY_PREF_ALREADY_REGISTERED + regId, false);
 	}
@@ -92,7 +96,10 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 	}
 
 	private void preOnSucceededRegistration(JSONObject resultJson) {
-		//MyLog.d(TAG, "succeeded GCM registration to server!");
+		if (resultJson != null) {
+			Log.d(TAG, "response :" + resultJson.toString());
+		}
+
 		Editor e = configPreference.edit();
 		e.putBoolean(KEY_PREF_ALREADY_REGISTERED + regId, true);
 		e.commit();
@@ -102,7 +109,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 
 	private void preOnFailedRegistration(JSONObject resultJson) {
 		if (resultJson != null) {
-			//MyLog.d(TAG, "response :" + resultJson.toString());
+			Log.d(TAG, "response :" + resultJson.toString());
 		}
 
 		onFailedRegistration(resultJson);
@@ -114,18 +121,18 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 		super.cancel(b);
 	}
 
-	abstract protected void onClosedTask();
-	abstract protected void onSucceededRegistration(JSONObject resultJson);
-	abstract protected void onFailedRegistration(JSONObject resultJson);
-
-	public GCMRegistrationIdSenderTask setIsCustom(boolean isCustom) {
-		this.isCustom = isCustom;
-		return this;
-	}
 	public GCMRegistrationIdSenderTask setEnv(String env) {
 		this.env = env;
 		return this;
 	}
+	public GCMRegistrationIdSenderTask setIsCustom(String isCustom) {
+		this.isCustom = isCustom;
+		return this;
+	}
+
+	abstract protected void onClosedTask();
+	abstract protected void onSucceededRegistration(JSONObject resultJson);
+	abstract protected void onFailedRegistration(JSONObject resultJson);
 
 	@Override
 	final protected JSONObject doInBackground(Void... a) {
@@ -139,9 +146,10 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 			list.add(new BasicNameValuePair("platform", "android"));
 			list.add(new BasicNameValuePair("deviceId", MonacaDevice.getDeviceId(context)));
 			list.add(new BasicNameValuePair("env", env));
-			list.add(new BasicNameValuePair("isCustom", isCustom ? "true" : "false"));
+			list.add(new BasicNameValuePair("isCustom", isCustom));
 			list.add(new BasicNameValuePair("version",  Integer.toString(versionCode)));
 			list.add(new BasicNameValuePair("registrationId", regId));
+			list.add(new BasicNameValuePair("buildType", BuildConfig.DEBUG ? "debug" : "release"));
 
 			URL url = new URL(REGISTRATION_API_URL);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -162,8 +170,8 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 				InputStream is = connection.getInputStream();
 				String resultJsonString = IOUtils.toString(is);
 
-				return new JSONObject(resultJsonString);
-			} catch (IOException e1) {
+				return new JSONObject(resultJsonString).put("response_code", connection.getResponseCode());
+			} catch (Exception e1) {
 				JSONObject result = new JSONObject();
 				result.put("status", "no_status");
 				result.put("response_code", connection.getResponseCode());

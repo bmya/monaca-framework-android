@@ -4,13 +4,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
 import mobi.monaca.utils.APIUtil;
-import mobi.monaca.utils.MonacaDevice;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-
-import junit.framework.TestCase;
 
 public class APIUtilTestCase extends TestCase {
 
