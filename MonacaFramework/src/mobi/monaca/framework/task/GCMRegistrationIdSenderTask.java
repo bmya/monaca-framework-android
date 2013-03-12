@@ -142,6 +142,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 			list.add(new BasicNameValuePair("isCustom", isCustom));
 			list.add(new BasicNameValuePair("version",  Integer.toString(versionCode)));
 			list.add(new BasicNameValuePair("registrationId", regId));
+			list.add(new BasicNameValuePair("packageName", context.getPackageName()));
 			list.add(new BasicNameValuePair("buildType", BuildConfig.DEBUG ? "debug" : "release"));
 
 			URL url = new URL(REGISTRATION_API_URL);
