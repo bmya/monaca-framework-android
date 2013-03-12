@@ -14,8 +14,6 @@ import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONObject;
 
-import android.util.Log;
-
 /**
  * URI that contains queryData as ArrayList and has script inserted html getter.
  * also able to convert query containing uri into noQueryURI
