@@ -9,10 +9,6 @@ MonacaFramework/tmp
 *.class
 *local.properties
 
-# template project
-MonacaTemplateEngine/gen/
-MonacaTemplateEngineTest/gen/
-
 # Library
 BarcodeScannerLibrary/gen/
 BarcodeScannerLibrary/bin/
