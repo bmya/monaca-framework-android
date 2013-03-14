@@ -34,27 +34,30 @@ public class MonacaURITest extends TestCase {
 		assertFalse((new MonacaURI("hoge")).hasQueryParams());
 	}
 
-	public void testGetUrlWithoutQuery() {
-		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?foo=bar")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?foo=bar&piyo=hoge")).getUrlWithoutQuery());
+	public void testGetUrlWithoutOptions() {
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?foo=bar")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?foo=bar&piyo=hoge")).getUrlWithoutOptions());
 
-		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html?", (new MonacaURI("file:///android_asset/www/hoge.html?")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html?=", (new MonacaURI("file:///android_asset/www/hoge.html?=")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html?hoge=", (new MonacaURI("file:///android_asset/www/hoge.html?hoge=")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html?=hoge", (new MonacaURI("file:///android_asset/www/hoge.html?=hoge")).getUrlWithoutQuery());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?=")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?hoge=")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?=hoge")).getUrlWithoutOptions());
 
-		eq("file:///android_asset/www/aa/hoge.html?ho/ge=bar", (new MonacaURI("file:///android_asset/www/aa/hoge.html?ho/ge=bar")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html?hoge", (new MonacaURI("file:///android_asset/www/hoge.html?hoge")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html??hoge=?foo=bar", (new MonacaURI("file:///android_asset/www/hoge.html??hoge=?foo=bar")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html?{&hoge=&foobar}", (new MonacaURI("file:///android_asset/www/hoge.html?{&hoge=&foobar}")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html#foo=bar", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar")).getUrlWithoutQuery());
+		eq("file:///android_asset/www/aa/hoge.html", (new MonacaURI("file:///android_asset/www/aa/hoge.html?ho/ge=bar")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?hoge")).getUrlWithoutOptions());
 
-		eq("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo")).getUrlWithoutQuery());
-		eq("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo")).getUrlWithoutQuery());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html#foo")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?hoge=bar&aaa=bbb#foobar")).getUrlWithoutOptions());
 
-		eq("", (new MonacaURI("")).getUrlWithoutQuery());
-		eq("hoge", (new MonacaURI("hoge")).getUrlWithoutQuery());
+		// undefined pattern
+		eq("file:///android_asset/www/hoge.html??hoge=?foo=bar", (new MonacaURI("file:///android_asset/www/hoge.html??hoge=?foo=bar")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo")).getUrlWithoutOptions());
+		eq("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo")).getUrlWithoutOptions());
+
+
+		eq("", (new MonacaURI("")).getUrlWithoutOptions());
+		eq("hoge", (new MonacaURI("hoge")).getUrlWithoutOptions());
 	}
 
 	public void testBuildUrlWithQuery() {

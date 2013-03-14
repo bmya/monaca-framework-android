@@ -22,18 +22,45 @@ import org.json.JSONObject;
 public class MonacaURI {
 	public static final String URL_ENCODE = "UTF-8";
 	private static final String TAG = MonacaURI.class.getSimpleName();
-	private URI uri;
+	private URI originalUri;
 	private ArrayList<QueryParam> queryParamsArrayList;
+
+	private boolean hasUnusedFragment;
 
 	public MonacaURI(String url) {
 		try {
-			this.uri = new URI(url);
+			this.originalUri = new URI(url);
 			this.parseQuery();
+
+			hasUnusedFragment = (originalUri.getFragment() != null);
 		} catch (URISyntaxException e) {
 			MyLog.e(TAG, "URISyntacException! : " + url);
 		}
 	}
-	
+
+	/**
+	 * this is for processing fragment in push transition.
+	 *  Not checks whether there is a fragment. only unused fragment is checked
+	 * @return
+	 */
+	public boolean hasUnusedFragment() {
+		return hasUnusedFragment;
+	}
+
+	/**
+	 * getFragment and set this fragment USED.
+	 * this is for processing fragment in push transition
+	 * @return
+	 */
+	public String popFragment() {
+		if (hasUnusedFragment) {
+			hasUnusedFragment = false;
+			return originalUri.getFragment();
+		} else {
+			return null;
+		}
+	}
+
 	public static String buildUrlWithQuery(String baseUrl, JSONObject queryJson) {
 
 		MyLog.d(TAG, "buildUrl :" + baseUrl);
@@ -42,7 +69,7 @@ public class MonacaURI {
 			return baseUrl;
 		}
 
-		Iterator iterator = queryJson.keys();
+		Iterator<?> iterator = queryJson.keys();
 		String newUrl = new String(baseUrl);
 		String key;
 
@@ -74,15 +101,17 @@ public class MonacaURI {
 		return newUrl;
 	}
 
-	public String getUrlWithQuery() {
-		return uri.toString();
+	public String getOriginalUrl() {
+		return originalUri.toString();
 	}
 
-	public String getUrlWithoutQuery() {
-		if (uri.getQuery() == null) {
-			return getUrlWithQuery();
+	public String getUrlWithoutOptions() {
+		if (originalUri.getQuery() == null && originalUri.getFragment() == null) {
+			return getOriginalUrl();
 		}else {
-			return uri.toString().replace("?" + uri.getRawQuery(), "");
+			String url = originalUri.toString().replaceFirst("\\?" + originalUri.getRawQuery(), "");
+			url = url.replaceFirst("(#" + originalUri.getFragment() + ")$", "");
+			return url;
 		}
 	}
 
@@ -140,10 +169,10 @@ public class MonacaURI {
 	}
 
 	public void parseQuery() {
-		if (uri.getQuery() != null) {
+		if (originalUri.getQuery() != null) {
 			//MyLog.d(TAG, "hasQuery");
-			MyLog.d(TAG, "rawQuery:"+ uri.getRawQuery());
-			String[] params = uri.getRawQuery().split("&");
+			//MyLog.d(TAG, "rawQuery:"+ originalUri.getRawQuery());
+			String[] params = originalUri.getRawQuery().split("&");
 			String[] keyAndValue;
 
 			queryParamsArrayList = new ArrayList<QueryParam>();

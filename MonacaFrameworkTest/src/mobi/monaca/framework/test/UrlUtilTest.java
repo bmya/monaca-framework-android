@@ -7,6 +7,11 @@ import junit.framework.TestCase;
 
 public class UrlUtilTest extends AndroidTestCase {
 
+	public void testGetUIFileUrl() {
+		assertEquals("index.ui", UrlUtil.getUIFileUrl("index.html"));
+	//	assertEquals("index.ui", UrlUtil.getUIFileUrl("index.html#hoge")); TODO confirm this should be true
+	}
+
 	public void testIsEmbedding() {
 		assertTrue(UrlUtil.isEmbedding("index.html#embedding"));
 		assertTrue(UrlUtil.isEmbedding("../index.html#embedding"));

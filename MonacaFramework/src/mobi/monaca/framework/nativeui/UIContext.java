@@ -70,7 +70,7 @@ public class UIContext extends ContextWrapper {
 		MyLog.v(TAG, "loadRelativePathWithoutUIFile. relativePath:" + relativePath);
 		String resolved = resolve(relativePath);
 		pageActivity.loadUri(resolved, true);
-		MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutQuery());
+		MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutOptions());
 	}
 
 	public void changeCurrentUri(String uri) {

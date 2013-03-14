@@ -101,7 +101,7 @@ public class MonacaTransitPlugin extends Plugin {
     }
 	public void loadRelativePathAsync(String relativePath) {
 		MyLog.v(TAG, "loadRelativePathAsync. relativePath:" + relativePath);
-		final String newUri = getMonacaPageActivity().getCurrentUriWithoutQuery() + "/../" + relativePath;
+		final String newUri = getMonacaPageActivity().getCurrentUriWithoutOptions() + "/../" + relativePath;
 		MyLog.v(TAG, "uri unresolved=" + newUri);
 
 		getMonacaPageActivity().runOnUiThread(new Runnable() {
@@ -110,13 +110,13 @@ public class MonacaTransitPlugin extends Plugin {
 				if (newUri.startsWith("file://")) {
 					try {
 						getMonacaPageActivity().loadUri("file://" + new File(newUri.substring(7)).getCanonicalPath(), false);
-						MyLog.v(TAG, "uri resolved=" + getMonacaPageActivity().getCurrentUriWithoutQuery());
+						MyLog.v(TAG, "uri resolved=" + getMonacaPageActivity().getCurrentUriWithoutOptions());
 					} catch (Exception e) {
 						e.printStackTrace();
-						getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutQuery(), false);
+						getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutOptions(), false);
 					}
 				} else {
-					getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutQuery(), false);
+					getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutOptions(), false);
 				}
 			}
 		});
