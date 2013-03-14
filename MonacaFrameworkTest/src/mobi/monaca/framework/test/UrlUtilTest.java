@@ -7,6 +7,23 @@ import junit.framework.TestCase;
 
 public class UrlUtilTest extends AndroidTestCase {
 
+	public void testIsEmbedding() {
+		assertTrue(UrlUtil.isEmbedding("index.html#embedding"));
+		assertTrue(UrlUtil.isEmbedding("../index.html#embedding"));
+		assertTrue(UrlUtil.isEmbedding("hoge/index.html#embedding"));
+		assertTrue(UrlUtil.isEmbedding("http://monaca.mobi/#embedding"));
+		assertTrue(UrlUtil.isEmbedding("file:///android_asset/www/hoge.html#embedding"));
+		assertTrue(UrlUtil.isEmbedding("file://data/data/hoge.foo/aaa.html#embedding"));
+		assertTrue(UrlUtil.isEmbedding("file://data/data/hoge.foo/aaa.html##embedding"));
+
+		assertFalse(UrlUtil.isEmbedding("index.html"));
+		assertFalse(UrlUtil.isEmbedding("hoge/index.html"));
+		assertFalse(UrlUtil.isEmbedding("http://monaca.mobi"));
+		assertFalse(UrlUtil.isEmbedding("index.html#embedding#hogehoge"));
+		assertFalse(UrlUtil.isEmbedding("file://data/data/hoge.foo/aaa.html#embeddinghoge"));
+		assertFalse(UrlUtil.isEmbedding("file://data/data/hoge.foo/aaa.html#embeddinghoge"));
+	}
+
 	public void testIsUrlMethod() {
 		assertTrue(UrlUtil.isUrl("http://hogehoge"));
 		assertTrue(UrlUtil.isUrl("https://hogehoge"));
