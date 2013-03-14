@@ -75,6 +75,7 @@ public class MonacaURI {
 
 		try {
 			if (new URI(baseUrl).getQuery() != null) {
+				// if already baseUrl has queryParams,url building starts with &
 				newUrl += "&";
 			} else {
 				newUrl += "?";
@@ -84,18 +85,20 @@ public class MonacaURI {
 		}
 
 		while (iterator.hasNext()) {
-
 			key = (String)iterator.next();
 			try {
 				if (key != null && queryJson.isNull(key)) {
-					newUrl += URLEncoder.encode(key, URL_ENCODE) + "&";
+					newUrl += URLEncoder.encode(key, URL_ENCODE).replace(".", "%2e") + "&";
 				} else if (key != null ) {
-					newUrl += URLEncoder.encode(key, URL_ENCODE) + "=" + URLEncoder.encode(queryJson.optString(key), URL_ENCODE)  + "&";
+					//URLEncoder.encode does not encode dot, so replace manually (String#replace(".", "%2e"))
+					newUrl += URLEncoder.encode(key, URL_ENCODE).replace(".", "%2e") + "="
+							+ URLEncoder.encode(queryJson.optString(key), URL_ENCODE).replace(".", "%2e")  + "&";
 				}
 			} catch (UnsupportedEncodingException e) {
 				MyLog.e(TAG, e.getMessage());
 			}
 		}
+		// remove last &
 		newUrl = trimLastChar(newUrl);
 
 		return newUrl;
@@ -106,11 +109,11 @@ public class MonacaURI {
 	}
 
 	public String getUrlWithoutOptions() {
-		if (originalUri.getQuery() == null && originalUri.getFragment() == null) {
+		if (originalUri.getRawQuery() == null && originalUri.getFragment() == null) {
 			return getOriginalUrl();
 		}else {
-			String url = originalUri.toString().replaceFirst("\\?" + originalUri.getRawQuery(), "");
-			url = url.replaceFirst("(#" + originalUri.getFragment() + ")$", "");
+			String url =originalUri.toString().replaceFirst("(#" + originalUri.getFragment() + ")$", "");
+			url = url.toString().replaceFirst("(\\?" + originalUri.getRawQuery() + ")$", "");
 			return url;
 		}
 	}
@@ -169,17 +172,17 @@ public class MonacaURI {
 	}
 
 	public void parseQuery() {
-		if (originalUri.getQuery() != null) {
+		if (originalUri.getRawQuery() != null) {
 			//MyLog.d(TAG, "hasQuery");
-			//MyLog.d(TAG, "rawQuery:"+ originalUri.getRawQuery());
+			MyLog.d(TAG, "rawQuery:"+ originalUri.getRawQuery());
 			String[] params = originalUri.getRawQuery().split("&");
-			String[] keyAndValue;
-
 			queryParamsArrayList = new ArrayList<QueryParam>();
 
 			for (int i = 0; i < params.length; i++) {
-				keyAndValue = params[i].split("=");
-				queryParamsArrayList.add(new QueryParam(keyAndValue, params[i]));
+				QueryParam p = new QueryParam(params[i]);
+				if (!p.isEmpty()) {
+					queryParamsArrayList.add(p);
+				}
 			}
 		} else {
 			//MyLog.d(TAG, "noQuery");
@@ -191,8 +194,28 @@ public class MonacaURI {
 		private String key;
 		private String value;
 
+		public QueryParam(String baseParam) {
+			String[] keyAndValue = baseParam.split("=");
+			if (keyAndValue == null || keyAndValue.length < 2) {
+				MyLog.d(TAG, "length < 2");
+				this.key = baseParam;
+				this.value = null;
+
+				if (key.equals("")) {
+					key = null;
+				}
+			} else {
+				this.key = keyAndValue[0];
+				this.value = keyAndValue[1];
+			}
+		}
+
 		public boolean hasValue() {
 			return (value != null);
+		}
+
+		public boolean isEmpty() {
+			return (key == null && value == null);
 		}
 
 		public String getDecodedKey() {
@@ -209,24 +232,6 @@ public class MonacaURI {
 			} catch (UnsupportedEncodingException e) {
 				return value;
 			}
-		}
-
-		public QueryParam(String[] keyAndValue, String params) {
-			try{
-				if (keyAndValue == null || keyAndValue.length < 2) {
-					//MyLog.d(TAG, "not splitted KeyAndValue");
-					//MyLog.d(TAG, params);
-					this.key = params;
-					this.value = null;
-				} else {
-					this.key = keyAndValue[0];
-					this.value = keyAndValue[1];
-				}
-			} catch (Exception e) {
-				this.key = null;
-				this.value = null;
-			}
-		//	MyLog.d(TAG, keyAndValue[0] + " : " + keyAndValue[1]);
 		}
 	}
 

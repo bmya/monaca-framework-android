@@ -72,15 +72,15 @@ public class UrlUtilTest extends AndroidTestCase {
 		eq("file:///android_asset/www", "file:///android_asset/www");
 		eq("file:///android_asset/www/", "file:///android_asset/www/");
 
-		eq("file:///android_asset/", UrlUtil.getResolvedUrl("file:///android_asset/"));
-		eq("file:///android_asset/", UrlUtil.getResolvedUrl("file:///android_asset/www/../"));
-		eq("file:///android_asset/", UrlUtil.getResolvedUrl("file:///android_asset/www/hoge/../../"));
-		eq("file:///android_asset/", UrlUtil.getResolvedUrl("file:///android_asset/www/hoge/foo/../../../"));
+		eq("file:///android_asset", UrlUtil.getResolvedUrl("file:///android_asset/"));
+		eq("file:///android_asset", UrlUtil.getResolvedUrl("file:///android_asset/www/../"));
+		eq("file:///android_asset", UrlUtil.getResolvedUrl("file:///android_asset/www/hoge/../../"));
+		eq("file:///android_asset", UrlUtil.getResolvedUrl("file:///android_asset/www/hoge/foo/../../../"));
 
-		eq("file:///data/data/mobi.monaca.framework.psedo/", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/"));
-		eq("file:///data/data/mobi.monaca.framework.psedo/", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/www/../"));
-		eq("file:///data/data/mobi.monaca.framework.psedo/", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/www/hoge/../../"));
-		eq("file:///data/data/mobi.monaca.framework.psedo/", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/www/hoge/foo/../../../"));
+		eq("file:///data/data/mobi.monaca.framework.psedo", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/"));
+		eq("file:///data/data/mobi.monaca.framework.psedo", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/www/../"));
+		eq("file:///data/data/mobi.monaca.framework.psedo", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/www/hoge/../../"));
+		eq("file:///data/data/mobi.monaca.framework.psedo", UrlUtil.getResolvedUrl("file:///data/data/mobi.monaca.framework.psedo/www/hoge/foo/../../../"));
 	}
 
 	protected void eq(String expected, String actual) {

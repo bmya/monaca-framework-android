@@ -743,7 +743,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		if (url.equals(getCurrentUriWithoutOptions()) && UrlUtil.isMonacaUri(this, url) && currentMonacaUri.hasUnusedFragment()) {
 			// process pushed url fragment
-			// TODO refactor MonacaURI not to use this checkment.bug that does not work with nativecomponent remains but not critical.
+			// TODO refactor MonacaURI not to use this checkment.noncritical bug with nativecomponent remains that does not work with nativecomponent remains.
 			appView.loadUrl("javascript:window.location.hash = '" + currentMonacaUri.popFragment() + "';");
 		}
 	}
