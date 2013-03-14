@@ -24,13 +24,6 @@ public class UrlUtilTest extends AndroidTestCase {
 		assertFalse(UrlUtil.isEmbedding("file://data/data/hoge.foo/aaa.html#embeddinghoge"));
 	}
 
-	public void testIsUrlMethod() {
-		assertTrue(UrlUtil.isUrl("http://hogehoge"));
-		assertTrue(UrlUtil.isUrl("https://hogehoge"));
-		assertTrue(!UrlUtil.isUrl("file:///hogehoge"));
-		assertTrue(!UrlUtil.isUrl("monaca://fuga"));
-	}
-
 	public void testResolveMethod() {
 		eq("http://hoge/fuga", UrlUtil.resolve("http://hoge/hoge", "fuga"));
 		eq("http://hoge/fuga", UrlUtil.resolve("http://hoge/hoge", "./fuga"));
