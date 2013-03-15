@@ -63,9 +63,9 @@ public class MonacaURI {
 
 	public static String buildUrlWithQuery(String baseUrl, JSONObject queryJson) {
 
-		MyLog.d(TAG, "buildUrl :" + baseUrl);
+		//MyLog.d(TAG, "buildUrl :" + baseUrl);
 		if (queryJson == null || (queryJson != null && queryJson.length() == 0)) {
-			MyLog.d(TAG, "no query");
+		//	MyLog.d(TAG, "no query");
 			return baseUrl;
 		}
 
@@ -174,7 +174,7 @@ public class MonacaURI {
 	public void parseQuery() {
 		if (originalUri.getRawQuery() != null) {
 			//MyLog.d(TAG, "hasQuery");
-			MyLog.d(TAG, "rawQuery:"+ originalUri.getRawQuery());
+			//MyLog.d(TAG, "rawQuery:"+ originalUri.getRawQuery());
 			String[] params = originalUri.getRawQuery().split("&");
 			queryParamsArrayList = new ArrayList<QueryParam>();
 
@@ -197,7 +197,7 @@ public class MonacaURI {
 		public QueryParam(String baseParam) {
 			String[] keyAndValue = baseParam.split("=");
 			if (keyAndValue == null || keyAndValue.length < 2) {
-				MyLog.d(TAG, "length < 2");
+				//MyLog.d(TAG, "length < 2");
 				this.key = baseParam;
 				this.value = null;
 

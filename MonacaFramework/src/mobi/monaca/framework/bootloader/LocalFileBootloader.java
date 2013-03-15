@@ -159,24 +159,24 @@ public class LocalFileBootloader {
      * @throws IOException
      */
     public static InputStream openAsset(Context context, String path) throws IOException {
-    	Log.d(TAG, "getInputStream : " + path);
+    //	Log.d(TAG, "getInputStream : " + path);
         String newPath = path.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
 
     	if (needToUseLocalFileBootloader()) {
-        	MyLog.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
+        //	MyLog.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
 
     		File localAssetFile = new File(newPath.startsWith("file:///data/") ? newPath.substring(8) : context.getApplicationInfo().dataDir + "/" + newPath);
 
-        	MyLog.d(TAG, "localAssetFile :" + localAssetFile);
+        //	MyLog.d(TAG, "localAssetFile :" + localAssetFile);
     		if (localAssetFile.exists()) {
-    			MyLog.d(TAG, "getInputStream,  loading localFile succeed");
+    		//	MyLog.d(TAG, "getInputStream,  loading localFile succeed");
     			return new FileInputStream(localAssetFile);
     		} else {
-    			MyLog.d(TAG, "getInputStream,  loading localFile failed, get from assets");
+    		//	MyLog.d(TAG, "getInputStream,  loading localFile failed, get from assets");
     			return context.getAssets().open(newPath);
     		}
     	} else {
-    		MyLog.d(TAG, "no need to use LocalFileBootloader");
+    	//	MyLog.d(TAG, "no need to use LocalFileBootloader");
     		return context.getAssets().open(newPath);
     	}
     }

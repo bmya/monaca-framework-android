@@ -204,7 +204,6 @@ public class MonacaPageActivity extends DroidGap {
 		} catch (IllegalArgumentException e) {
 			MyLog.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			// TODO 自動生成された catch ブロック
 			MyLog.e(TAG, e.getMessage());
 		}
 		return Color.TRANSPARENT;
