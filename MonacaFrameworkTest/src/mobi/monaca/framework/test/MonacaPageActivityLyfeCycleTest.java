@@ -23,6 +23,37 @@ public class MonacaPageActivityLyfeCycleTest extends ActivityUnitTestCase<Monaca
 		pageActivity.finish();
 	}
 
+	public void testNormalLyfeCycleWithUrl() {
+		// test whether not destroyed by unexpected causes
+		Intent intent = new Intent();
+		intent.putExtra(MonacaPageActivity.URL_PARAM_NAME, "http://monaca.mobi");
+		startActivity(intent, null, null);
+		MonacaPageActivity pageActivity = getActivity();
+		Instrumentation i = getInstrumentation();
+		i.callActivityOnStart(pageActivity);
+		i.callActivityOnResume(pageActivity);
+		i.callActivityOnPause(pageActivity);
+		i.callActivityOnStop(pageActivity);
+		i.callActivityOnDestroy(pageActivity);
+		pageActivity.finish();
+	}
+
+	public void testNormalLyfeCycleWithInvalidUrl() {
+		// test whether not destroyed by unexpected causes
+		Intent intent = new Intent();
+		intent.putExtra(MonacaPageActivity.URL_PARAM_NAME, "monaca://hogehoge");
+		startActivity(intent, null, null);
+		MonacaPageActivity pageActivity = getActivity();
+		Instrumentation i = getInstrumentation();
+		i.callActivityOnStart(pageActivity);
+		i.callActivityOnResume(pageActivity);
+		i.callActivityOnPause(pageActivity);
+		i.callActivityOnStop(pageActivity);
+		i.callActivityOnDestroy(pageActivity);
+		pageActivity.finish();
+	}
+
+
 	public void testResumingLyfeCycle() {
 		// test whether not destroyed by unexpected causes
 		startActivity(new Intent(), null, null);

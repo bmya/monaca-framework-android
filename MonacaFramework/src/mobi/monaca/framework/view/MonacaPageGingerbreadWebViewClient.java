@@ -21,13 +21,10 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 
     private static final String TAG = MonacaPageGingerbreadWebViewClient.class.getSimpleName();
     protected MonacaPageActivity monacaPage;
-    protected String currentUrl;
     protected boolean isRemote;
 
-    public MonacaPageGingerbreadWebViewClient(String currentUrl,
-            MonacaPageActivity monacaPage, CordovaWebView webView) {
+    public MonacaPageGingerbreadWebViewClient(MonacaPageActivity monacaPage, CordovaWebView webView) {
     	super(monacaPage, webView);
-        this.currentUrl = currentUrl;
         this.monacaPage = monacaPage;
     }
 

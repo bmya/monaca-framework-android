@@ -1048,9 +1048,9 @@ public class MonacaPageActivity extends DroidGap {
 		MonacaPageGingerbreadWebViewClient client = null;
 
 		if (Integer.valueOf(android.os.Build.VERSION.SDK_INT) < 11) {
-			client = new MonacaPageGingerbreadWebViewClient(url, page, webView);
+			client = new MonacaPageGingerbreadWebViewClient(page, webView);
 		} else {
-			client = new MonacaPageHoneyCombWebViewClient(url, page, webView);
+			client = new MonacaPageHoneyCombWebViewClient(page, webView);
 		}
 		return client;
 	}
