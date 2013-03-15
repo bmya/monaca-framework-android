@@ -141,12 +141,12 @@ public class LocalFileBootloaderTest extends AndroidTestCase {
 		} catch (IOException e) {
 		}
 		try {
-			InputStream i = LocalFileBootloader.openAsset(mContext, "/www/hoge.html");
+			LocalFileBootloader.openAsset(mContext, "/www/hoge.html");
 			fail();
 		} catch (IOException e) {
 		}
 		try {
-			InputStream i = LocalFileBootloader.openAsset(mContext, "./www/hoge.html");
+			LocalFileBootloader.openAsset(mContext, "./www/hoge.html");
 			fail();
 		} catch (IOException e) {
 		}

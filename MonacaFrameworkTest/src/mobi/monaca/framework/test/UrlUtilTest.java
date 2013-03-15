@@ -1,9 +1,8 @@
 package mobi.monaca.framework.test;
 
+import mobi.monaca.framework.util.UrlUtil;
 import android.os.Environment;
 import android.test.AndroidTestCase;
-import mobi.monaca.framework.util.UrlUtil;
-import junit.framework.TestCase;
 
 public class UrlUtilTest extends AndroidTestCase {
 

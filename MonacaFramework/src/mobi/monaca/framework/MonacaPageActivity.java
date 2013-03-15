@@ -396,7 +396,7 @@ public class MonacaPageActivity extends DroidGap {
 		if(VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
-		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(getCurrentUriWithoutOptions(), this, webView);
+		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
 		this.initMonaca();
@@ -1044,7 +1044,7 @@ public class MonacaPageActivity extends DroidGap {
 		});
 	}
 
-	protected WebViewClient createWebViewClient(String url, MonacaPageActivity page, CordovaWebView webView) {
+	protected WebViewClient createWebViewClient(MonacaPageActivity page, CordovaWebView webView) {
 		MonacaPageGingerbreadWebViewClient client = null;
 
 		if (Integer.valueOf(android.os.Build.VERSION.SDK_INT) < 11) {
@@ -1136,7 +1136,7 @@ public class MonacaPageActivity extends DroidGap {
 	public void setCurrentUri(String uri) {
 		MyLog.v(TAG, "setCurrentUri:" + uri);
 		currentMonacaUri = new MonacaURI(uri);
-		uiContext = new UIContext(getCurrentUriWithoutQuery(), this);
+		uiContext = new UIContext(getCurrentUriWithoutOptions(), this);
 	}
 
 }
