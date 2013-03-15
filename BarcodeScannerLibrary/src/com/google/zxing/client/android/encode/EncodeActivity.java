@@ -121,7 +121,7 @@ public final class EncodeActivity extends Activity {
     }
 
     Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:"));
-    intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " - " +
+    intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.barcode_lib_app_name) + " - " +
         qrCodeEncoder.getTitle());
     intent.putExtra(Intent.EXTRA_TEXT, qrCodeEncoder.getContents());
     intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + barcodeFile.getAbsolutePath()));
@@ -159,7 +159,7 @@ public final class EncodeActivity extends Activity {
     Intent intent = getIntent();
     try {
       qrCodeEncoder = new QRCodeEncoder(this, intent, smallerDimension);
-      setTitle(getString(R.string.app_name) + " - " + qrCodeEncoder.getTitle());
+      setTitle(getString(R.string.barcode_lib_app_name) + " - " + qrCodeEncoder.getTitle());
       Bitmap bitmap = qrCodeEncoder.encodeAsBitmap();
       ImageView view = (ImageView) findViewById(R.id.image_view);
       view.setImageBitmap(bitmap);
