@@ -1136,6 +1136,7 @@ public class MonacaPageActivity extends DroidGap {
 	public void setCurrentUri(String uri) {
 		MyLog.v(TAG, "setCurrentUri:" + uri);
 		currentMonacaUri = new MonacaURI(uri);
+		uiContext = new UIContext(getCurrentUriWithoutQuery(), this);
 	}
 
 }
