@@ -50,7 +50,7 @@ public class MonacaURITest extends TestCase {
 		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html?hoge=bar&aaa=bbb#foobar")).getUrlWithoutOptions());
 
 		// undefined pattern
-		//eq("file:///android_asset/www/hoge.html??hoge=?foo=bar", (new MonacaURI("file:///android_asset/www/hoge.html??hoge=?foo=bar")).getUrlWithoutOptions()); TODO fix MonacaURI for this pattern
+		eq("file:///android_asset/www/hoge.html", (new MonacaURI("file:///android_asset/www/hoge.html??hoge=?foo=bar")).getUrlWithoutOptions());
 		eq("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?hoge=piyo")).getUrlWithoutOptions());
 		eq("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo", (new MonacaURI("file:///android_asset/www/hoge.html#foo=bar?&hoge=piyo")).getUrlWithoutOptions());
 

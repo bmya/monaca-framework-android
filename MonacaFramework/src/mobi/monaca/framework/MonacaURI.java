@@ -113,7 +113,7 @@ public class MonacaURI {
 			return getOriginalUrl();
 		}else {
 			String url =originalUri.toString().replaceFirst("(#" + originalUri.getFragment() + ")$", "");
-			url = url.toString().replaceFirst("(\\?" + originalUri.getRawQuery() + ")$", "");
+			url = url.toString().replace("?" + originalUri.getRawQuery(), "");
 			return url;
 		}
 	}
