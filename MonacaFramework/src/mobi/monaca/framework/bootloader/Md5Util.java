@@ -79,6 +79,14 @@ public class Md5Util {
 
     }
 
+    /**
+     * this method removes high-order 4bit of each words.
+     * (eg. hoge -> a0ea1fa04a5798be, normally ea703e7aa1efda0064eaa507d9e8ab7e)
+     *
+     * @param source
+     * @return
+     * @see Md5Util#toMD5(String)
+     */
     public static String md5(String source) {
         MessageDigest md5;
         try {
@@ -91,7 +99,7 @@ public class Md5Util {
             StringBuffer sb = new StringBuffer();
             int cnt = hash.length;
             for (int i = 0; i < cnt; i++) {
-                sb.append(Integer.toHexString(hash[i] & 0x0F));
+                sb.append(Integer.toHexString(hash[i] & 0x0F)); //remove high-order 4bit
             }
 
             return sb.toString();
@@ -102,19 +110,23 @@ public class Md5Util {
         }
     }
 
+    /**
+     * convert string to md5 hashed string (eg. hoge -> ea703e7aa1efda0064eaa507d9e8ab7e)
+     * @param source
+     * @return
+     * @see Md5Util#md5(String)
+     */
     public static String toMD5(String source) {
     	MessageDigest md = null;
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO 自動生成された catch ブロック
 			MyLog.e(TAG, e.getMessage());
 		}
     	byte[] digest = null;
 		try {
 			digest = md.digest(source.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			// TODO 自動生成された catch ブロック
 			MyLog.e(TAG, e.getMessage());
 		}
     	StringBuffer buf = new StringBuffer();
@@ -130,6 +142,4 @@ public class Md5Util {
     	      }
     	return buf.toString();
     }
-
-
 }
