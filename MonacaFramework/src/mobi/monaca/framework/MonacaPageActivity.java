@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import mobi.monaca.framework.view.MonacaPageGingerbreadWebViewClient;
 import mobi.monaca.framework.view.MonacaPageHoneyCombWebViewClient;
 import mobi.monaca.framework.view.MonacaWebView;
 import mobi.monaca.utils.TimeStamp;
+import mobi.monaca.utils.gcm.GCMPushDataset;
 import mobi.monaca.utils.log.LogItem;
 import mobi.monaca.utils.log.LogItem.LogLevel;
 import mobi.monaca.utils.log.LogItem.Source;
@@ -91,7 +93,6 @@ import android.widget.LinearLayout;
  * This class represent a page of Monaca application.
  */
 public class MonacaPageActivity extends DroidGap {
-
 	public static final String TRANSITION_PARAM_NAME = "monaca.transition";
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
@@ -112,6 +113,8 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected Dialog monacaSplashDialog;
 
+	private boolean isOnDestroyMonacaCalled = false;
+
 	protected BroadcastReceiver closePageReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
 			int level = intent.getIntExtra("level", 0);
@@ -120,6 +123,17 @@ public class MonacaPageActivity extends DroidGap {
 			}
 			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutQuery());
 			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
+		}
+	};
+
+	protected BroadcastReceiver pushReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			MyLog.d(TAG, "push broadcast received");
+			if (isIndex()) {
+				GCMPushDataset p = (GCMPushDataset)intent.getExtras().get(GCMPushDataset.KEY);
+				sendPushToWebView(p);
+			}
 		}
 	};
 
@@ -134,8 +148,11 @@ public class MonacaPageActivity extends DroidGap {
 	protected String mCurrentHtml;
 	private ScreenReceiver mScreenReceiver;
 
+	protected GCMPushDataset pushData;
+
 	@Override
 	public void onCreate(Bundle savedInstance) {
+		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
 
 		// initialize receiver
@@ -179,6 +196,12 @@ public class MonacaPageActivity extends DroidGap {
 
 	}
 	
+
+
+	protected boolean isIndex() {
+		return pageIndex == MonacaApplication.getPages().size() - 1;
+	}
+
 
 	protected Drawable getSplashDrawable() throws IOException {
 		InputStream is = getResources().getAssets().open(MonacaSplashActivity.SPLASH_IMAGE_PATH);
@@ -265,7 +288,6 @@ public class MonacaPageActivity extends DroidGap {
 
 			menu.clear();
 			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
-
 			MyLog.v(TAG, "menuRepresentation:" + menuRepresentation);
 			if (menuRepresentation != null) {
 				menuRepresentation.configureMenu(uiContext, menu);
@@ -279,9 +301,15 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected void prepare() {
 		Bundle bundle = getIntent().getExtras();
-		if (bundle != null && bundle.getBoolean(MonacaSplashActivity.SHOWS_SPLASH_KEY, false)) {
-			showMonacaSplash();
-			getIntent().getExtras().remove(MonacaSplashActivity.SHOWS_SPLASH_KEY);
+		if (bundle != null) {
+			if (bundle.getBoolean(MonacaSplashActivity.SHOWS_SPLASH_KEY, false)) {
+				showMonacaSplash();
+				getIntent().getExtras().remove(MonacaSplashActivity.SHOWS_SPLASH_KEY);
+			}
+			Serializable s = bundle.getSerializable(GCMPushDataset.KEY);
+			if (s != null) {
+				pushData = (GCMPushDataset)s;
+			}
 		}
 
 		loadParams();
@@ -391,7 +419,6 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public void init() {
 		CordovaWebView webView = new MonacaWebView(this);
-		
 		// Fix webview bug on ICS_MR1 where webview background is always white when hardware accerleration is on
 		if(VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -510,21 +537,21 @@ public class MonacaPageActivity extends DroidGap {
 
 		applyUiToView(result);
 	}
-	
+
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
 		switch (pageOrientation) {
 		case PORTRAIT:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			break;
-		
+
 		case LANDSCAPE:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 			break;
-			
+
 		case SENSOR:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 			break;
-			
+
 		case INHERIT:
 			// no override. Do nothing.
 			break;
@@ -781,7 +808,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		// check if this is 404 page
 		String errorUrl = getIntent().getStringExtra("error_url");
-
+		processMonacaReady(url);
 		if (errorUrl != null && url.endsWith("/404/404.html")) {
 			String backButtonText = getString(R.string.back_button_text);
 			errorUrl = UrlUtil.cutHostInUri(errorUrl);
@@ -840,15 +867,36 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.i(TAG, "onPause");
 		super.onPause();
 		this.removeMonacaSplash();
+
+		if (isFinishing()) {
+			onDestroyMonacaCaller();
+		}
 	}
 
-	@Override
-	public void onDestroy() {
-		MyLog.i(TAG, "onDestroy");
+	/**
+	 * @see MonacaPageActivity#onDestroyMonaca()
+	 */
+	private final void onDestroyMonacaCaller() {
+		//MyLog.d(TAG, "monacaOnDestroyCaller()");
+		if (!isOnDestroyMonacaCalled) {
+			// prevent from multiple calls
+			onDestroyMonaca();
+			isOnDestroyMonacaCalled = true;
+		}
+	}
+
+	/**
+	 * to call onDestroy surely, this is called in onPause or onDestroy
+	 * since Activity#finish doesn't guarantee calling onDestroy.
+	 * this should be called through onDestroyMonacaCaller
+	 * @see MonacaPageActivity#onDestroyMonacaCaller()
+	 */
+	protected void onDestroyMonaca() {
+		MyLog.d(TAG, "onDestroyMonaca");
+		unregisterReceiver(pushReceiver);
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		this.removeMonacaSplash();
-		super.onDestroy();
 
 		MonacaApplication.removePage(this);
 		unregisterReceiver(closePageReceiver);
@@ -878,6 +926,13 @@ public class MonacaPageActivity extends DroidGap {
 		// unregisterForContextMenu(appView);
 		// appView.destroy();
 		// appView = null;
+	}
+
+	@Override
+	public void onDestroy() {
+		MyLog.i(TAG, "onDestroy");
+		onDestroyMonacaCaller();
+		super.onDestroy();
 	}
 
 	/** Reload current URI. */
@@ -919,6 +974,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
+		//	appView.loadUrl(getCurrentUriWithoutQuery());
 			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
 
 		} catch (IOException e) {
@@ -1108,6 +1164,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	protected void onStop() {
+		MyLog.d(TAG, "onStop");
 		super.onStop();
 		unloadBackground();
 	}
@@ -1141,6 +1198,22 @@ public class MonacaPageActivity extends DroidGap {
 	 * publish log message
 	 */
 	public void onLoadResource(WebView view, String url) {
+		//MyLog.d(TAG, "onLoadResource :" + url);
+	}
+
+	protected void processMonacaReady(String url) {
+		if (pushData != null) {
+			if (UrlUtil.isMonacaUri(this, url)) {
+				sendPushToWebView(pushData);
+				pushData = null;
+			}
+		} else {
+			MyLog.d(TAG, "no Push");
+		}
+	}
+
+	protected void sendPushToWebView(GCMPushDataset pushData) {
+		appView.loadUrl("javascript:monaca.sendPush(" + pushData.getExtraJSONString() + ")");
 	}
 
 	public MonacaURI getCurrentMonacaUri() {
@@ -1173,7 +1246,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	/**
 	 * update uri and currentMonacaURI
-	 * 
+	 *
 	 * @param uri
 	 */
 	public void setCurrentUri(String uri) {
