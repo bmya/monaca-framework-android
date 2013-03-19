@@ -20,6 +20,7 @@ import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.UpdateStyleQuery;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.PageOrientation;
+import mobi.monaca.framework.nativeui.container.ContainerViewInterface;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
@@ -80,7 +81,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.LinearLayout;
 
 /**
@@ -548,8 +552,8 @@ public class MonacaPageActivity extends DroidGap {
 				MyLog.v(TAG, "hasOpacityBar");
 
 				FrameLayout frame = new FrameLayout(this);
-				LinearLayout newRoot = new LinearLayout(this);
-				newRoot.setOrientation(LinearLayout.VERTICAL);
+				LinearLayout nativeUIViews = new LinearLayout(this);
+				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
 
 				root.removeAllViews();
 				MyLog.v(TAG, "root.removeAllViews()");
@@ -561,17 +565,17 @@ public class MonacaPageActivity extends DroidGap {
 				}
 
 				frame.addView(appView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-				frame.addView(newRoot, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
 				// top bar view
-				newRoot.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
+				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
 
 				// center
-				newRoot.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
 
 				// bottom bar view
-				newRoot.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
+				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
 
 				if (result.topView != null) {
 					MyLog.v(TAG, "result.topView != null");
@@ -597,20 +601,65 @@ public class MonacaPageActivity extends DroidGap {
 				MyLog.v(TAG, "noOpacityBar");
 				root.removeAllViews();
 				MyLog.v(TAG, "root.removeAllViews()");
+				
+				FrameLayout frame = new FrameLayout(this);
+				LinearLayout nativeUIViews = new LinearLayout(this);
+				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
+
+				root.removeAllViews();
+				MyLog.v(TAG, "root.removeAllViews()");
+				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
+				if (appViewParent != null) {
+					appViewParent.removeAllViews();
+				}
+				
+				android.widget.FrameLayout.LayoutParams appViewLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+				if (result.topView != null) {
+					MyLog.v(TAG, "result.topView != null");
+					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+					int topViewHeight = result.topView.getMeasuredHeight();
+					MyLog.v(TAG, "top height view:" + topViewHeight);
+					MyLog.v(TAG, "shadow view estimated height:" + UIUtil.dip2px(getContext(), 13));
+					try {
+						infoForJavaScript.put("topViewHeight", topViewHeight);
+					} catch (JSONException e) {
+						MyLog.e(TAG, e.getMessage());
+					}
+					
+					ContainerViewInterface cv = (ContainerViewInterface) result.topView;
+					int shadowViewHeight = cv.getShadowHeight();
+					MyLog.v(TAG, "shadowView actual height:" + shadowViewHeight);
+					appViewLayoutParams.topMargin = topViewHeight - shadowViewHeight;
+				}
+				
+				frame.addView(appView, appViewLayoutParams);
+				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
 				// top bar view
-				root.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
+				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
 
 				// center
-				ViewGroup appViewParent = (ViewGroup) appView.getParent();
-				if (appViewParent != null) {
-					appViewParent.removeView(appView);
-				}
-
-				root.addView(appView, 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
 
 				// bottom bar view
-				root.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
+				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
+
+				if (result.bottomView != null) {
+					MyLog.v(TAG, "result.bottomView != null");
+					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+					int bottomViewHeight = result.bottomView.getMeasuredHeight();
+					try {
+						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
+					} catch (JSONException e) {
+						MyLog.e(TAG, e.getMessage());
+					}
+					ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
+					int shadowViewHeight = cv.getShadowHeight();
+					appViewLayoutParams.bottomMargin = bottomViewHeight - shadowViewHeight;
+				}
 			}
 		} else {
 			MyLog.v(TAG, "Reverse of result.bottomView != null || result.topView != null");
