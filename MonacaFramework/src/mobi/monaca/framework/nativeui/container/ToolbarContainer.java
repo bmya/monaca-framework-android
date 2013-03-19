@@ -147,7 +147,7 @@ public class ToolbarContainer implements Component {
         view.getContentView().getBackground()
                 .setAlpha(buildOpacity(toolbarOpacity));
 
-        double shadowOpacity = style.optDouble("shadowOpacity", 0.5);
+        double shadowOpacity = style.optDouble("shadowOpacity", 0.3);
         double relativeShadowOpacity = toolbarOpacity * shadowOpacity;
         MyLog.v(TAG, "shadowOpacity:" + shadowOpacity + ", relativeShadowOpacity:" + relativeShadowOpacity);
         view.getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
