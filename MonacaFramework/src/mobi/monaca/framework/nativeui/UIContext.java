@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
+import mobi.monaca.framework.InternalSettings;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
@@ -36,7 +38,7 @@ public class UIContext extends ContextWrapper {
     protected DisplayMetrics metrics;
     protected SparseIntArray computedFontSizeCache = new SparseIntArray();
     protected ArrayList<OnRotateListener> onRotateListeners = new ArrayList<OnRotateListener>();
-    protected UISettings settings;
+    protected InternalSettings settings;
 
     public UIContext(String uiFilePath, MonacaPageActivity pageActivity) {
         super(pageActivity);
@@ -46,15 +48,10 @@ public class UIContext extends ContextWrapper {
         metrics = new DisplayMetrics();
         pageActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         
-        try {
-            this.settings = new UISettings(pageActivity.getPackageManager().getActivityInfo(pageActivity.getComponentName(), PackageManager.GET_META_DATA).metaData);
-        } catch (Exception e) {
-            Log.d(getClass().getSimpleName(), "UISettings Initialization fail", e);
-            this.settings = new UISettings(new Bundle());
-        }
+        this.settings = MonacaApplication.getInternalSettings();
     }
     
-    public UISettings getUISettings() {
+    public InternalSettings getSettings() {
         return this.settings;
     }
     

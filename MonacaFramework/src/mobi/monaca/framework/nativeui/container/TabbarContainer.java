@@ -109,7 +109,7 @@ public class TabbarContainer implements Component {
             content.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
             content.setBackgroundResource(R.drawable.monaca_tabbar_bg);
 
-    		int borderWidth = context.getUISettings().disableToolbarBorder ? 0 : 1;
+    		int borderWidth = context.getSettings().disableUIContainerBorder ? 0 : 1;
             addView(createBorderView(), new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
             addView(content, new LinearLayout.LayoutParams(
