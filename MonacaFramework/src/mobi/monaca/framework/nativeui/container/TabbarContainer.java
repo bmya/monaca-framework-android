@@ -9,6 +9,7 @@ import mobi.monaca.framework.nativeui.container.TabbarItem.TabbarItemView;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
+
 import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,7 +22,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-public class TabbarContainer implements Component {
+public class TabbarContainer implements Component{
 
     protected TabbarContainerView view;
     protected Context context;
@@ -81,7 +82,11 @@ public class TabbarContainer implements Component {
         if (oldActiveIndex != null && style.optInt("activeIndex", 0) != oldActiveIndex) {
             view.setActiveIndex(style.optInt("activeIndex", 0));
         }
+        
+        double shadowOpacity = style.optDouble("shadowOpacity", 0.5);
+        view.getShadowView().getBackground().setAlpha(buildOpacity(shadowOpacity));
     }
+    
 
     public JSONObject getStyle() {
         return style;
@@ -92,11 +97,13 @@ public class TabbarContainer implements Component {
     }
 
     public class TabbarContainerView extends LinearLayout implements
-            View.OnClickListener {
+            View.OnClickListener, ContainerViewInterface{
 
         protected ArrayList<TabbarItem.TabbarItemView> items = new ArrayList<TabbarItem.TabbarItemView>();
         protected TabbarItemView currentItemView = null;
         protected LinearLayout content;
+		private int mShadowHeight;
+		private View shadowView;
 
         public TabbarContainerView(Context context) {
             super(context);
@@ -107,6 +114,11 @@ public class TabbarContainer implements Component {
 
             content.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
             content.setBackgroundResource(R.drawable.monaca_tabbar_bg);
+            
+            shadowView = new View(getContext());
+			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
+			mShadowHeight = UIUtil.dip2px(getContext(), 3);
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
 
             addView(createBorderView(), new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, 1));
@@ -115,7 +127,11 @@ public class TabbarContainer implements Component {
                     LinearLayout.LayoutParams.WRAP_CONTENT));
         }
 
-        public View getContentView() {
+        public View getShadowView() {
+			return shadowView;
+		}
+
+		public View getContentView() {
             return content;
         }
 
@@ -171,6 +187,11 @@ public class TabbarContainer implements Component {
                 item.switchToSelected();
             }
         }
+
+		@Override
+		public int getShadowHeight() {
+			return mShadowHeight;
+		}
     }
 
 }

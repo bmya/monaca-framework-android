@@ -12,6 +12,7 @@ import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
 import mobi.monaca.framework.psedo.R;
+import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONObject;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
@@ -38,8 +39,8 @@ public class ToolbarContainer implements Component {
 
     public ToolbarContainer(UIContext context, List<ToolbarComponent> left,
             List<ToolbarComponent> center, List<ToolbarComponent> right,
-            JSONObject style) {
-        view = new ToolbarContainerView(context);
+            JSONObject style, boolean isTop) {
+        view = new ToolbarContainerView(context, isTop);
         this.style = style != null ? style : new JSONObject();
         this.context = context;
 
@@ -59,10 +60,10 @@ public class ToolbarContainer implements Component {
         return style;
     }
 
-    public ToolbarContainer(UIContext context, JSONObject style) {
+    public ToolbarContainer(UIContext context, JSONObject style, boolean isTop) {
         this(context, new ArrayList<ToolbarComponent>(),
                 new ArrayList<ToolbarComponent>(),
-                new ArrayList<ToolbarComponent>(), style);
+                new ArrayList<ToolbarComponent>(), style, isTop);
     }
 
     public View getView() {
@@ -76,7 +77,8 @@ public class ToolbarContainer implements Component {
      * (default : "") (このスタイルが指定された場合、center属性は無視される)
      */
     protected void style() {
-        if (isTransparent(style.optDouble("opacity", 1.0)) && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE
+        double toolbarOpacity = style.optDouble("opacity", 1.0);
+		if (isTransparent(toolbarOpacity) && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE
                 : View.INVISIBLE)) {
             if (animation != null) {
 //                animation.cancel();  //TODO only available in Android 4.0
@@ -143,8 +145,16 @@ public class ToolbarContainer implements Component {
                 new BitmapDrawable(context.getResources(), bgBitmap));
         view.getContentView().setPadding(padding.left, dip2px(context, TOP_BOTTOM_PADDING), padding.right, dip2px(context, TOP_BOTTOM_PADDING));
         view.getContentView().getBackground()
-                .setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+                .setAlpha(buildOpacity(toolbarOpacity));
 
+        double shadowOpacity = style.optDouble("shadowOpacity", 0.5);
+        double relativeShadowOpacity = toolbarOpacity * shadowOpacity;
+        MyLog.v(TAG, "shadowOpacity:" + shadowOpacity + ", relativeShadowOpacity:" + relativeShadowOpacity);
+        view.getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
+        
+        view.setBackgroundDrawable(null);
+        view.setBackgroundColor(0);
+        
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
