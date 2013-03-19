@@ -39,7 +39,6 @@ import mobi.monaca.utils.log.LogItem;
 import mobi.monaca.utils.log.LogItem.LogLevel;
 import mobi.monaca.utils.log.LogItem.Source;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaWebViewClient;
@@ -51,24 +50,20 @@ import receiver.ScreenReceiver;
 import android.R.color;
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -85,7 +80,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
@@ -180,6 +174,7 @@ public class MonacaPageActivity extends DroidGap {
 		// root.setBackgroundColor(Color.WHITE);
 
 	}
+	
 
 	protected Drawable getSplashDrawable() throws IOException {
 		InputStream is = getResources().getAssets().open(MonacaSplashActivity.SPLASH_IMAGE_PATH);
@@ -625,6 +620,10 @@ public class MonacaPageActivity extends DroidGap {
 			root.addView(appView);
 			this.dict = new HashMap<String, Component>();
 		}
+	}
+	
+	public UIContext getUiContext() {
+		return uiContext;
 	}
 
 	protected String getUIFile(String path) throws IOException {

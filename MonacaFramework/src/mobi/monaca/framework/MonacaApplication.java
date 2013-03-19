@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.component.SpinnerDialog;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentationBuilder;
 import mobi.monaca.framework.util.MyLog;
+
+import org.json.JSONArray;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Environment;
+import android.util.Log;
 
 /** This class manage the application's global state and variable. */
 public class MonacaApplication extends Application {
@@ -20,6 +26,7 @@ public class MonacaApplication extends Application {
     protected static List<MonacaPageActivity> pages = null;
     protected static Map<String, MenuRepresentation> menuMap = null;
     protected static MonacaApplication self = null;
+	private SpinnerDialog monacaSpinnerDialog;
 
 
     @Override
@@ -39,7 +46,29 @@ public class MonacaApplication extends Application {
 	protected void createMenuMap() {
 		menuMap = new MenuRepresentationBuilder(getApplicationContext()).buildFromAssets(this, "www/app.menu");
 	}
-    
+	
+	public void showMonacaSpinnerDialog(UIContext uiContext, JSONArray args) throws Exception{
+		try {
+			monacaSpinnerDialog = new SpinnerDialog(uiContext, args);
+			monacaSpinnerDialog.setCancelable(true);
+			monacaSpinnerDialog.show();
+		} catch (Exception e) {
+			Log.e("Monaca", e.getMessage());
+			throw e;
+		}
+	}
+	
+	public void hideMonacaSpinnerDialog(){
+		if(monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()){
+			monacaSpinnerDialog.dismiss();
+		}
+	}
+	
+	public void updateSpinnerTitle(String title) {
+		if(monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()){
+			monacaSpinnerDialog.updateTitleText(title);
+		}
+	}
     
     public static boolean allowAccess(String url) {
         
@@ -114,4 +143,6 @@ public class MonacaApplication extends Application {
 
         super.onTerminate();
     }
+
+	
 }

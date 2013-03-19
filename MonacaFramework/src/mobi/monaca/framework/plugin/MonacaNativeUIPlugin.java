@@ -2,6 +2,7 @@ package mobi.monaca.framework.plugin;
 
 import java.util.ArrayList;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.nativeui.UpdateStyleQuery;
 
@@ -14,8 +15,12 @@ import org.json.JSONObject;
 
 public class MonacaNativeUIPlugin extends Plugin {
 
+	protected MonacaPageActivity getMonacaPageActivity() {
+		return (MonacaPageActivity) cordova.getActivity();
+	}
+
 	@Override
-	public PluginResult execute(String action, JSONArray args, String callbackId) {
+	public PluginResult execute(String action, final JSONArray args, String callbackId) {
 		if (action.equals("retrieve")) {
 			return retrieveStyle(args.optString(0));
 		} else if (action.equals("update")) {
@@ -39,7 +44,7 @@ public class MonacaNativeUIPlugin extends Plugin {
 					e.printStackTrace();
 					return new PluginResult(Status.JSON_EXCEPTION);
 				}
-			}else{
+			} else {
 				return updateStyle(ids, args.optJSONObject(1));
 			}
 
@@ -47,6 +52,55 @@ public class MonacaNativeUIPlugin extends Plugin {
 			return updateStyleBulkily(args);
 		} else if (action.equals("info")) {
 			return getInfoForJavaScript();
+		} else {
+			if (action.equalsIgnoreCase("showSpinner")) {
+				getMonacaPageActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						MonacaApplication application = (MonacaApplication) getMonacaPageActivity().getApplication();
+						try {
+							application.showMonacaSpinnerDialog(getMonacaPageActivity().getUiContext(), args);
+							// application.showMonacaSpinnerDialog();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+
+				return new PluginResult(PluginResult.Status.OK);
+			}
+
+			if (action.equalsIgnoreCase("updateSpinnerTitle")) {
+				getMonacaPageActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						MonacaApplication application = (MonacaApplication) getMonacaPageActivity().getApplication();
+						try {
+							application.updateSpinnerTitle(args.optString(0));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				});
+
+				return new PluginResult(PluginResult.Status.OK);
+			}
+
+			if (action.equalsIgnoreCase("hideSpinner")) {
+				getMonacaPageActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						MonacaApplication application = (MonacaApplication) getMonacaPageActivity().getApplication();
+						application.hideMonacaSpinnerDialog();
+					}
+				});
+
+				return new PluginResult(PluginResult.Status.OK);
+			}
+
 		}
 		return new PluginResult(Status.INVALID_ACTION);
 	}

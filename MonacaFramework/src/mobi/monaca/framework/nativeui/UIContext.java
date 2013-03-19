@@ -126,7 +126,7 @@ public class UIContext extends ContextWrapper {
         return 1.0f;
     }
 
-    protected String resolve(String path) {
+    public String resolve(String path) {
         try {
             path = new URI(uiFilePath).resolve(path).toString();
         } catch (Exception e) {
