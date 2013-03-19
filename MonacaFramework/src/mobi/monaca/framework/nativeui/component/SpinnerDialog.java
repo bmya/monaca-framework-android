@@ -28,6 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -86,7 +87,7 @@ public class SpinnerDialog extends Dialog {
 		Bitmap fullSpinner = null;
 		if (spinnerImagePath == null || spinnerImagePath.equalsIgnoreCase("null")) {
 			fullSpinner = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.spinner);
-			numFrames = 5;
+			numFrames = 12;
 		} else {
 			if(!spinnerImagePath.toLowerCase(Locale.ENGLISH).endsWith("png")){
 				throw new SpinnerDialogException("Spinner image is not a PNG format: " + spinnerImagePath);
@@ -116,13 +117,17 @@ public class SpinnerDialog extends Dialog {
 
 		AnimationDrawable animationDrawable = new AnimationDrawable();
 
-		int frameHeight = fullSpinner.getHeight() / numFrames;
+		float frameHeight = (float) fullSpinner.getHeight() / numFrames;
 		int y = 0;
 		MyLog.v(TAG, "fullSpinner Height: " + fullSpinner.getHeight() + ", frameHeight: " + frameHeight);
 		for (int i = 0; i < numFrames; i++) {
-			y = frameHeight * i;
+			y = Math.round(frameHeight * i);
 			MyLog.v(TAG, "y:" + y);
-			Bitmap frameBitmap = Bitmap.createBitmap(fullSpinner, 0, y, fullSpinner.getWidth(), frameHeight);
+			if(y + frameHeight > fullSpinner.getHeight()){
+				frameHeight = fullSpinner.getHeight() - y;
+			}
+			Bitmap frameBitmap = Bitmap.createBitmap(fullSpinner, 0, y, fullSpinner.getWidth(), Math.round(frameHeight));
+			MyLog.v(TAG, "cut bitmap height: " + frameBitmap.getHeight());
 			animationDrawable.addFrame(new BitmapDrawable(getContext().getResources(), frameBitmap), interval);
 		}
 
@@ -134,11 +139,12 @@ public class SpinnerDialog extends Dialog {
 			throw new SpinnerDialogException("Spinner backgroundColor is invalid. You provided: " + spinnerBackgroundColor);
 		}
 		
-		LinearLayout.LayoutParams imageViewBoxParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		LinearLayout.LayoutParams imageViewBoxParams = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		imageViewBoxParams.gravity = Gravity.CENTER;
 
 		ImageView imageView = new ImageView(context);
 		imageView.setImageDrawable(animationDrawable);
+		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		spinnerContent.addView(imageView, imageViewBoxParams);
 		
 		if (title != null && !TextUtils.isEmpty(title) && !title.equals("null")) {
@@ -167,7 +173,7 @@ public class SpinnerDialog extends Dialog {
 			spinnerContent.addView(mTitleView, titleParams);
 		}
 
-		FrameLayout.LayoutParams spinnerContentParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		FrameLayout.LayoutParams spinnerContentParams = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		spinnerContentParams.gravity = Gravity.CENTER;
 		setContentView(spinnerContent, spinnerContentParams);
 
