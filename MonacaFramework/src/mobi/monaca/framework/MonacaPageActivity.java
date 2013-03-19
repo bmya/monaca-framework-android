@@ -1213,7 +1213,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected void sendPushToWebView(GCMPushDataset pushData) {
-		appView.loadUrl("javascript:monaca.sendPush(" + pushData.getExtraJSONString() + ")");
+		appView.loadUrl("javascript:monaca.cloud.Push.send(" + pushData.getExtraJSONString() + ")");
 	}
 
 	public MonacaURI getCurrentMonacaUri() {
