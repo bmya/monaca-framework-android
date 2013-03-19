@@ -97,7 +97,7 @@ public class MonacaApplication extends Application {
 			monacaSpinnerDialog.setCancelable(true);
 			monacaSpinnerDialog.show();
 		} catch (Exception e) {
-			Log.e("Monaca", e.getMessage());
+			Log.e("MONACA", e.getMessage());
 			throw e;
 		}
 	}
