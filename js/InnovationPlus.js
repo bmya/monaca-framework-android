@@ -58,6 +58,11 @@ window.InnovationPlus = window.InnovationPlus || {};
 		callback = callback || null;
 		exec(callback, null, pluginName, 'user.getAuthKey', null);
 	}
+	
+	InnovationPlus.user.removeAuthKey = function(callback) {
+		callback = callback || null;
+		exec(callback, null, pluginName, 'user.removeAuthKey', null);
+	}
 
 	// Profile
 	InnovationPlus.profile = InnovationPlus.profile || {};

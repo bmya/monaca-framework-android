@@ -10,6 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+//TODO not tested all functions yet
+//TODO devide execute into classes by action namespace
 public class InnovationPlusPlugin extends CordovaPlugin {
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -19,6 +21,15 @@ public class InnovationPlusPlugin extends CordovaPlugin {
 				doLogin(loginSet, callbackContext);
 				return true;
 			}
+		}
+		if (action.equals("user.getAuthKey")) {
+			callbackContext.success(AuthKeyPreferenceUtil.getAuthKey(cordova.getActivity()));
+			return true;
+		}
+		if (action.equals("user.removeAuthKey")) {
+			AuthKeyPreferenceUtil.removeAuthKey(cordova.getActivity());
+			callbackContext.success();
+			return true;
 		}
 		//TODO fill other patterns
 		return false;
@@ -36,7 +47,7 @@ public class InnovationPlusPlugin extends CordovaPlugin {
 					AuthKeyPreferenceUtil.saveAuthKey(cordova.getActivity(), authKey);
 					callback.success(result);
 				} catch (JSONException e) {
-					callback.error(-20);
+					callback.error(-20); // this code is defined by this plugin.
 				}
 			}
 			@Override

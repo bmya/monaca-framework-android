@@ -32,7 +32,7 @@ public class AuthKeyPreferenceUtil {
 	 * clear saved auth key.
 	 * @param context
 	 */
-	public static void clearAuthKey(Context context) {
+	public static void removeAuthKey(Context context) {
 		SharedPreferences pref = context.getSharedPreferences(PREF, Context.MODE_PRIVATE);
 		pref.edit().clear().commit();
 	}
