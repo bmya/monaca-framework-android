@@ -90,7 +90,6 @@ public class MonacaApplication extends Application {
 	protected void createMenuMap() {
 		menuMap = new MenuRepresentationBuilder(getApplicationContext()).buildFromAssets(this, "www/app.menu");
 	}
-<<<<<<< HEAD
 	
 	public void showMonacaSpinnerDialog(UIContext uiContext, JSONArray args) throws Exception{
 		try {
@@ -115,10 +114,6 @@ public class MonacaApplication extends Application {
 		}
 	}
     
-=======
-
-
->>>>>>> dev_push
     public static boolean allowAccess(String url) {
 
         if (url.startsWith("file://")) {
@@ -193,9 +188,6 @@ public class MonacaApplication extends Application {
         super.onTerminate();
     }
 
-<<<<<<< HEAD
-	
-=======
     public String getPushProjectId() {
     	String pushProjectId = "";
     	if (getAppJson().has("pushNotification")) {
@@ -223,5 +215,4 @@ public class MonacaApplication extends Application {
 			}
 		}.execute();
     }
->>>>>>> dev_push
 }
