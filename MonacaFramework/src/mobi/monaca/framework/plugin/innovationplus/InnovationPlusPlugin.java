@@ -1,59 +1,46 @@
 package mobi.monaca.framework.plugin.innovationplus;
 
-import jp.innovationplus.ipp.client.IPPLoginClient;
-import jp.innovationplus.ipp.core.IPPQueryCallback;
-import jp.innovationplus.ipp.jsontype.IPPLoginResult;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import org.apache.cordova.api.CallbackContext;
+import org.apache.cordova.api.CordovaInterface;
 import org.apache.cordova.api.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-//TODO not tested all functions yet
-//TODO devide execute into classes by action namespace
 public class InnovationPlusPlugin extends CordovaPlugin {
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-		if (action.equals("user.login")) {
-			JSONObject loginSet = args.optJSONObject(0);
-			if (loginSet != null) {
-				doLogin(loginSet, callbackContext);
-				return true;
-			}
-		}
-		if (action.equals("user.getAuthKey")) {
-			callbackContext.success(AuthKeyPreferenceUtil.getAuthKey(cordova.getActivity()));
-			return true;
-		}
-		if (action.equals("user.removeAuthKey")) {
-			AuthKeyPreferenceUtil.removeAuthKey(cordova.getActivity());
-			callbackContext.success();
-			return true;
-		}
-		//TODO fill other patterns
-		return false;
-	}
+		//MyLog.d("ipp","execute");
+		String[] originalAction = action.split("\\.");
+		//MyLog.d("ipp", "action len is " + originalAction.length);
+		if (originalAction.length != 2) {
 
-	private void doLogin(JSONObject loginSet, final CallbackContext callback) throws JSONException {
-		IPPLoginClient loginClient = new IPPLoginClient(cordova.getActivity());
-		loginClient.login(loginSet.getString("username"), loginSet.getString("password"), new IPPQueryCallback<IPPLoginResult>() {
-			@Override
-			public void ippDidFinishLoading(IPPLoginResult arg0) {
-				JSONObject result = new JSONObject();
-				try {
-					String authKey = arg0.getAuth_key();
-					result.put("auth_key", authKey);
-					AuthKeyPreferenceUtil.saveAuthKey(cordova.getActivity(), authKey);
-					callback.success(result);
-				} catch (JSONException e) {
-					callback.error(-20); // this code is defined by this plugin.
-				}
-			}
-			@Override
-			public void ippDidError(int arg0) {
-				callback.error(arg0);
-			}
-		});
+			return false;
+		}
+		String executorClassName = InnovationPlusPlugin.class.getPackage().getName() + "." + originalAction[0];
+		String newAction = originalAction[1];
+
+
+		try {
+			Class<?> executorClass = Class.forName(executorClassName);
+			Constructor<?> constructor = executorClass.getConstructor(CordovaInterface.class);
+			CordovaPluginExecutor executor = (CordovaPluginExecutor) constructor.newInstance(cordova);
+			return executor.execute(newAction, args, callbackContext);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }

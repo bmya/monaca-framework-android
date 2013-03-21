@@ -25,16 +25,19 @@
  * 
  * each methods has success and fail callback
  * note that fail callback is called when IPPQueryCallback#ippDidError(int) is called;
+ * 
+ * errorcodes defined by this plugin 
+ * -20 : no auth key
  */
 window.InnovationPlus = window.InnovationPlus || {};
 (function() {
 	var pluginName = 'InnovationPlusPlugin';
 	var exec = function(a, b, c, d, e) {
 		if (monaca.apiQueue.exec != null) {
-			//console.log('monaca exec');
+			//console.log('-------------monaca exec------------------');
 			monaca.apiQueue.exec(a,b,c,d,e);
 		} else {
-			//console.log('cordova exec');
+			//console.log('-------------cordova exec---------------------');
 			cordova.exec(a,b,c,d,e);
 		}
 	}
@@ -51,34 +54,34 @@ window.InnovationPlus = window.InnovationPlus || {};
 			'username' : username,
 			'password' : password
 		};
-		exec(success, fail, pluginName, 'user.login', [loginJson]);
+		exec(success, fail, pluginName, 'User.login', [loginJson]);
 	}
 	
 	InnovationPlus.user.getAuthKey = function(callback) {
 		callback = callback || null;
-		exec(callback, null, pluginName, 'user.getAuthKey', null);
+		exec(callback, null, pluginName, 'User.getAuthKey', null);
 	}
 	
 	InnovationPlus.user.removeAuthKey = function(callback) {
 		callback = callback || null;
-		exec(callback, null, pluginName, 'user.removeAuthKey', null);
+		exec(callback, null, pluginName, 'User.removeAuthKey', null);
 	}
 
 	// Profile
 	InnovationPlus.profile = InnovationPlus.profile || {};
 
-	InnovationPlus.profile.retrieveResource = function(param, success, fail) {
-		param = param || null;
+	InnovationPlus.profile.retrieveResource = function(fields, success, fail) {
+		fields = fields || null;
 		success = success || null;
 		fail = fail || null;
-		exec(success, fail, pluginName, 'profile.retrieveResource', [param]);
+		exec(success, fail, pluginName, 'Profile.retrieveResource', [fields]);
 	}
 
 	InnovationPlus.profile.retrieveQueryResource = function(param, success, fail) {
 		param = param || null;
 		success = success || null;
 		fail = fail || null;
-		exec(success, fail, pluginName, 'profile.retrieveQueryResource', [param]);
+		exec(success, fail, pluginName, 'Profile.retrieveQueryResource', [param]);
 	}
 
 	// Geolocation
@@ -87,14 +90,14 @@ window.InnovationPlus = window.InnovationPlus || {};
 	InnovationPlus.geolocation.retrieveOwnResource = function(success, fail) {
 		success = success || null;
 		fail = fail || null;
-		exec(success, fail, pluginName, 'geolocation.retrieveOwnResource', null);
+		exec(success, fail, pluginName, 'Geolocation.retrieveOwnResource', null);
 	}
 
 	InnovationPlus.geolocation.retrieveResource = function(resourceId, success, fail) {
 		success = success || null;
 		fail = fail || null;
 		resourceId = resourceId || null;
-		exec(success, fail, pluginName, 'geolocation.retrieveResource', [resourceId]);
+		exec(success, fail, pluginName, 'Geolocation.retrieveResource', [resourceId]);
 	}
 
 	InnovationPlus.geolocation.createResource = function(requestJson, success, fail) {
@@ -102,22 +105,22 @@ window.InnovationPlus = window.InnovationPlus || {};
 		success = success || null;
 		fail = fail || null;
 		requestJson = requestJson || null;
-		exec(success, fail, pluginName, 'geolocation.createResource', [requestJson]);
+		exec(success, fail, pluginName, 'Geolocation.createResource', [requestJson]);
 	}
 
 	InnovationPlus.geolocation.deleteResource = function(resourceId, success, fail) {
 		success = success || null;
 		fail = fail || null;
 		requestJson = requestJson || null;
-		exec(success, fail, pluginName, 'geolocation.deleteResource', [resourceId]);
+		exec(success, fail, pluginName, 'Geolocation.deleteResource', [resourceId]);
 	}
 
 	InnovationPlus.geolocation.retrieveQueryResource = function(param, success, fail) {
-		// originally 'geolocations' in API
+		// originally 'Geolocations' in API
 		success = success || null;
 		fail = fail || null;
 		param = param || null;
-		exec(success, fail, pluginName, 'geolocation.retrieveQueryResource', [param]);
+		exec(success, fail, pluginName, 'Geolocation.retrieveQueryResource', [param]);
 	}
 
 	// ApplicationResource
@@ -127,7 +130,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 		success = success || null;
 		fail = fail || null;
 		param = param || null;
-		exec(success, fail, pluginName, 'applicationResource.retrieveResource', [param]);
+		exec(success, fail, pluginName, 'ApplicationResource.retrieveResource', [param]);
 	}
 
 	InnovationPlus.applicationResource.retrieveQueryResource = function(param, success, fail) {
@@ -135,7 +138,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 		success = success || null;
 		fail = fail || null;
 		param = param || null;
-		exec(success, fail, pluginName, 'applicationResource.retrieveQueryResource', [param]);
+		exec(success, fail, pluginName, 'ApplicationResource.retrieveQueryResource', [param]);
 	}
 
 	InnovationPlus.applicationResource.createResource = function(requestJson, success, fail) {
@@ -143,13 +146,13 @@ window.InnovationPlus = window.InnovationPlus || {};
 		success = success || null;
 		fail = fail || null;
 		requestJson = requestJson || null;
-		exec(success, fail, pluginName, 'applicationResource.createResource', [requestJson]);
+		exec(success, fail, pluginName, 'ApplicationResource.createResource', [requestJson]);
 	}
 
 	InnovationPlus.applicationResource.deleteResource = function(resourceId, success, fail) {
 		success = success || null;
 		fail = fail || null;
 		resourceId = resourceId || null;
-		exec(success, fail, pluginName, 'applicationResource.deleteResource', [resourceId]);
+		exec(success, fail, pluginName, 'ApplicationResource.deleteResource', [resourceId]);
 	}
 })();
