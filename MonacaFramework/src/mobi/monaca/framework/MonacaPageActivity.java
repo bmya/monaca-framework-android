@@ -149,11 +149,14 @@ public class MonacaPageActivity extends DroidGap {
 	private ScreenReceiver mScreenReceiver;
 
 	protected GCMPushDataset pushData;
+	private MonacaApplication mApp;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
 		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
+		
+		mApp = (MonacaApplication) getApplication();
 
 		// initialize receiver
 		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
@@ -863,7 +866,8 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		isCapableForTransition = true;
-
+		mApp.showMonacaSpinnerDialogIfAny();
+		
 		super.onResume();
 	}
 
@@ -872,6 +876,7 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.i(TAG, "onPause");
 		super.onPause();
 		this.removeMonacaSplash();
+		mApp.hideMonacaSpinnerDialog();
 
 		if (isFinishing()) {
 			onDestroyMonacaCaller();

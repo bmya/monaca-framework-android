@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -120,15 +121,12 @@ public class SpinnerDialog extends Dialog {
 
 		float frameHeight = (float) fullSpinner.getHeight() / numFrames;
 		int y = 0;
-		MyLog.v(TAG, "fullSpinner Height: " + fullSpinner.getHeight() + ", frameHeight: " + frameHeight);
 		for (int i = 0; i < numFrames; i++) {
 			y = Math.round(frameHeight * i);
-			MyLog.v(TAG, "y:" + y);
 			if(y + frameHeight > fullSpinner.getHeight()){
 				frameHeight = fullSpinner.getHeight() - y;
 			}
 			Bitmap frameBitmap = Bitmap.createBitmap(fullSpinner, 0, y, fullSpinner.getWidth(), Math.round(frameHeight));
-			MyLog.v(TAG, "cut bitmap height: " + frameBitmap.getHeight());
 			animationDrawable.addFrame(new BitmapDrawable(getContext().getResources(), frameBitmap), interval);
 		}
 

@@ -94,7 +94,7 @@ public class MonacaNativeUIPlugin extends Plugin {
 					@Override
 					public void run() {
 						MonacaApplication application = (MonacaApplication) getMonacaPageActivity().getApplication();
-						application.hideMonacaSpinnerDialog();
+						application.dismissMonacaSpinnerDialog();
 					}
 				});
 
