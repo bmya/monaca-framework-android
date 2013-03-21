@@ -72,6 +72,7 @@ import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MotionEvent;
@@ -649,8 +650,6 @@ public class MonacaPageActivity extends DroidGap {
 					MyLog.v(TAG, "result.topView != null");
 					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 					int topViewHeight = result.topView.getMeasuredHeight();
-					MyLog.v(TAG, "top height view:" + topViewHeight);
-					MyLog.v(TAG, "shadow view estimated height:" + UIUtil.dip2px(getContext(), 13));
 					try {
 						infoForJavaScript.put("topViewHeight", topViewHeight);
 					} catch (JSONException e) {
@@ -659,8 +658,8 @@ public class MonacaPageActivity extends DroidGap {
 					
 					ContainerViewInterface cv = (ContainerViewInterface) result.topView;
 					int shadowViewHeight = cv.getShadowHeight();
-					MyLog.v(TAG, "shadowView actual height:" + shadowViewHeight);
 					appViewLayoutParams.topMargin = topViewHeight - shadowViewHeight;
+					appViewLayoutParams.gravity = Gravity.TOP; // a bug in 2.*.* where the topMargin is not respected without gravity = TOP
 				}
 				
 				frame.addView(appView, appViewLayoutParams);
