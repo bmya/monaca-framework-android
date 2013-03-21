@@ -70,20 +70,25 @@ public class SpinnerDialog extends Dialog {
 		if(interval < 50){
 			throw new SpinnerDialogException("Spinner interval needs to be greater than 50 milliseconds. You provided: " + interval);
 		}
-
+		
 		String spinnerBackgroundColor = args.optString(3, "#000000");
 		if(spinnerBackgroundColor.equalsIgnoreCase("null")){
 			spinnerBackgroundColor = "#000000";
 		}
-		
 		
 		float backgroundOpacity = (float) args.optDouble(4, 0.3f);
 		if(backgroundOpacity < 0.0 || backgroundOpacity > 1.0){
 			throw new SpinnerDialogException("Spinner backgroundOpacity value must be in the range 0.0-1.0, you provided: " + backgroundOpacity);
 		}
 		
-		String title = args.optString(5);
-
+		try{
+			ColorDrawable windowDrawable = new ColorDrawable( Color.parseColor(spinnerBackgroundColor));
+			getWindow().setBackgroundDrawable(windowDrawable);
+			windowDrawable.setAlpha(UIUtil.buildOpacity(backgroundOpacity));
+		}catch (IllegalArgumentException e){
+			throw new SpinnerDialogException("Spinner backgroundColor is invalid. You provided: " + spinnerBackgroundColor);
+		}
+		
 		Bitmap fullSpinner = null;
 		if (spinnerImagePath == null || spinnerImagePath.equalsIgnoreCase("null")) {
 			fullSpinner = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.spinner);
@@ -111,10 +116,6 @@ public class SpinnerDialog extends Dialog {
 			}
 		}
 
-		LinearLayout spinnerContent = new LinearLayout(context);
-		spinnerContent.setOrientation(LinearLayout.VERTICAL);
-		spinnerContent.setBackgroundColor(Color.TRANSPARENT);
-
 		AnimationDrawable animationDrawable = new AnimationDrawable();
 
 		float frameHeight = (float) fullSpinner.getHeight() / numFrames;
@@ -131,22 +132,20 @@ public class SpinnerDialog extends Dialog {
 			animationDrawable.addFrame(new BitmapDrawable(getContext().getResources(), frameBitmap), interval);
 		}
 
-		try{
-			ColorDrawable windowDrawable = new ColorDrawable( Color.parseColor(spinnerBackgroundColor));
-			getWindow().setBackgroundDrawable(windowDrawable);
-			windowDrawable.setAlpha(UIUtil.buildOpacity(backgroundOpacity));
-		}catch (IllegalArgumentException e){
-			throw new SpinnerDialogException("Spinner backgroundColor is invalid. You provided: " + spinnerBackgroundColor);
-		}
 		
-		LinearLayout.LayoutParams imageViewBoxParams = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-		imageViewBoxParams.gravity = Gravity.CENTER;
+		LinearLayout spinnerContent = new LinearLayout(context);
+		spinnerContent.setOrientation(LinearLayout.VERTICAL);
+		spinnerContent.setBackgroundColor(Color.TRANSPARENT);
+		
+		LinearLayout.LayoutParams imageViewParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		imageViewParams.gravity = Gravity.CENTER;
 
 		ImageView imageView = new ImageView(context);
 		imageView.setImageDrawable(animationDrawable);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
-		spinnerContent.addView(imageView, imageViewBoxParams);
+		spinnerContent.addView(imageView, imageViewParams);
 		
+		String title = args.optString(5);
 		if (title != null && !TextUtils.isEmpty(title) && !title.equals("null")) {
 			mTitleView = new TextView(getContext());
 			mTitleView.setText(title);
@@ -173,7 +172,7 @@ public class SpinnerDialog extends Dialog {
 			spinnerContent.addView(mTitleView, titleParams);
 		}
 
-		FrameLayout.LayoutParams spinnerContentParams = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		FrameLayout.LayoutParams spinnerContentParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		spinnerContentParams.gravity = Gravity.CENTER;
 		setContentView(spinnerContent, spinnerContentParams);
 
