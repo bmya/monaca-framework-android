@@ -28,6 +28,7 @@
  * 
  * errorcodes defined by this plugin 
  * -20 : no auth key
+ * -40 : internal error
  */
 window.InnovationPlus = window.InnovationPlus || {};
 (function() {

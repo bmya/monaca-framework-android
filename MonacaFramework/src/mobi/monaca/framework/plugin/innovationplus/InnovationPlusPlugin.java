@@ -10,18 +10,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 public class InnovationPlusPlugin extends CordovaPlugin {
+	public static final int ERROR_NO_AUTH_KEY = -20;
+	public static final int ERROR_WITH_EXCEPTION = -40;
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		//MyLog.d("ipp","execute");
 		String[] originalAction = action.split("\\.");
 		//MyLog.d("ipp", "action len is " + originalAction.length);
 		if (originalAction.length != 2) {
-
 			return false;
 		}
 		String executorClassName = InnovationPlusPlugin.class.getPackage().getName() + "." + originalAction[0];
 		String newAction = originalAction[1];
-
 
 		try {
 			Class<?> executorClass = Class.forName(executorClassName);
@@ -39,6 +39,8 @@ public class InnovationPlusPlugin extends CordovaPlugin {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (ClassCastException e) {
 			e.printStackTrace();
 		}
 		return false;

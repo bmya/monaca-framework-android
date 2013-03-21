@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import android.widget.Toast;
 
+//TODO not tested
 public class User extends CordovaPluginExecutor{
 
 	public User(CordovaInterface cordovaInterface) {
@@ -26,6 +27,7 @@ public class User extends CordovaPluginExecutor{
 				@Override
 				public void run() {
 					Toast.makeText(context, "called user class, action :" + action, Toast.LENGTH_SHORT).show();
+					// TODO remove in product
 				}
 			});
 		}
@@ -67,7 +69,8 @@ public class User extends CordovaPluginExecutor{
 								AuthKeyPreferenceUtil.saveAuthKey(context, authKey);
 								callback.success(result);
 							} catch (JSONException e) {
-								callback.error(-20); // this code is defined by this plugin.
+								callback.error(InnovationPlusPlugin.ERROR_WITH_EXCEPTION); // this code is defined by this plugin.
+								e.printStackTrace();
 							}
 						}
 						@Override
