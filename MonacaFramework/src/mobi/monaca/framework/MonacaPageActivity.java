@@ -121,7 +121,7 @@ public class MonacaPageActivity extends DroidGap {
 			if (pageIndex >= level) {
 				finish();
 			}
-			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutQuery());
+			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutOptions());
 			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
 		}
 	};
@@ -172,14 +172,14 @@ public class MonacaPageActivity extends DroidGap {
 		// currentMonacaUri is set in prepare()
 		if (MonacaApplication.getPages().size() == 1) {
 			init();
-			loadUri(currentMonacaUri.getUrlWithQuery(), false);
+			loadUri(currentMonacaUri.getOriginalUrl(), false);
 		} else {
 			init();
-			loadUiFile(getCurrentUriWithoutQuery());
+			loadUiFile(getCurrentUriWithoutOptions());
 			handler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					loadUri(currentMonacaUri.getUrlWithQuery(), true);
+					loadUri(currentMonacaUri.getOriginalUrl(), true);
 				}
 			}, 100);
 		}
@@ -226,7 +226,6 @@ public class MonacaPageActivity extends DroidGap {
 		} catch (IllegalArgumentException e) {
 			MyLog.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			// TODO 自動生成された catch ブロック
 			MyLog.e(TAG, e.getMessage());
 		}
 		return Color.TRANSPARENT;
@@ -317,7 +316,7 @@ public class MonacaPageActivity extends DroidGap {
 		MonacaApplication.addPage(this);
 		pageIndex = MonacaApplication.getPages().size() - 1;
 		registerReceiver(closePageReceiver, ClosePageIntent.createIntentFilter());
-		uiContext = new UIContext(getCurrentUriWithoutQuery(), this);
+		uiContext = new UIContext(getCurrentUriWithoutOptions(), this);
 
 		// override theme
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
@@ -423,7 +422,7 @@ public class MonacaPageActivity extends DroidGap {
 		if(VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
-		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(getCurrentUriWithoutQuery(), this, webView);
+		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
 		this.initMonaca();
@@ -488,8 +487,8 @@ public class MonacaPageActivity extends DroidGap {
 
 		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
 
-		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutQuery());
-		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getUrlWithQuery());
+		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
+		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
 	}
 
 	public JSONObject getInfoForJavaScript() {
@@ -815,6 +814,12 @@ public class MonacaPageActivity extends DroidGap {
 			MyLog.v(TAG, "error url:" + errorUrl);
 			appView.loadUrl("javascript:$('#url').html(\"" + errorUrl + "\"); $('#backButton').html('" + backButtonText + "')");
 		}
+
+		if (url.equals(getCurrentUriWithoutOptions()) && UrlUtil.isMonacaUri(this, url) && currentMonacaUri.hasUnusedFragment()) {
+			// process pushed url fragment
+			// TODO refactor MonacaURI not to use this checkment.noncritical bug with nativecomponent remains that does not work with nativecomponent remains.
+			appView.loadUrl("javascript:window.location.hash = '" + currentMonacaUri.popFragment() + "';");
+		}
 	}
 
 	public void onPageStarted(View view, String url) {
@@ -938,7 +943,7 @@ public class MonacaPageActivity extends DroidGap {
 	/** Reload current URI. */
 	public void reload() {
 		appView.stopLoading();
-		loadUri(getCurrentUriWithoutQuery(), false);
+		loadUri(getCurrentUriWithoutOptions(), false);
 	}
 
 	public String getCurrentHtml() {
@@ -946,9 +951,9 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected String buildCurrentUriHtml() throws IOException {
-		String html = AssetUriUtil.assetToString(this, getCurrentUriWithoutQuery());
+		String html = AssetUriUtil.assetToString(this, getCurrentUriWithoutOptions());
 
-		if (UrlUtil.isMonacaUri(this, currentMonacaUri.getUrlWithQuery()) && currentMonacaUri.hasQueryParams()) {
+		if (UrlUtil.isMonacaUri(this, currentMonacaUri.getOriginalUrl()) && currentMonacaUri.hasQueryParams()) {
 			html = currentMonacaUri.getQueryParamsContainingHtml(html);
 		}
 
@@ -958,7 +963,7 @@ public class MonacaPageActivity extends DroidGap {
 	/** Load current URI. */
 	public void loadUri(String uri, final boolean withoutUIFile) {
 		setCurrentUri(uri);
-		String currentUriWithoutQuery = getCurrentUriWithoutQuery();
+		String currentUriWithoutQuery = getCurrentUriWithoutOptions();
 		MyLog.v(TAG, "loadUri() uri:" + currentUriWithoutQuery);
 
 		// check for 404
@@ -969,13 +974,12 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		if (!withoutUIFile) {
-			loadUiFile(getCurrentUriWithoutQuery());
+			loadUiFile(getCurrentUriWithoutOptions());
 		}
 
 		try {
 			mCurrentHtml = buildCurrentUriHtml();
-		//	appView.loadUrl(getCurrentUriWithoutQuery());
-			appView.loadDataWithBaseURL(getCurrentUriWithoutQuery(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutQuery());
+			appView.loadDataWithBaseURL(getCurrentUriWithoutOptions(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutOptions());
 
 		} catch (IOException e) {
 			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
@@ -989,7 +993,7 @@ public class MonacaPageActivity extends DroidGap {
 			// setupBackground();
 			loadLayoutInformation();
 
-			appView.loadUrl(currentMonacaUri.getUrlWithQuery());
+			appView.loadUrl(currentMonacaUri.getOriginalUrl());
 			appView.clearView();
 			appView.invalidate();
 		}
@@ -1061,7 +1065,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	public void pushPageAsync(String relativePath, final TransitionParams params) {
-		final String url = getCurrentUriWithoutQuery() + "/../" + relativePath;
+		final String url = getCurrentUriWithoutOptions() + "/../" + relativePath;
 		BenchmarkTimer.start();
 
 		BenchmarkTimer.mark("pushPageAsync");
@@ -1143,13 +1147,13 @@ public class MonacaPageActivity extends DroidGap {
 		});
 	}
 
-	protected WebViewClient createWebViewClient(String url, MonacaPageActivity page, CordovaWebView webView) {
+	protected WebViewClient createWebViewClient(MonacaPageActivity page, CordovaWebView webView) {
 		MonacaPageGingerbreadWebViewClient client = null;
 
 		if (Integer.valueOf(android.os.Build.VERSION.SDK_INT) < 11) {
-			client = new MonacaPageGingerbreadWebViewClient(url, page, webView);
+			client = new MonacaPageGingerbreadWebViewClient(page, webView);
 		} else {
-			client = new MonacaPageHoneyCombWebViewClient(url, page, webView);
+			client = new MonacaPageHoneyCombWebViewClient(page, webView);
 		}
 		return client;
 	}
@@ -1158,7 +1162,7 @@ public class MonacaPageActivity extends DroidGap {
 		if (options == null) {
 			return "file:///android_asset/www/index.html";
 		}
-		return options.optString("url", "").equals("") ? "file:///android_asset/www/index.html" : getCurrentUriWithoutQuery() + "/../"
+		return options.optString("url", "").equals("") ? "file:///android_asset/www/index.html" : getCurrentUriWithoutOptions() + "/../"
 				+ options.optString("url");
 	}
 
@@ -1240,8 +1244,8 @@ public class MonacaPageActivity extends DroidGap {
 				.startsWith(MonacaWebView.INITIALIZATION_MADIATOR));
 	}
 
-	public String getCurrentUriWithoutQuery() {
-		return currentMonacaUri.getUrlWithoutQuery();
+	public String getCurrentUriWithoutOptions() {
+		return currentMonacaUri.getUrlWithoutOptions();
 	}
 
 	/**
@@ -1252,7 +1256,7 @@ public class MonacaPageActivity extends DroidGap {
 	public void setCurrentUri(String uri) {
 		MyLog.v(TAG, "setCurrentUri:" + uri);
 		currentMonacaUri = new MonacaURI(uri);
-		uiContext = new UIContext(getCurrentUriWithoutQuery(), this);
+		uiContext = new UIContext(getCurrentUriWithoutOptions(), this);
 	}
 
 }

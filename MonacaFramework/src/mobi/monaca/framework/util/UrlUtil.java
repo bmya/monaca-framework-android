@@ -10,11 +10,6 @@ public class UrlUtil {
 	public static final String DELIMITTER = "/assets/www/";
 	public static final String EMBEDDING_HASH ="#embedding";
 
-    static public boolean isUrl(String url) {
-        return url.startsWith("http://") || url.startsWith("https://");
-    }
-
-
 	static public String getUIFileUrl(String url) {
 		if (url.endsWith(".html")) {
 			return url.substring(0, url.length() - 4) + "ui";
