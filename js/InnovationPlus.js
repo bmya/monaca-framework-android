@@ -21,7 +21,7 @@
  * applicationResource.createResource 
  * applicationResource.deleteResource
  * 
- * e.g. InnovationPlus.login('hoge', 'foo', function(JSONObject){success();}, function(int){fail();}); 
+ * e.g. InnovationPlus.login('MyId@hogehoge.foo', 'foobar4000', onSucceeded(JSONObject), onFailed(int)); 
  * 
  * each methods has success and fail callback
  * note that fail callback is called when IPPQueryCallback#ippDidError(int) is called;
@@ -29,6 +29,7 @@
  * errorcodes defined by this plugin 
  * -20 : no auth key
  * -40 : internal error
+ * -60 : invalid parameter
  */
 window.InnovationPlus = window.InnovationPlus || {};
 (function() {
@@ -102,7 +103,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 	}
 
 	InnovationPlus.geolocation.createResource = function(requestJson, success, fail) {
-		// will support geolocations.createResources
+		/* supports geolocations.createResources */
 		success = success || null;
 		fail = fail || null;
 		requestJson = requestJson || null;
@@ -118,6 +119,8 @@ window.InnovationPlus = window.InnovationPlus || {};
 
 	InnovationPlus.geolocation.retrieveQueryResource = function(param, success, fail) {
 		// originally 'Geolocations' in API
+		// 'bound' : [top, bottom, left, right];
+		// 'radiusSquare' : [centerLatitude, centerLongitude, radiusSquare]
 		success = success || null;
 		fail = fail || null;
 		param = param || null;

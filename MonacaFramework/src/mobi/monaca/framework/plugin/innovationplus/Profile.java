@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-//TODO implement
 //TODO not tested
 public class Profile extends CordovaPluginExecutor{
 	public Profile(CordovaInterface cordova) {

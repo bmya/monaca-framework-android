@@ -12,6 +12,7 @@ import org.json.JSONException;
 public class InnovationPlusPlugin extends CordovaPlugin {
 	public static final int ERROR_NO_AUTH_KEY = -20;
 	public static final int ERROR_WITH_EXCEPTION = -40;
+	public static final int ERROR_INVALID_PARAMETER = -60;
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		//MyLog.d("ipp","execute");
