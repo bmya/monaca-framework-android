@@ -1,7 +1,8 @@
 package mobi.monaca.framework.nativeui.container;
 
-import android.view.View;
 
 public interface ContainerViewInterface {
+	public int getContainerViewHeight();
 	public int getShadowHeight();
+	public void setContainerSizeListener(ToolbarContainerViewListener containerSizeListener);
 }

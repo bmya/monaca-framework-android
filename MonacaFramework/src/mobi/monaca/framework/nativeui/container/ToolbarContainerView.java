@@ -28,6 +28,7 @@ import android.widget.TextView;
  */
 public class ToolbarContainerView extends LinearLayout implements ContainerViewInterface{
 
+	protected ToolbarContainerViewListener mContainerSizeListener;
 	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper,
 			titleSubtitleWrapper;
@@ -78,6 +79,29 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 			result += layout.getChildAt(i).getMeasuredWidth();
 		}
 		return result;
+	}
+	
+	@Override
+	public void setContainerSizeListener(ToolbarContainerViewListener mContainerSizeListener) {
+		this.mContainerSizeListener = mContainerSizeListener;
+	}
+	
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		if(mContainerSizeListener != null){
+			mContainerSizeListener.onSizeChanged(w, h, oldw, oldh);
+		}
+	}
+	
+	@Override
+	public void setVisibility(int visibility) {
+		if(getVisibility() != visibility){
+			if(mContainerSizeListener != null){
+				mContainerSizeListener.onVisibilityChanged(visibility);
+			}
+		}
+		super.setVisibility(visibility);
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -362,6 +386,11 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	@Override
 	public int getShadowHeight() {
 		return mShadowHeight;
+	}
+
+	@Override
+	public int getContainerViewHeight() {
+		return getMeasuredHeight();
 	}
 
 }

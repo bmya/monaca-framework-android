@@ -23,6 +23,7 @@ import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.PageOrientation;
 import mobi.monaca.framework.nativeui.container.ContainerViewInterface;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
+import mobi.monaca.framework.nativeui.container.ToolbarContainerViewListener;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.transition.BackgroundDrawable;
@@ -53,7 +54,6 @@ import receiver.ScreenReceiver;
 import android.R.color;
 import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -84,10 +84,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.LinearLayout;
 
 /**
@@ -645,7 +642,9 @@ public class MonacaPageActivity extends DroidGap {
 					appViewParent.removeAllViews();
 				}
 				
-				android.widget.FrameLayout.LayoutParams appViewLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+				final android.widget.FrameLayout.LayoutParams appViewLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+				appViewLayoutParams.gravity = Gravity.TOP; // a bug in 2.*.* where the topMargin is not respected without gravity = TOP
+				
 				if (result.topView != null) {
 					MyLog.v(TAG, "result.topView != null");
 					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
@@ -656,10 +655,26 @@ public class MonacaPageActivity extends DroidGap {
 						MyLog.e(TAG, e.getMessage());
 					}
 					
-					ContainerViewInterface cv = (ContainerViewInterface) result.topView;
-					int shadowViewHeight = cv.getShadowHeight();
-					appViewLayoutParams.topMargin = topViewHeight - shadowViewHeight;
-					appViewLayoutParams.gravity = Gravity.TOP; // a bug in 2.*.* where the topMargin is not respected without gravity = TOP
+					final ContainerViewInterface cv = (ContainerViewInterface) result.topView;
+					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
+						
+						@Override
+						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+							int shadowViewHeight = cv.getShadowHeight();
+							appViewLayoutParams.topMargin = h - shadowViewHeight;
+						}
+
+						@Override
+						public void onVisibilityChanged(int visibility) {
+							if(visibility == View.VISIBLE){
+								int shadowViewHeight = cv.getShadowHeight();
+								appViewLayoutParams.topMargin =  cv.getContainerViewHeight() - shadowViewHeight;
+							}else{
+								appViewLayoutParams.topMargin = 0;
+							}
+						}
+					});
+					
 				}
 				
 				frame.addView(appView, appViewLayoutParams);
