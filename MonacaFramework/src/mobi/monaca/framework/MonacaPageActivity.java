@@ -404,8 +404,10 @@ public class MonacaPageActivity extends DroidGap {
     		Method method;
     		try {
     		    method = webView.getClass().getMethod("setLayerType", new Class[]{ int.class, Paint.class });
-    		    method.invoke(webView, new Object[]{ View.LAYER_TYPE_SOFTWARE });
+    		    method.invoke(webView, new Object[]{ View.LAYER_TYPE_SOFTWARE, null });
+        		MyLog.v(TAG, "webview.setLayerType() is done.");
     		} catch (Exception e) {
+        		MyLog.v(TAG, "webview.setLayerType() is fail.");
             }
 		}
 		
