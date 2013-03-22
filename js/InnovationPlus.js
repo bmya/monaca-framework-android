@@ -103,7 +103,10 @@ window.InnovationPlus = window.InnovationPlus || {};
 	}
 
 	InnovationPlus.geolocation.createResource = function(requestJson, success, fail) {
-		/* supports geolocations.createResources */
+		/* supports geolocations.createResources
+		* requestJson format should be
+		* {}
+		*/
 		success = success || null;
 		fail = fail || null;
 		requestJson = requestJson || null;
@@ -130,15 +133,16 @@ window.InnovationPlus = window.InnovationPlus || {};
 	// ApplicationResource
 	InnovationPlus.applicationResource = InnovationPlus.applicationResource || {};
 
-	InnovationPlus.applicationResource.retrieveResource = function(param, success, fail) {
+	InnovationPlus.applicationResource.retrieveResource = function(resourceId, success, fail) {
 		success = success || null;
 		fail = fail || null;
-		param = param || null;
-		exec(success, fail, pluginName, 'ApplicationResource.retrieveResource', [param]);
+		field = field || null;
+		
+		exec(success, fail, pluginName, 'ApplicationResource.retrieveResource', [resourceId]);
 	}
 
 	InnovationPlus.applicationResource.retrieveQueryResource = function(param, success, fail) {
-		// (document:8.2)
+		// (8.2)
 		success = success || null;
 		fail = fail || null;
 		param = param || null;
@@ -146,7 +150,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 	}
 
 	InnovationPlus.applicationResource.createResource = function(requestJson, success, fail) {
-		// will support createResources (document:8.3)
+		// supports createResources (8.3)
 		success = success || null;
 		fail = fail || null;
 		requestJson = requestJson || null;

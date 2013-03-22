@@ -9,6 +9,7 @@ import org.apache.cordova.api.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+// TODO test, write API document
 public class InnovationPlusPlugin extends CordovaPlugin {
 	public static final int ERROR_NO_AUTH_KEY = -20;
 	public static final int ERROR_WITH_EXCEPTION = -40;

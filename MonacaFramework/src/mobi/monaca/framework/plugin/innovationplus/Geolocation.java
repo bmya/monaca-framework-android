@@ -242,7 +242,7 @@ public class Geolocation extends CordovaPluginExecutor{
 
 			@Override
 			public void ippDidError(int i) {
-				MyLog.d(TAG, "ippDidError:");
+				MyLog.d(TAG, "ippDidError:" + i);
 				callbackContext.error(i);
 			}
 		});
