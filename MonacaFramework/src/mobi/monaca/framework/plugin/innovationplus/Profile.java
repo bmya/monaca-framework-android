@@ -152,21 +152,22 @@ public class Profile extends CordovaPluginExecutor{
 
 	private JSONObject buildResultJson(IPPProfile arg0) throws JSONException {
 		JSONObject resultJson = new JSONObject();
-		resultJson.put("timestamp", arg0.getTimestamp());
-		resultJson.put("screenName", arg0.getScreenName());
-		resultJson.put("firstName", arg0.getFirstName());
-		resultJson.put("lastName", arg0.getLastName());
-		resultJson.put("gender", arg0.getGender());
-		resultJson.put("birth", arg0.getBirth());
+		resultJson.putOpt("timestamp", arg0.getTimestamp());
+		resultJson.putOpt("screenName", arg0.getScreenName());
+		resultJson.putOpt("firstName", arg0.getFirstName());
+		resultJson.putOpt("lastName", arg0.getLastName());
+		resultJson.putOpt("gender", arg0.getGender());
+		resultJson.putOpt("birth", arg0.getBirth());
 
 		IPPAddress address = arg0.getAddress();
-		JSONObject addressJson = new JSONObject();
-		addressJson.put("zipcode", address.getZipcode());
-		addressJson.put("state", address.getState());
-		addressJson.put("city", address.getCity());
-		addressJson.put("streetAddress", address.getStreetAddress());
-		resultJson.put("address", addressJson);
-
+		if (address != null) {
+			JSONObject addressJson = new JSONObject();
+			addressJson.putOpt("zipcode", address.getZipcode());
+			addressJson.putOpt("state", address.getState());
+			addressJson.putOpt("city", address.getCity());
+			addressJson.putOpt("streetAddress", address.getStreetAddress());
+			resultJson.putOpt("address", addressJson);
+		}
 		return resultJson;
 	}
 }

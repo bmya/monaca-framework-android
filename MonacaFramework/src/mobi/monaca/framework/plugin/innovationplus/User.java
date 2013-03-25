@@ -22,16 +22,6 @@ public class User extends CordovaPluginExecutor{
 	}
 
 	public boolean execute(final String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-		if (action != null) {
-			cordova.getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					Toast.makeText(context, "called user class, action :" + action, Toast.LENGTH_SHORT).show();
-					// TODO remove in product
-				}
-			});
-		}
-
 		if (action.equals("login")) {
 			JSONObject loginSet = args.optJSONObject(0);
 			if (loginSet != null) {

@@ -16,7 +16,7 @@ public abstract class CordovaPluginExecutor {
 		this.context = cordova.getActivity();
 	}
 
-	protected void runOnUiThread(Runnable runnable) {
+	protected void runOnUiThread(final Runnable runnable) {
 		cordova.getActivity().runOnUiThread(runnable);
 	}
 
