@@ -34,8 +34,7 @@ public class User extends CordovaPluginExecutor{
 			callbackContext.success(AuthKeyPreferenceUtil.getAuthKey(context));
 			return true;
 		}
-		if (action.equals("removeAuthKey")) {
-			MyLog.d("user", "remove");
+		if (action.equals("logout")) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {

@@ -5,7 +5,7 @@
  * --has these API--
  * user.login
  * user.getAuthKey
- * user.removeAuthKey
+ * user.logout
  * 
  * profile.retrieveResource
  * profile.retrieveQueryResource
@@ -27,8 +27,8 @@
  * note that fail callback is called when IPPQueryCallback#ippDidError(int) is called;
  * 
  * errorcodes defined by this plugin 
- * -20 : no auth key
- * -40 : internal error
+ * -20 : no auth key, please login
+ * -40 : plugin internal error
  * -60 : invalid parameter
  */
 window.InnovationPlus = window.InnovationPlus || {};
@@ -36,10 +36,10 @@ window.InnovationPlus = window.InnovationPlus || {};
 	var pluginName = 'InnovationPlusPlugin';
 	var exec = function(a, b, c, d, e) {
 		if (monaca.apiQueue.exec != null) {
-			//console.log('-------------monaca exec------------------');
+		//	console.log('-------------monaca exec------------------');
 			monaca.apiQueue.exec(a,b,c,d,e);
 		} else {
-			//console.log('-------------cordova exec---------------------');
+		//	console.log('-------------cordova exec---------------------');
 			cordova.exec(a,b,c,d,e);
 		}
 	}
@@ -64,9 +64,9 @@ window.InnovationPlus = window.InnovationPlus || {};
 		exec(callback, null, pluginName, 'User.getAuthKey', []);
 	}
 	
-	InnovationPlus.user.removeAuthKey = function(callback) {
+	InnovationPlus.user.logout = function(callback) {
 		callback = callback || null;
-		exec(callback, null, pluginName, 'User.removeAuthKey', []);
+		exec(callback, null, pluginName, 'User.logout', []);
 	}
 
 	// Profile
