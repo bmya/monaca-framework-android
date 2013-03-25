@@ -105,7 +105,6 @@ window.InnovationPlus = window.InnovationPlus || {};
 	InnovationPlus.geolocation.createResource = function(requestJson, success, fail) {
 		/* supports geolocations.createResources
 		* requestJson format should be
-		* {}
 		*/
 		success = success || null;
 		fail = fail || null;
@@ -116,7 +115,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 	InnovationPlus.geolocation.deleteResource = function(resourceId, success, fail) {
 		success = success || null;
 		fail = fail || null;
-		requestJson = requestJson || null;
+		resourceId = resourceId || null;
 		exec(success, fail, pluginName, 'Geolocation.deleteResource', [resourceId]);
 	}
 
