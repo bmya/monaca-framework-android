@@ -122,7 +122,9 @@ window.InnovationPlus = window.InnovationPlus || {};
 	InnovationPlus.geolocation.retrieveQueryResource = function(param, success, fail) {
 		// originally 'Geolocations' in API
 		// 'bound' : [top, bottom, left, right];
+		// or
 		// 'radiusSquare' : [centerLatitude, centerLongitude, radiusSquare]
+		// is needed
 		success = success || null;
 		fail = fail || null;
 		param = param || null;
@@ -135,7 +137,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 	InnovationPlus.applicationResource.retrieveResource = function(resourceId, success, fail) {
 		success = success || null;
 		fail = fail || null;
-		field = field || null;
+		resourceId = resourceId || null;
 		
 		exec(success, fail, pluginName, 'ApplicationResource.retrieveResource', [resourceId]);
 	}
