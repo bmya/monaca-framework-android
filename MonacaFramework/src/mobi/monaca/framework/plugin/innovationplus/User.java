@@ -21,7 +21,8 @@ public class User extends CordovaPluginExecutor{
 		super(cordovaInterface);
 	}
 
-	public boolean execute(final String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+	public boolean execute(final String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
+		MyLog.d("user", "execute");
 		if (action.equals("login")) {
 			JSONObject loginSet = args.optJSONObject(0);
 			if (loginSet != null) {
@@ -34,8 +35,18 @@ public class User extends CordovaPluginExecutor{
 			return true;
 		}
 		if (action.equals("removeAuthKey")) {
-			AuthKeyPreferenceUtil.removeAuthKey(context);
-			callbackContext.success();
+			MyLog.d("user", "remove");
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					AuthKeyPreferenceUtil.removeAuthKey(context);
+					if (AuthKeyPreferenceUtil.getAuthKey(context).equals("")) {
+						callbackContext.success();
+					} else {
+						MyLog.d("user", "unexpected error occured");
+						callbackContext.error(InnovationPlusPlugin.ERROR_WITH_EXCEPTION);
+					}
+				}});
 			return true;
 		}
 

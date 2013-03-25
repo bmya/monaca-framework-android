@@ -61,12 +61,12 @@ window.InnovationPlus = window.InnovationPlus || {};
 	
 	InnovationPlus.user.getAuthKey = function(callback) {
 		callback = callback || null;
-		exec(callback, null, pluginName, 'User.getAuthKey', null);
+		exec(callback, null, pluginName, 'User.getAuthKey', []);
 	}
 	
 	InnovationPlus.user.removeAuthKey = function(callback) {
 		callback = callback || null;
-		exec(callback, null, pluginName, 'User.removeAuthKey', null);
+		exec(callback, null, pluginName, 'User.removeAuthKey', []);
 	}
 
 	// Profile
@@ -92,7 +92,7 @@ window.InnovationPlus = window.InnovationPlus || {};
 	InnovationPlus.geolocation.retrieveOwnResource = function(success, fail) {
 		success = success || null;
 		fail = fail || null;
-		exec(success, fail, pluginName, 'Geolocation.retrieveOwnResource', null);
+		exec(success, fail, pluginName, 'Geolocation.retrieveOwnResource', []);
 	}
 
 	InnovationPlus.geolocation.retrieveResource = function(resourceId, success, fail) {
