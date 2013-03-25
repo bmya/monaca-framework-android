@@ -2,7 +2,6 @@ package mobi.monaca.framework.view;
 
 import java.io.IOException;
 
-import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.util.MyLog;
 
 import org.apache.cordova.CordovaWebView;
@@ -29,8 +28,6 @@ public class MonacaWebView extends CordovaWebView {
 	protected Context context;
 	private boolean notBackButton = true;
 
-	protected MonacaPageActivity pageActivity;
-
 	public MonacaWebView(Context context, AttributeSet attrs, int defStyle,
 			boolean privateBrowsing) {
 		super(context, attrs, defStyle, privateBrowsing);
@@ -50,14 +47,6 @@ public class MonacaWebView extends CordovaWebView {
 	public MonacaWebView(Context context) {
 		super(context);
 		this.context = context;
-		init();
-	}
-
-	public MonacaWebView(MonacaPageActivity pageActivity) {
-		super(pageActivity);
-		this.context = pageActivity;
-		this.pageActivity = pageActivity;
-
 		init();
 	}
 
@@ -178,7 +167,6 @@ public class MonacaWebView extends CordovaWebView {
 				                    String name = parser.getAttributeValue(null, "name");
 				                    String value = parser.getAttributeValue(null, "value");
 
-				                    LOG.i("CordovaLog", "Found preference for %s=%s", name, value);
 				                    MyLog.d("CordovaLog", "Found preference for " + name + "=" + value);
 
 				                    // Save preferences in Intent

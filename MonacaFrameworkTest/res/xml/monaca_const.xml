@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- used for test -->
+<Monaca
+    domain = "goodurl.com"
+    mytest ="done"
+    env ="fine"
+    isCustom = "good">
+
+	<!-- following tags should not be used -->
+    dummy text
+    <dummy
+        hoge ="bar"
+        env ="bad1"
+       	mytest ="failed"
+        domain ="notused1.com">
+        <monaca
+            domain ="notused2.mobi"
+            env="bad2"
+            isCustom ="bad3">
+            foobar
+        </monaca>
+    </dummy>
+</Monaca>

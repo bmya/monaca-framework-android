@@ -17,12 +17,19 @@ public class TransitionParams implements Serializable {
     public final TransitionAnimationType animationType;
     public final String backgroundImagePath;
     public final int requestedOrientation;
+    public final boolean clearsStack;
 
     public TransitionParams(TransitionAnimationType animationType,
-            String backgroundImagePath, int requestedOrientation) {
+            String backgroundImagePath, int requestedOrientation, boolean clearsStack) {
         this.animationType = animationType;
         this.backgroundImagePath = backgroundImagePath;
         this.requestedOrientation = requestedOrientation;
+        this.clearsStack = clearsStack;
+    }
+
+    public TransitionParams(TransitionAnimationType animationType,
+            String backgroundImagePath, int requestedOrientation) {
+        this(animationType, backgroundImagePath, requestedOrientation, false);
     }
 
     public Boolean hasBackgroundImage() {
@@ -31,6 +38,10 @@ public class TransitionParams implements Serializable {
 
     public int getRequestedOrientation() {
         return requestedOrientation;
+    }
+
+    public boolean needsToClearStack() {
+        return clearsStack;
     }
 
     public static TransitionParams from(JSONObject json,
@@ -64,8 +75,10 @@ public class TransitionParams implements Serializable {
             orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }
 
+        boolean clearsStack = json.optBoolean("clearStack", false);
+
         return new TransitionParams(animationType, backgroundImagePath,
-                orientation);
+                orientation, clearsStack);
     }
 
     public static TransitionParams createDefaultParams(int orientation) {

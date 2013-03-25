@@ -428,7 +428,7 @@ public abstract class ResultHandler {
         activity.startActivity(intent);
       } catch (ActivityNotFoundException e) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(R.string.app_name);
+        builder.setTitle(R.string.barcode_lib_app_name);
         builder.setMessage(R.string.msg_intent_failed);
         builder.setPositiveButton(R.string.button_ok, null);
         builder.show();

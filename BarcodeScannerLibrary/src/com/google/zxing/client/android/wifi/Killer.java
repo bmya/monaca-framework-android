@@ -50,7 +50,7 @@ final class Killer implements Runnable {
         parent.startActivity(intent);
       } catch (ActivityNotFoundException e) {
         AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-        builder.setTitle(R.string.app_name);
+        builder.setTitle(R.string.barcode_lib_app_name);
         builder.setMessage(R.string.msg_intent_failed);
         builder.setPositiveButton(R.string.button_ok, null);
         builder.show();

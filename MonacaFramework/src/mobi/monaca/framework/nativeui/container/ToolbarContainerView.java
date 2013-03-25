@@ -8,22 +8,27 @@ import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
+import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
+import android.annotation.TargetApi;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
  * This class represents toolbar view on native ui framework.
  */
-public class ToolbarContainerView extends LinearLayout {
+public class ToolbarContainerView extends LinearLayout implements ContainerViewInterface{
 
+	protected ToolbarContainerViewListener mContainerSizeListener;
 	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper,
 			titleSubtitleWrapper;
@@ -32,11 +37,15 @@ public class ToolbarContainerView extends LinearLayout {
 	private TextView titleView;
 	private TextView subTitleMainTitleView;
 	private TextView subtitleView;
+	private View shadowView;
+	boolean isTop = true;
+	private int mShadowHeight;
 
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
 	private static final String TAG = ToolbarContainerView.class
 			.getSimpleName();
+	private static final int CONTENT_VIEW_ID = 10000;
 
 	protected View createBorderView() {
 		View v = new FrameLayout(context);
@@ -71,17 +80,51 @@ public class ToolbarContainerView extends LinearLayout {
 		}
 		return result;
 	}
+	
+	@Override
+	public void setContainerSizeListener(ToolbarContainerViewListener mContainerSizeListener) {
+		this.mContainerSizeListener = mContainerSizeListener;
+	}
+	
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		if(mContainerSizeListener != null){
+			mContainerSizeListener.onSizeChanged(w, h, oldw, oldh);
+		}
+	}
+	
+	@Override
+	public void setVisibility(int visibility) {
+		if(getVisibility() != visibility){
+			if(mContainerSizeListener != null){
+				mContainerSizeListener.onVisibilityChanged(visibility);
+			}
+		}
+		super.setVisibility(visibility);
+	}
 
-	public ToolbarContainerView(UIContext context) {
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public ToolbarContainerView(UIContext context, boolean isTop) {
 		super(context);
+		mShadowHeight = UIUtil.dip2px(getContext(), 3);
 
 		this.context = context;
+		this.isTop = isTop;
 
 		setOrientation(LinearLayout.VERTICAL);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 
 		content = new FrameLayout(context);
+		content.setId(CONTENT_VIEW_ID);
+		
+		// bottom toolbar -> shadow on top
+		if(!isTop){
+			shadowView = new View(getContext());
+			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
+		}
 
 		addView(createBorderView(), new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, 1));
@@ -90,7 +133,15 @@ public class ToolbarContainerView extends LinearLayout {
 				UIUtil.dip2px(getContext(), CONTAINER_HEIGHT)) );
 		addView(createBorderView(), new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, 1));
-
+		
+		// top toolbar -> shadow is under
+		if(isTop){
+			shadowView = new View(getContext());
+			shadowView.setBackgroundResource(R.drawable.shadow_bg);
+			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
+		}
+		
+		
 		left = new LinearLayout(context);
 		left.setOrientation(LinearLayout.HORIZONTAL);
 		left.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
@@ -167,11 +218,15 @@ public class ToolbarContainerView extends LinearLayout {
 		content.addView(titleWrapper, p);
 		content.addView(titleSubtitleWrapper, p);
 	}
-
+	
 	public View getContentView() {
 		return content;
 	}
-
+	
+	public View getShadowView() {
+		return shadowView;
+	}
+	
 	public void setTitleSubtitle(String title, String subtitle) {
 		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:"
 				+ subtitle);
@@ -326,6 +381,16 @@ public class ToolbarContainerView extends LinearLayout {
 		} catch (Exception e) {
 			MyLog.e(TAG, e.getMessage());
 		}
+	}
+
+	@Override
+	public int getShadowHeight() {
+		return mShadowHeight;
+	}
+
+	@Override
+	public int getContainerViewHeight() {
+		return getMeasuredHeight();
 	}
 
 }

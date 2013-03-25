@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.utils.gcm.GCMPushDataset;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,6 +18,8 @@ import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import com.google.android.gcm.GCMRegistrar;
+
 public class MonacaSplashActivity extends Activity {
 	private static final String TAG = MonacaSplashActivity.class.getSimpleName();
     protected static final String SPLASH_IMAGE_PATH = "android/splash_default.png";
@@ -24,47 +27,79 @@ public class MonacaSplashActivity extends Activity {
 	protected ImageView splashView;
 	protected JSONObject appJson;
 
+	protected Handler handler;
+	protected Runnable pageLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadAppJson();
-
+        registerGCM();
         if (hasSplashScreenExists()) {
             splashView = new ImageView(this);
             splashView.setScaleType(ScaleType.FIT_CENTER);
             InputStream stream = getSplashFileStream();
             splashView.setImageBitmap(BitmapFactory.decodeStream(stream));
-
             splashView.setBackgroundColor(getBackgroundColor());
-
             try {
                 stream.close();
             } catch (Exception e) {
             }
             setContentView(splashView);
 
-            new Handler().postDelayed(new Runnable() {
+            overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
+
+            handler = new Handler();
+            pageLauncher = new Runnable() {
                 @Override
                 public void run() {
                     Intent intent = createActivityIntent();
                     startActivity(intent);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            finish();
-                        }
-                    }, 500);
+                    finish();
                 }
+            };
 
-            }, 1000);
+            handler.postDelayed(pageLauncher, 1000);
         } else {
         	goNextActivityWithoutSplash();
         }
     }
-    
+
+    protected void loadAppJson() {
+    	this.appJson = ((MonacaApplication)getApplication()).getAppJson();
+    }
+
+    protected void registerGCM() {
+		try {
+			String senderId = appJson.getJSONObject("pushNotification").getJSONObject("android").getString("senderId");
+			// GCM registration process
+			GCMRegistrar.checkDevice(this);
+			GCMRegistrar.checkManifest(this);
+			final String regId = GCMRegistrar.getRegistrationId(this);
+			if (regId.equals("")) {
+				GCMRegistrar.register(this, senderId);
+			} else {
+				((MonacaApplication)getApplication()).sendGCMRegisterIdToAppAPI(regId);
+			}
+
+		} catch (Exception e) {
+			MyLog.d(TAG, "this device or application does not support GCM");
+			e.printStackTrace();
+		}
+    }
+
     protected Intent createActivityIntent() {
 		Intent intent = new Intent(MonacaSplashActivity.this,
                 MonacaPageActivity.class);
+
+    	Intent received = getIntent();
+    	Bundle bundle = received.getExtras();
+    	if (received != null && bundle != null) {
+    		GCMPushDataset pushdata = (GCMPushDataset)bundle.get(GCMPushDataset.KEY);
+    		if (pushdata != null) {
+        		intent.putExtra(GCMPushDataset.KEY, pushdata);
+    		}
+    	}
 		return intent;
 	}
 
@@ -73,28 +108,10 @@ public class MonacaSplashActivity extends Activity {
         try {
 			intent.putExtra(SHOWS_SPLASH_KEY, !appJson.getJSONObject("splash").getJSONObject("android").getBoolean("autoHide"));
 		} catch (JSONException e) {
-			// TODO 自動生成された catch ブロック
 			MyLog.e(TAG, e.getMessage());
 		}
         startActivity(intent);
         finish();
-    }
-
-    protected void loadAppJson() {
-    	try {
-    		InputStream stream = getResources().getAssets().open("app.json");
-			byte[] buffer = new byte[stream.available()];
-			stream.read(buffer);
-			appJson = new JSONObject(new String(buffer,"UTF-8"));
-			return;
-		} catch (IOException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (JSONException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (IllegalArgumentException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
-    	appJson = new JSONObject();
     }
 
     protected int getBackgroundColor() {
@@ -130,6 +147,14 @@ public class MonacaSplashActivity extends Activity {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+    	if (handler != null && pageLauncher != null) {
+    		handler.removeCallbacks(pageLauncher);
+    	}
+    	super.onBackPressed();
     }
 
     protected InputStream getSplashFileStream() {

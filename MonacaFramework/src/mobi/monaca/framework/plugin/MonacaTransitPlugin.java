@@ -91,8 +91,9 @@ public class MonacaTransitPlugin extends Plugin {
             return new PluginResult(PluginResult.Status.OK);
         }
 
-        if (action.equals("clearWithoutTop")) {
-            clearWithoutTop();
+        if (action.equals("clearPageStack")) {
+        	boolean clearAll = args.optBoolean(0, false);
+            clearPageStack(clearAll);
             return new PluginResult(PluginResult.Status.OK);
         }
 
@@ -100,7 +101,7 @@ public class MonacaTransitPlugin extends Plugin {
     }
 	public void loadRelativePathAsync(String relativePath) {
 		MyLog.v(TAG, "loadRelativePathAsync. relativePath:" + relativePath);
-		final String newUri = getMonacaPageActivity().getCurrentUriWithoutQuery() + "/../" + relativePath;
+		final String newUri = getMonacaPageActivity().getCurrentUriWithoutOptions() + "/../" + relativePath;
 		MyLog.v(TAG, "uri unresolved=" + newUri);
 
 		getMonacaPageActivity().runOnUiThread(new Runnable() {
@@ -109,13 +110,13 @@ public class MonacaTransitPlugin extends Plugin {
 				if (newUri.startsWith("file://")) {
 					try {
 						getMonacaPageActivity().loadUri("file://" + new File(newUri.substring(7)).getCanonicalPath(), false);
-						MyLog.v(TAG, "uri resolved=" + getMonacaPageActivity().getCurrentUriWithoutQuery());
+						MyLog.v(TAG, "uri resolved=" + getMonacaPageActivity().getCurrentUriWithoutOptions());
 					} catch (Exception e) {
 						e.printStackTrace();
-						getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutQuery(), false);
+						getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutOptions(), false);
 					}
 				} else {
-					getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutQuery(), false);
+					getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutOptions(), false);
 				}
 			}
 		});
@@ -145,14 +146,21 @@ public class MonacaTransitPlugin extends Plugin {
         getMonacaPageActivity().pushPageAsync(url, params);
     }
 
-    protected void clearWithoutTop() {
+    protected void clearPageStack(boolean clearAll) {
         List<MonacaPageActivity> pages = new ArrayList<MonacaPageActivity>(MonacaApplication.getPages());
-        pages = pages.subList(0, pages.size() - 1);
-        Collections.reverse(pages);
+    	if (clearAll) {
+    		pages = pages.subList(0, pages.size() - 1);
+    		Collections.reverse(pages);
 
-        for (MonacaPageActivity page : pages) {
-            page.finish();
-        }
+    		for (MonacaPageActivity page : pages) {
+    			page.finish();
+    		}
+    	} else {
+    		if (pages.size() > 1) {
+    			MonacaPageActivity previousPage = pages.get(pages.size() - 2);
+    			previousPage.finish();
+    		}
+    	}
     }
 
 }

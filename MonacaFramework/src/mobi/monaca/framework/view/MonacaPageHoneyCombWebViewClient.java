@@ -21,9 +21,9 @@ public class MonacaPageHoneyCombWebViewClient extends MonacaPageGingerbreadWebVi
 
     private static final String TAG = MonacaPageHoneyCombWebViewClient.class.getSimpleName();
 
-    public MonacaPageHoneyCombWebViewClient(String currentUrl,
+    public MonacaPageHoneyCombWebViewClient(
             MonacaPageActivity monacaPage, CordovaWebView cordovaWebView) {
-    	super(currentUrl, monacaPage, cordovaWebView);
+    	super(monacaPage, cordovaWebView);
     }
 
     @TargetApi(11)
@@ -33,7 +33,7 @@ public class MonacaPageHoneyCombWebViewClient extends MonacaPageGingerbreadWebVi
         	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "Not allowing access to " + url, "", 0);
         	MyLog.sendBloadcastDebugLog(monacaPage.getApplicationContext(), logItem);
             WebResourceResponse response = new WebResourceResponse(
-                "text/html", "UTF-8", 
+                "text/html", "UTF-8",
                 new ByteArrayInputStream("<font color='#999'>not allowed</font>".getBytes())
             );
             return response;
