@@ -77,7 +77,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 		}
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
-		client.delete(JSONObjectResource.class, resourceId, new IPPQueryCallback<String>() {
+		client.delete(JSONStringResource.class, resourceId, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -101,12 +101,13 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
-		JSONObjectResource resource = new JSONObjectResource();
+		JSONStringResource resource = new JSONStringResource();
 
-		resource.setJson(content);
+		resource.setJsonString(content.toString());
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
-		client.create(JSONObjectResource.class, resource, new IPPQueryCallback<String>() {
+		client.setDebugMessage(true);
+		client.create(JSONStringResource.class, resource, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -136,12 +137,12 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
-		JSONObjectResource[] resources = new JSONObjectResource[length];
+		JSONStringResource[] resources = new JSONStringResource[length];
 
 		try {
 			for (int i = 0; i < length; i++) {
-				resources[i] = new JSONObjectResource();
-				resources[i].setJson(content.getJSONObject(i));
+				resources[i] = new JSONStringResource();
+				resources[i].setJsonString(content.getJSONObject(i).toString());
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -151,7 +152,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
-		client.createAll(JSONObjectResource.class, resources, new IPPQueryCallback<Void>() {
+		client.createAll(JSONStringResource.class, resources, new IPPQueryCallback<Void>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -181,16 +182,21 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
-		client.get(JSONObjectResource.class, resourceId, new IPPQueryCallback<JSONObjectResource>() {
+		client.get(JSONStringResource.class, resourceId, new IPPQueryCallback<JSONStringResource>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
 				callbackContext.error(i);
 			}
 			@Override
-			public void ippDidFinishLoading(JSONObjectResource arg0) {
-				MyLog.d(TAG, "ippDidFinishLoading :" + arg0.getJson().toString());
-				callbackContext.success(arg0.getJson());
+			public void ippDidFinishLoading(JSONStringResource arg0) {
+				MyLog.d(TAG, "ippDidFinishLoading :" + arg0.getJsonString());
+				try {
+					callbackContext.success(new JSONObject(arg0.getJsonString()));
+				} catch (JSONException e) {
+					e.printStackTrace();
+					callbackContext.error(InnovationPlusPlugin.ERROR_WITH_EXCEPTION);
+				}
 			}
 		});
 	}
@@ -223,21 +229,21 @@ public class ApplicationResource extends CordovaPluginExecutor {
 		} catch (JSONException e) {
 		}
 
-		client.query(JSONObjectResource.class, condition, new IPPQueryCallback<JSONObjectResource[]>() {
+		client.query(JSONStringResource.class, condition, new IPPQueryCallback<JSONStringResource[]>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
 				callbackContext.error(i);
 			}
 			@Override
-			public void ippDidFinishLoading(JSONObjectResource[] arg0) {
+			public void ippDidFinishLoading(JSONStringResource[] arg0) {
 				JSONObject response = new JSONObject();
 				try {
 					int length = arg0.length;
 					response.put("resultCount", length);
 					JSONArray resultArray  = new JSONArray();
 					for (int i = 0; 1 < length; i++) {
-						resultArray.put(arg0[i].getJson());
+						resultArray.put(new JSONObject(arg0[i].getJsonString()));
 					}
 					response.put("result", resultArray);
 					callbackContext.success(response);
