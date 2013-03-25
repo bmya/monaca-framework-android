@@ -188,8 +188,10 @@ public class MonacaPageActivity extends DroidGap {
 		// dirty fix for android4's strange bug
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_dialog_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_dialog_open_exit);
-		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
+		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_open_exit);
+		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_RIGHT) {
+			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_exit);
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
@@ -323,7 +325,7 @@ public class MonacaPageActivity extends DroidGap {
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 			setTheme(mobi.monaca.framework.psedo.R.style.MonacaDialogTheme);
-		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
+		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 			setTheme(mobi.monaca.framework.psedo.R.style.MonacaSlideTheme);
 		} else {
 		}
@@ -1106,9 +1108,12 @@ public class MonacaPageActivity extends DroidGap {
 			if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_dialog_close_enter,
 						mobi.monaca.framework.psedo.R.anim.monaca_dialog_close_exit);
-			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
+			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_close_enter,
 						mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
+			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_RIGHT) {
+				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_right_close_enter,
+						mobi.monaca.framework.psedo.R.anim.monaca_slide_right_close_exit);
 			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 			}
