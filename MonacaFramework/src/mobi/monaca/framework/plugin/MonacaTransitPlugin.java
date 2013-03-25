@@ -37,11 +37,17 @@ public class MonacaTransitPlugin extends Plugin {
     public PluginResult execute(String action, final JSONArray args,
             String callbackId) {
 
+    	MyLog.v(TAG, "action: " + action);
         // push
-        if (action.equals("push")) {
-
+        if (action.equals("push") || action.equals("slide") || action.equals("slideLeft")) {
             getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
-                    TransitionParams.from(args.optJSONObject(1), "transit"));
+                    TransitionParams.from(args.optJSONObject(1), "slideLeft"));
+            return new PluginResult(PluginResult.Status.OK);
+        }
+        
+        if (action.equals("slideRight")) {
+            getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
+                    TransitionParams.from(args.optJSONObject(1), "slideRight"));
             return new PluginResult(PluginResult.Status.OK);
         }
 
