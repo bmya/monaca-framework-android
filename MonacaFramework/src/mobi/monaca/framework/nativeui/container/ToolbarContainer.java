@@ -7,9 +7,11 @@ import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.component.ToolbarBackgroundDrawable;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
@@ -30,8 +32,7 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 
 public class ToolbarContainer implements Component {
-    private static final int TOP_BOTTOM_PADDING = 5;
-	protected Context context;
+    protected UIContext context;
     protected ToolbarContainerView view;
     protected ToolbarComponent left, center, right;
     protected JSONObject style;
@@ -75,6 +76,7 @@ public class ToolbarContainer implements Component {
      * 1.0) backgroundColor: #000000 [string] (default: undefined) position :
      * "fixed" | "scroll" (default: "fixed") => androidだと無理ぽい title : [string]
      * (default : "") (このスタイルが指定された場合、center属性は無視される)
+     * titleImage : [string] (default : "") このスタイルが指定された時、center属性は無視)
      */
     protected void style() {
         double toolbarOpacity = style.optDouble("opacity", 1.0);
@@ -114,8 +116,10 @@ public class ToolbarContainer implements Component {
             view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
         }
         
+        /*
         view.setTitleSubtitle(style.optString("title"),
                 style.optString("subtitle"));
+                */
         
         // titleColor
         view.setTitleColor(style.optString("titleColor", "#ffffff"));
@@ -128,24 +132,22 @@ public class ToolbarContainer implements Component {
         
         // subtitleFontScale
         view.setSubitleFontScale(style.optString("subtitleFontScale", ""));
+        
+        String titleImagePath = style.optString("titleImage", "");
+        view.setTitleSubtitle(
+                style.optString("title"),
+                style.optString("subtitle"),
+                titleImagePath.equals("") ? null : context.readScaledBitmap(titleImagePath));
 
         ColorFilter filter = new PorterDuffColorFilter(
                 buildColor(style.optString("backgroundColor", "#000000")),
                 PorterDuff.Mode.SCREEN);
-        Bitmap bgBitmap = UIUtil.createBitmapWithColorFilter(context
-                .getResources().getDrawable(R.drawable.monaca_toolbar_bg),
-                filter);
+        
+        Drawable toolbarBackground = new ToolbarBackgroundDrawable(context);
+        toolbarBackground.setColorFilter(filter);
+        toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
 
-        Drawable original = context.getResources().getDrawable(
-                R.drawable.monaca_toolbar_bg);
-        Rect padding = new Rect();
-        original.getPadding(padding);
-
-        view.getContentView().setBackgroundDrawable(
-                new BitmapDrawable(context.getResources(), bgBitmap));
-        view.getContentView().setPadding(padding.left, dip2px(context, TOP_BOTTOM_PADDING), padding.right, dip2px(context, TOP_BOTTOM_PADDING));
-        view.getContentView().getBackground()
-                .setAlpha(buildOpacity(toolbarOpacity));
+        view.getContentView().setBackgroundDrawable(toolbarBackground);
 
         double shadowOpacity = style.optDouble("shadowOpacity", 0.3);
         double relativeShadowOpacity = toolbarOpacity * shadowOpacity;

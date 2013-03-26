@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Build.VERSION;
@@ -422,9 +424,21 @@ public class MonacaPageActivity extends DroidGap {
 	public void init() {
 		CordovaWebView webView = new MonacaWebView(this);
 		// Fix webview bug on ICS_MR1 where webview background is always white when hardware accerleration is on
-		if(VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
+		if (VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
+		
+		if (uiContext.getSettings().forceDisableWebviewGPU) {
+    		Method method;
+    		try {
+    		    method = webView.getClass().getMethod("setLayerType", new Class[]{ int.class, Paint.class });
+    		    method.invoke(webView, new Object[]{ View.LAYER_TYPE_SOFTWARE, null });
+        		MyLog.v(TAG, "webview.setLayerType() is done.");
+    		} catch (Exception e) {
+        		MyLog.v(TAG, "webview.setLayerType() is fail.");
+            }
+		}
+		
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);

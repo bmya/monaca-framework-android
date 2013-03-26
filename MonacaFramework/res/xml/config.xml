@@ -56,7 +56,7 @@
     <plugin name="SplashScreen" value="org.apache.cordova.SplashScreen"/>
     <plugin name="Echo" value="org.apache.cordova.Echo" />
     <plugin name="Globalization" value="org.apache.cordova.Globalization"/>
-    
+
     <plugin name="mobi.monaca.nativecomponent" value="mobi.monaca.framework.plugin.MonacaNativeUIPlugin"/>
     <plugin name="Transit" value="mobi.monaca.framework.plugin.MonacaTransitPlugin"/>
     <plugin name="MonacaSplashScreen" value="mobi.monaca.framework.plugin.MonacaSplashPlugin"/>
@@ -67,6 +67,8 @@
     <plugin name="BluetoothPlugin" value="mobi.monaca.framework.plugin.BluetoothPlugin"/>
     <plugin name="BarcodeScanner" value="com.phonegap.plugins.barcodescanner.BarcodeScanner"/>
     <plugin name="WebIntent" value="mobi.monaca.framework.plugin.WebIntent"/>
+
+    <plugin name="InnovationPlusPlugin" value="mobi.monaca.framework.plugin.innovationplus.InnovationPlusPlugin"/>
 </plugins>
 </cordova>
 

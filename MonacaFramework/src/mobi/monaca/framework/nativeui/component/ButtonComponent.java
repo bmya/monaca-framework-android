@@ -116,7 +116,7 @@ public class ButtonComponent implements ToolbarComponent {
 
 		if (!style.optString("innerImage", "").equals("")) {
 			ImageButton imageButton = button.getInnerImageButton();
-			imageButton.setImageBitmap(context.readBitmap(style
+			imageButton.setImageBitmap(context.readScaledBitmap(style
 					.optString("innerImage")));
 		}
 	}
@@ -129,7 +129,7 @@ public class ButtonComponent implements ToolbarComponent {
 		imageButton.setBackgroundColor(0);
 		imageButton.setEnabled(!style.optBoolean("disable", false));
 
-		Bitmap bitmap = context.readBitmap(style.optString("image", ""));
+		Bitmap bitmap = context.readScaledBitmap(style.optString("image", ""));
 		if (bitmap != null) {
 			MyLog.e(TAG, "style. image.height:" + imageButton.getHeight());
 			if (imageButton.getHeight() > 0) {
@@ -211,7 +211,7 @@ public class ButtonComponent implements ToolbarComponent {
 
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-			Bitmap bitmap = context.readBitmap(style.optString("image", ""));
+			Bitmap bitmap = context.readScaledBitmap(style.optString("image", ""));
 			if (bitmap != null) {
 				int width = bitmap.getWidth();
 				int height = bitmap.getHeight();
@@ -234,7 +234,7 @@ public class ButtonComponent implements ToolbarComponent {
 		}
 
 		private void resizeImage() {
-			Bitmap bitmap = context.readBitmap(style.optString("image", ""));
+			Bitmap bitmap = context.readScaledBitmap(style.optString("image", ""));
 			if (bitmap != null) {
 				if (getMeasuredHeight() > 0) {
 					int scaledHeight = getMeasuredHeight();
