@@ -156,6 +156,10 @@ public class MonacaPageActivity extends DroidGap {
 		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
 		
+		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED); 
+		}
+		
 		mApp = (MonacaApplication) getApplication();
 
 		// initialize receiver
