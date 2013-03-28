@@ -1,17 +1,20 @@
 package mobi.monaca.framework.plugin.innovationplus;
 
+import java.util.LinkedHashMap;
+import java.util.Set;
+
 import jp.innovationplus.ipp.client.IPPApplicationResourceClient;
 import jp.innovationplus.ipp.core.IPPQueryCallback;
+import jp.innovationplus.ipp.jsontype.IPPApplicationResource;
 import mobi.monaca.framework.util.MyLog;
 
 import org.apache.cordova.api.CallbackContext;
 import org.apache.cordova.api.CordovaInterface;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-//TODO not tested
 public class ApplicationResource extends CordovaPluginExecutor {
 	private static final String TAG = ApplicationResource.class.getSimpleName();
 	public ApplicationResource(CordovaInterface cordova) {
@@ -118,13 +121,19 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
+		MyLog.d(TAG, content.toString());
+		IPPApplicationResource resource = new IPPApplicationResource();
+		try {
+			resource.putAll(new ObjectMapper().readValue(content.toString(), LinkedHashMap.class));
+		} catch (Exception e) {
+			callbackContext.error(InnovationPlusPlugin.ERROR_WITH_EXCEPTION);
+			e.printStackTrace();
+			return;
+		}
 
-		JSONStringResource resource = new JSONStringResource();
-
-		resource.setJsonString(content.toString());
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
-		client.setDebugMessage(true);
+		//client.setDebugMessage(true);
 		client.create(resourceName, resource, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int i) {
@@ -155,14 +164,13 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
-		JSONStringResource[] resources = new JSONStringResource[length];
-
+		IPPApplicationResource[] resources = new IPPApplicationResource[length];
 		try {
 			for (int i = 0; i < length; i++) {
-				resources[i] = new JSONStringResource();
-				resources[i].setJsonString(content.getJSONObject(i).toString());
+				resources[i] = new IPPApplicationResource();
+				resources[i].putAll(new ObjectMapper().readValue(content.getJSONObject(i).toString(), LinkedHashMap.class));
 			}
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
 			return;
@@ -209,23 +217,33 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
-		client.get(resourceName, resourceId, new IPPQueryCallback<JSONStringResource>() {
+		client.get(resourceName, resourceId, new IPPQueryCallback<IPPApplicationResource>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
 				callbackContext.error(i);
 			}
 			@Override
-			public void ippDidFinishLoading(JSONStringResource arg0) {
-				MyLog.d(TAG, "ippDidFinishLoading :" + arg0.getJsonString());
+			public void ippDidFinishLoading(IPPApplicationResource arg0) {
+				MyLog.d(TAG, "ippDidFinishLoading :");
 				try {
-					callbackContext.success(new JSONObject(arg0.getJsonString()));
+					JSONObject result = buildFromIPPAppricationResource(arg0);
+					callbackContext.success(result);
 				} catch (JSONException e) {
 					e.printStackTrace();
 					callbackContext.error(InnovationPlusPlugin.ERROR_WITH_EXCEPTION);
 				}
 			}
 		});
+	}
+
+	private JSONObject buildFromIPPAppricationResource(IPPApplicationResource arg0) throws JSONException {
+		JSONObject result = new JSONObject();
+		Set<String> keySet = arg0.keySet();
+		for (String key : keySet) {
+			result.put(key, arg0.get(key));
+		}
+		return result;
 	}
 
 	private void retrieveQueryResource(JSONArray args, String authKey, final CallbackContext callbackContext) {
@@ -260,26 +278,27 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			condition.setUntil(param.getInt("until"));
 		} catch (JSONException e) {
 		}
-		try {
-			condition.setCount(param.getInt("count"));
-		} catch (JSONException e) {
-		}
-
-		client.query(resourceName, condition, new IPPQueryCallback<JSONStringResource[]>() {
+		client.query(resourceName, condition, new IPPQueryCallback<IPPApplicationResource[]>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
 				callbackContext.error(i);
 			}
 			@Override
-			public void ippDidFinishLoading(JSONStringResource[] arg0) {
+			public void ippDidFinishLoading(IPPApplicationResource[] arg0) {
 				JSONObject response = new JSONObject();
 				try {
 					int length = arg0.length;
+
+					if (length == 0) {
+						this.ippDidError(-10000);
+						return;
+					}
+
 					response.put("resultCount", length);
 					JSONArray resultArray  = new JSONArray();
-					for (int i = 0; 1 < length; i++) {
-						resultArray.put(new JSONObject(arg0[i].getJsonString()));
+					for (int i = 0; i < length; i++) {
+						resultArray.put(buildFromIPPAppricationResource(arg0[i]));
 					}
 					response.put("result", resultArray);
 					callbackContext.success(response);
