@@ -68,6 +68,15 @@ public class ApplicationResource extends CordovaPluginExecutor {
 	}
 	private void deleteResource(JSONArray args, String authKey, final CallbackContext callbackContext) {
 		String resourceId;
+		String resourceName = null;
+		try {
+			resourceName = args.getString(1);
+		} catch (JSONException e) {
+			callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
+			e.printStackTrace();
+			return;
+		}
+
 		try {
 			resourceId = args.getString(0);
 		} catch (JSONException e) {
@@ -77,7 +86,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 		}
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
-		client.delete(JSONStringResource.class, resourceId, new IPPQueryCallback<String>() {
+		client.delete(resourceName, resourceId, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -93,6 +102,14 @@ public class ApplicationResource extends CordovaPluginExecutor {
 
 	private void createResource(JSONArray args, String authKey, final CallbackContext callbackContext) {
 		JSONObject content;
+		String resourceName = null;
+		try {
+			resourceName = args.getString(1);
+		} catch (JSONException e) {
+			callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
+			e.printStackTrace();
+			return;
+		}
 		try {
 			content = args.getJSONObject(0);
 		} catch (JSONException e) {
@@ -101,13 +118,14 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
+
 		JSONStringResource resource = new JSONStringResource();
 
 		resource.setJsonString(content.toString());
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
 		client.setDebugMessage(true);
-		client.create(JSONStringResource.class, resource, new IPPQueryCallback<String>() {
+		client.create(resourceName, resource, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -152,7 +170,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
-		client.createAll(JSONStringResource.class, resources, new IPPQueryCallback<Void>() {
+		client.createAll(args.optString(1), resources, new IPPQueryCallback<Void>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -182,7 +200,16 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			return;
 		}
 
-		client.get(JSONStringResource.class, resourceId, new IPPQueryCallback<JSONStringResource>() {
+		String resourceName = null;
+		try {
+			resourceName = args.getString(1);
+		} catch (JSONException e) {
+			callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
+			e.printStackTrace();
+			return;
+		}
+
+		client.get(resourceName, resourceId, new IPPQueryCallback<JSONStringResource>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);
@@ -202,6 +229,15 @@ public class ApplicationResource extends CordovaPluginExecutor {
 	}
 
 	private void retrieveQueryResource(JSONArray args, String authKey, final CallbackContext callbackContext) {
+		String resourceName = null;
+		try {
+			resourceName = args.getString(1);
+		} catch (JSONException e) {
+			callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
+			e.printStackTrace();
+			return;
+		}
+
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		JSONObject param;
 		try {
@@ -229,7 +265,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 		} catch (JSONException e) {
 		}
 
-		client.query(JSONStringResource.class, condition, new IPPQueryCallback<JSONStringResource[]>() {
+		client.query(resourceName, condition, new IPPQueryCallback<JSONStringResource[]>() {
 			@Override
 			public void ippDidError(int i) {
 				MyLog.d(TAG, "ippDidError:" + i);

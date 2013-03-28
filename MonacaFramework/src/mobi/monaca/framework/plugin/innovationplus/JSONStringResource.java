@@ -20,9 +20,4 @@ public class JSONStringResource extends IPPApplicationResource implements Serial
 	public String getJsonString() {
 		return jsonString;
 	}
-	@Override
-	public String getResourceName() {
-		return resourceName;
-	}
-
 }
