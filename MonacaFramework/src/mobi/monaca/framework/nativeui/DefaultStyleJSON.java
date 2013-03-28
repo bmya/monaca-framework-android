@@ -36,11 +36,7 @@ public class DefaultStyleJSON {
 			style.put("backgroundColor", "#000000");
 			style.put("activeTextColor", "#0000FF");
 			style.put("text", "");
-			style.put("subtitle", "");
-			style.put("titleColor", "#FFFFFF");
-			style.put("subtitleColor", "#FFFFFF");
-			style.put("titleFontScale", 1.0);
-			style.put("subtitleFontScale", 1.0);
+			style.put("textColor", "#FFFFFF");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -85,7 +81,7 @@ public class DefaultStyleJSON {
 		JSONObject style = new JSONObject();
 		try {
 			style.put("opacity", 1.0);
-			style.put("text", new JSONArray());
+			style.put("text", "");
 			style.put("textColor", "#FFFFFF");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
