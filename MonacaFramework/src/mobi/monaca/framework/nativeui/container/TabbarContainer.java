@@ -11,6 +11,7 @@ import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -168,6 +169,16 @@ public class TabbarContainer implements Component {
 			TabbarItemView item = (TabbarItemView) v;
 			item.switchToSelected();
 			item.requestFocus();
+
+			if (items.contains(item)) {
+				int newActiveIndex = items.indexOf(item);
+				try {
+					style.put("activeIndex", newActiveIndex);
+				} catch (JSONException e) {
+					MyLog.d(TAG, "unexpected exception has occurred");
+					e.printStackTrace();
+				}
+			}
 
 			if (currentItemView != null) {
 				currentItemView.switchToUnselected();
