@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 /**
  * default values of UIStyle
+ * note that default imagepath options should be undefined.
  */
 public class DefaultStyleJSON {
 	private DefaultStyleJSON() {};
@@ -52,7 +53,6 @@ public class DefaultStyleJSON {
 			style.put("activeTextColor", "#0000FF");
 			style.put("text", "");
 			style.put("textColor", "#FFFFFF");
-			style.put("innerImage", "");
 			style.put("forceVisibility", false);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
