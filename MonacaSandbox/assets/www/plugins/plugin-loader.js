@@ -1,5 +1,21 @@
-/* THIS IS AN AUTO-GENERATED FILE. 
-PLEASE USE MONACA PLUGIN SETTING TO CONFIGURE PLUGINS. */
+/**************************************************************************************************
+  plugins/plugin-loader.js
+
+  THIS IS AN AUTO-GENERATED FILE. PLEASE USE MONACA PLUGIN SETTING TO CONFIGURE PLUGINS.
+  
+  Following files are combined and packed in this file.
+  - phonegap/cordova.js.2.2.android                         (Adobe PhoneGap (Cordova))
+  - monaca.js/monaca.js.1.5                                 (monaca.js)
+  - monaca.js/monaca.cloud.js.1.0                           (monaca.js)
+  - monaca.js/monaca.viewport.js                            (monaca.viewport.js)
+  - phonegap-plugins/childBrowser.js.254a0b5.android        (PhoneGap ChildBrowser Plugin)
+  - phonegap-plugins/datePicker.js.254a0b5.android          (PhoneGap DatePicker Plugin)
+  - phonegap-plugins/bluetooth.js.254a0b5.android           (PhoneGap Bluetooth Plugin)
+  - phonegap-plugins/share.js.254a0b5.android               (PhoneGap Share Plugin)
+  - phonegap-plugins/barcodeScanner.js.aa2c402.android      (PhoneGap BarcodeScanner Plugin)
+  - phonegap-plugins/webIntent.js.aa2c402.android           (PhoneGap WebIntent Plugin)
+
+*************************************************************************************************/
 
 // commit 02b91c5313ff37d74a58f71775170afd360f4a1f
 
@@ -6519,7 +6535,7 @@ window.cordova = require('cordova');
 })();var PhoneGap = cordova;
 /**
  * Monaca Functions
- *  Version 1.3.0
+ *  Version 1.5.0
  *  require cordova.js
  *
  * @author Katsuya SAITO <info@monaca.mobi>
@@ -6527,11 +6543,12 @@ window.cordova = require('cordova');
  * @author Hiroki NAKAGAWA <info@monaca.mobi>
  * @author Mitsunori KUBOTA <info@monaca.mobi>
  * @author Masahiro TANAKA <info@monaca.mobi>
- * @date   2012/11/28
+ * @author Kazuhiro URAMOTO <info@monaca.mobi>
+ * @date   2013/03/28
  */
 window.monaca = window.monaca || {};
 
-(function(PhoneGap) {
+(function() {
     /*
      * monaca api queue.
      */
@@ -6541,13 +6558,13 @@ window.monaca = window.monaca || {};
         if (typeof device == 'undefined') {
             monaca.apiQueue.paramsArray.push([a,b,c,d,e]);
         } else {
-            PhoneGap.exec(a,b,c,d,e);
+            window.cordova.exec(a,b,c,d,e);
         }
     }
     monaca.apiQueue.next = function(){
         var params = monaca.apiQueue.paramsArray.shift();
         if (params) {
-            PhoneGap.exec(
+            window.cordova.exec(
                 function(r){params[0](r); monaca.apiQueue.next();},
                 function(r){params[1](r); monaca.apiQueue.next();},
                 params[2],
@@ -6560,7 +6577,13 @@ window.monaca = window.monaca || {};
         monaca.apiQueue.next();
     }, false);
 
-    var isAndroid = (/android/gi).test(navigator.appVersion);
+    /**
+     * Check User-Agent
+     */
+    var isAndroid = !!(navigator.userAgent.match(/Android/i));
+    var isIOS     = !!(navigator.userAgent.match(/iPhone|iPad|iPod/i));
+    monaca.isAndroid = isAndroid;
+    monaca.isIOS     = isIOS;
 
     /**
      * Obtain style property
@@ -6607,7 +6630,32 @@ window.monaca = window.monaca || {};
                 [id, style]
             );
         };
-    }   
+    }
+
+    /**
+     * Spinner handling
+     */
+    monaca.showSpinner = function (options) {
+        options = options || {};
+        var src = options.src ? options.src : null;
+        var frames = options.frame ? options.frame : null;
+        var interval = options.interval ? options.interval : null;
+        var backgroundColor = options.backgroundColor ? options.backgroundColor : null;
+        var backgroundOpacity = options.backgroundOpacity ? options.backgroundOpacity : null;
+        var title = options.title ? options.title : null;
+        var titleColor = options.titleColor ? options.titleColor : null;
+        var titleFontScale = options.titleFontScale ? options.titleFontScale : null;
+        monaca.apiQueue.exec(null, null, "mobi.monaca.nativecomponent", 'showSpinner', [ src, frames, interval, backgroundColor, backgroundOpacity, title, titleColor, titleFontScale, null ]);
+    };
+
+    monaca.hideSpinner = function(){
+        monaca.apiQueue.exec(null, null, "mobi.monaca.nativecomponent", 'hideSpinner', []);
+    };
+
+    monaca.updateSpinnerTitle = function(newTitle){
+        if (!newTitle) newTitle = "";
+        monaca.apiQueue.exec(null, null, "mobi.monaca.nativecomponent", 'updateSpinnerTitle', [ newTitle ]);
+    };
 
     var transitionPluginName = "Transit";
     
@@ -6616,8 +6664,19 @@ window.monaca = window.monaca || {};
      */
     monaca.pushPage = function(path, options, param) {
         options = options || {};
-        var name = options.animation == 'lift' ? 'modal' : 'push';
-        monaca.apiQueue.exec(null, null, transitionPluginName, name, [path, options, param]);
+        var animation = null;
+        switch (options.animation) {
+        case "lift":
+          animation = "modal"; break;
+        case "slide":
+        case "slideLeft":
+          animation = "push"; break;
+        case "slideRight":
+          animation = "slideRight"; break;
+        default:
+          animation = "push";
+        }
+        monaca.apiQueue.exec(null, null, transitionPluginName, animation, [path, options, param]);
     };
     /**
      * Close current page.
@@ -6650,6 +6709,65 @@ window.monaca = window.monaca || {};
         monaca.apiQueue.exec(null, null, transitionPluginName, "home", [options]);
     };
 
+    /**
+     * Clear stack
+     */
+    monaca.clearPageStack = function(clearAll) {
+        clearAll = clearAll || false;
+        monaca.apiQueue.exec(null, null, transitionPluginName, "clearPageStack", [clearAll]);
+    };
+
+
+    /**
+     * Console API from independent PhoneGap.
+     */
+    window.monaca.console = window.monaca.console || {};
+
+    /**
+     * base method for send log.
+     */
+    monaca.console.sendLog = function(level, url, line, char, arguments) {
+        var message;
+        for (var i=0; i<arguments.length; i++){
+            if (typeof arguments[i] == "string") {
+                message = arguments[i];
+            } else {
+                message = JSON.stringify(arguments[i]);
+            }
+            if (isIOS) {
+                var xhr = new XMLHttpRequest();
+                var path = "monaca://log?level=" + encodeURIComponent(level) + "&message=" + encodeURIComponent(message);
+                xhr.open("GET", path);
+                xhr.send();
+            } else {
+                window.console[level](message);
+            }
+        }
+    }
+
+    /**
+     * monaca console methods
+     */
+    var methods = ["debug", "info", "log", "warn", "error"];
+    for (var i=0; i<methods.length; i++) {
+        var method = methods[i];
+        monaca.console[method] = function(method) {
+            return function() {
+                monaca.console.sendLog(method, null, null, null, arguments);
+            };
+        }(method);
+    }
+    
+    /** Replace window.console if iOS **/
+    if (isIOS) {
+      window.console = window.monaca.console;
+    }
+    /* Comment out for now
+    window.onerror = function (desc, page, line, char) {
+      monaca.console.sendLog("error", page, line, char, [desc]);
+    };
+    */
+
     window.monaca.splashScreen = window.monaca.splashScreen || {};
     var splashScreenPluginName = "MonacaSplashScreen";
 
@@ -6664,43 +6782,85 @@ window.monaca = window.monaca || {};
         }
     };
 
-})(window.cordova ? cordova : (window.Cordova ? Cordova : (window.PhoneGap ? PhoneGap : {})));
-/*
-* monaca.viewport.js
-*
-* Copyright (c) 2012 Asial Corporation<info@asial.co.jp>
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal in
-* the Software without restriction, including without limitation the rights to
-* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-* of the Software, and to permit persons to whom the Software is furnished to do
-* so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-* FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-* IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+    // Set monaca.baseUrl
+    if (typeof location.href !== "string") {
+        console.warn("Cannot find base url");
+        monaca.baseUrl = null;
+    } else {
+        monaca.baseUrl = location.href.split("/www/")[0] + "/www/";
+    }
+})();
+
+/**
+ * Monaca Cloud Functions
+ *  Version 1.5.0
+ *
+ * @author Masahiro TANAKA <info@monaca.mobi>
+ * @date   2013/03/17
+ */
+window.monaca = window.monaca || {};
+window.monaca.cloud = window.monaca.cloud || {};
+
+(function() {
+    /**
+     * Push Notification
+     */
+    monaca.cloud.Push = {};
+    monaca.cloud.Push.callback = null;
+    monaca.cloud.Push.send = function(data) {
+        if (typeof monaca.cloud.Push.callback === "function") {
+            monaca.cloud.Push.callback(data);
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof monaca.cloud.Push.callback === "function") {
+                monaca.cloud.Push.callback(data);
+            } else {
+                console.warn("Invalid push callback is specified.");
+            }
+        });
+    };
+    monaca.cloud.Push.setHandler = function(fn) {
+        if (typeof fn !== "function") {
+            console.warn("Push callback must be a function");
+        } else {
+            monaca.cloud.Push.callback = fn;
+        }
+    };
+})();
+/* 
+ *  monaca.viewport.js
+ *
+ *  Copyright (c) 2012 Asial Corporation<info@asial.co.jp>
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy 
+ *  of this software and associated documentation files (the "Software"), to deal in 
+ *  the Software without restriction, including without limitation the rights to 
+ *  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+ *  of the Software, and to permit persons to whom the Software is furnished to do 
+ *  so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in all 
+ *  copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
+ *  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+ *  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER 
+ *  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+ *  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 (function() {
     window.monaca = window.monaca || {};
 
     var IS_DEV = false;
-    var d = IS_DEV ? alert : function(line) { console.log(line); };
+    var d = IS_DEV ? alert : function(line) { console.debug(line); };
 
-    var isIos = function() {
-        return !!navigator.userAgent.match(/iPhone|iPod|webmate|iPad/);
-    };
-
-    var isAndroid = function() {
-        return !!navigator.userAgent.match(/Android|dream|CUPCAKE/);
-    };
+    /**
+     * Check User-Agent
+     */
+    var isAndroid = !!(navigator.userAgent.match(/Android/i));
+    var isIOS     = !!(navigator.userAgent.match(/iPhone|iPad|iPod/i));
 
     var defaultParams = {
         width : 640,
@@ -6719,28 +6879,29 @@ window.monaca = window.monaca || {};
     };
 
     var zoom = function(ratio) {
-
-        if ("OTransform" in document.body.style) {
-            document.body.style.OTransform = "scale(" + ratio + ")";
-            document.body.style.OTransformOrigin = "top left";
-            document.body.style.width = Math.round(window.innerWidth / ratio) + "px";
-        } else if ("MozTransform" in document.body.style) {
-            document.body.style.MozTransform = "scale(" + ratio + ")";
-            document.body.style.MozTransformOrigin = "top left";
-            document.body.style.width = Math.round(window.innerWidth / ratio) + "px";
-        } else {
-            document.body.style.zoom = ratio;
+        if (document.body) {
+            if ("OTransform" in document.body.style) {
+                document.body.style.OTransform = "scale(" + ratio + ")";
+                document.body.style.OTransformOrigin = "top left";
+                document.body.style.width = Math.round(window.innerWidth / ratio) + "px";
+            } else if ("MozTransform" in document.body.style) {
+                document.body.style.MozTransform = "scale(" + ratio + ")";
+                document.body.style.MozTransformOrigin = "top left";
+                document.body.style.width = Math.round(window.innerWidth / ratio) + "px";
+            } else {
+                document.body.style.zoom = ratio;
+            }
         }
     };
 
-    if (isIos()) {
+    if (isIOS) {
         monaca.viewport = function(params) {
             d("iOS is detected");
             params = merge(defaultParams, params);
-            document.write('<meta name="viewport" content="width=' + params.width + '" />');
+            document.write('<meta name="viewport" content="width=' + params.width + ',user-scalable=no" />');
             monaca.viewport.adjust = function() {};
         };
-    } else if (isAndroid()) {
+    } else if (isAndroid) {
         monaca.viewport = function(params) {
             d("Android is detected");
             params = merge(defaultParams, params);
@@ -6771,22 +6932,24 @@ window.monaca = window.monaca || {};
                     var changed = Math.abs(aspect - oldAspect) > 0.0001;
                     oldAspect = aspect;
 
-                    alert("aspect ratio changed");
+                    d("aspect ratio changed");
                     return changed;
                 };
             });
 
-            window.addEventListener("resize", function() {
-                var left = orientationChanged();
-                var right = aspectRatioChanged();
+            if (params.width !== 'device-width') {
+                window.addEventListener("resize", function() {
+                    var left = orientationChanged();
+                    var right = aspectRatioChanged();
 
-                if (left || right) {
+                    if (left || right) {
+                        monaca.viewport.adjust();
+                    }
+                }, false);
+                document.addEventListener('DOMContentLoaded', function() {
                     monaca.viewport.adjust();
-                }
-            }, false);
-            document.addEventListener('DOMContentLoaded', function() {
-                monaca.viewport.adjust();
-            });
+                });
+            }
         };
     } else {
         monaca.viewport = function(params) {
@@ -6800,22 +6963,22 @@ window.monaca = window.monaca || {};
                 params.onAdjustment(scale);
             };
 
-            window.addEventListener("resize", function() {
-                monaca.viewport.adjust();
-            }, false);
-            document.addEventListener("DOMContentLoaded", function() {
-                monaca.viewport.adjust();
-            });
+            if (params.width !== 'device-width') {
+                window.addEventListener("resize", function() {
+                    monaca.viewport.adjust();
+                }, false);
+                document.addEventListener("DOMContentLoaded", function() {
+                    monaca.viewport.adjust();
+                });
+            }
         };
     }
 
-    monaca.viewport.isIos = isIos;
     monaca.viewport.isAndroid = isAndroid;
-    monaca.viewport.isPCBrowser = function() {
-        return !isIos() && !isAndroid();
-    };
-    monaca.viewport.adjust = function() { };
-})();/*
+    monaca.viewport.isIOS     = isIOS;
+    monaca.viewport.adjust    = function() { };
+})();
+/*
  * cordova is available under *either* the terms of the modified BSD license *or* the
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  *

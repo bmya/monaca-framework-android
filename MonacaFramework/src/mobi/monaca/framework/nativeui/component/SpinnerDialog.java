@@ -117,7 +117,7 @@ public class SpinnerDialog extends Dialog {
 			}
 		}
 
-		AnimationDrawable animationDrawable = new AnimationDrawable();
+		final AnimationDrawable animationDrawable = new AnimationDrawable();
 
 		float frameHeight = (float) fullSpinner.getHeight() / numFrames;
 		int y = 0;
@@ -135,7 +135,7 @@ public class SpinnerDialog extends Dialog {
 		spinnerContent.setOrientation(LinearLayout.VERTICAL);
 		spinnerContent.setBackgroundColor(Color.TRANSPARENT);
 		
-		LinearLayout.LayoutParams imageViewParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		LinearLayout.LayoutParams imageViewParams = new LayoutParams(fullSpinner.getWidth(), Math.round(frameHeight));
 		imageViewParams.gravity = Gravity.CENTER;
 
 		ImageView imageView = new ImageView(context);
@@ -174,8 +174,13 @@ public class SpinnerDialog extends Dialog {
 		spinnerContentParams.gravity = Gravity.CENTER;
 		setContentView(spinnerContent, spinnerContentParams);
 
-		animationDrawable.setOneShot(false);
-		animationDrawable.start();
+		imageView.post(new Runnable() {
+			@Override
+			public void run() {
+				animationDrawable.setOneShot(false);
+				animationDrawable.start();
+			}
+		});
 	}
 	
 	public void updateTitleText(String title){
