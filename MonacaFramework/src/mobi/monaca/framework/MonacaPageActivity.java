@@ -719,9 +719,24 @@ public class MonacaPageActivity extends DroidGap {
 					} catch (JSONException e) {
 						MyLog.e(TAG, e.getMessage());
 					}
-					ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
-					int shadowViewHeight = cv.getShadowHeight();
-					appViewLayoutParams.bottomMargin = bottomViewHeight - shadowViewHeight;
+
+					final ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
+					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
+						@Override
+						public void onVisibilityChanged(int visibility) {
+							if (visibility == View.VISIBLE) {
+								int shadowViewHeight = cv.getShadowHeight();
+								appViewLayoutParams.bottomMargin = cv.getContainerViewHeight() - shadowViewHeight;
+							} else {
+								appViewLayoutParams.bottomMargin = 0;
+							}
+						}
+						@Override
+						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+							int shadowViewHeight = cv.getShadowHeight();
+							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
+						}
+					});
 				}
 			}
 		} else {
