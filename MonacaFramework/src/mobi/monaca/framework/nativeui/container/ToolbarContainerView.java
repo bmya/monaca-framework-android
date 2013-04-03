@@ -43,6 +43,8 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	boolean isTop = true;
 	private int mShadowHeight;
 	private ImageView titleImageView;
+	private int mDefaultSubtitleFontSize;
+	private int mDefaultTitleFontSize;
 
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
@@ -163,8 +165,8 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		titleView.setTextColor(0xffffffff);
 		titleView.setShadowLayer(1.0f, 0f, -1f, 0xcc000000);
 		titleView.setTypeface(null, Typeface.BOLD);
-		titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-				context.getFontSizeFromDip(Component.BIG_TITLE_TEXT_DIP));
+		mDefaultTitleFontSize = context.getFontSizeFromDip(Component.BIG_TITLE_TEXT_DIP);
+		titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mDefaultTitleFontSize);
 		
 		
 		titleImageView = new ImageView(context);
@@ -191,8 +193,9 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		subTitleMainTitleView.setShadowLayer(1.0f, 0f, -1f, 0xcc000000);
 		subTitleMainTitleView.setTypeface(null, Typeface.BOLD);
 		subTitleMainTitleView.setPadding(0, 0, 0, 0);
+		mDefaultSubtitleFontSize = context.getFontSizeFromDip(Component.TITLE_TEXT_DIP);
 		subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-				context.getFontSizeFromDip(Component.TITLE_TEXT_DIP));
+				mDefaultSubtitleFontSize);
 
 		subtitleView = new TextView(context);
 		subtitleView.setId(SUBTITLE_ID);
@@ -389,11 +392,12 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		try {
 			float titleFontScaleFloat = Float.parseFloat(titleFontScale);
 			if (titleView != null) {
-				titleView.setTextSize(titleFontScaleFloat);
+				
+				titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,titleFontScaleFloat * mDefaultTitleFontSize);
 			}
 
 			if (subTitleMainTitleView != null) {
-				subTitleMainTitleView.setTextSize(titleFontScaleFloat);
+				subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleFontScaleFloat * mDefaultSubtitleFontSize);
 			}
 
 		} catch (Exception e) {
@@ -408,7 +412,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		try {
 			float titleFontScaleFloat = Float.parseFloat(subtitleFontScale);
 			if (subtitleView != null) {
-				subtitleView.setTextSize(titleFontScaleFloat);
+				subtitleView.setTextSize(titleFontScaleFloat * mDefaultSubtitleFontSize);
 			}
 		} catch (Exception e) {
 			MyLog.e(TAG, e.getMessage());
