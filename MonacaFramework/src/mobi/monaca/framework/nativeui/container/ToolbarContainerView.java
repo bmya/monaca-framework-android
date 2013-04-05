@@ -386,6 +386,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	}
 
 	public void setTitleFontScale(String titleFontScale) {
+		MyLog.v(TAG, "settitle font scale");
 		if (titleFontScale == "")
 			return;
 
