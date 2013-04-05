@@ -120,7 +120,7 @@ public class DefaultStyleJSON {
 	public static JSONObject tabbarItem() {
 		JSONObject style = new JSONObject();
 		try {
-			style.put("visibility", true);
+			style.put("text", "");
 			style.put("opacity", 1.0);
 			style.put("backgroundColor", "#000000");
 		} catch (Exception e) {

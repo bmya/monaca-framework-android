@@ -30,15 +30,6 @@ public class UrlUtil {
 		return uri.endsWith(EMBEDDING_HASH);
 	}
 
-    static public String resolve(String url, String relativePath) {
-        try {
-            String result = new URI(url).resolve(relativePath).toString();
-            return result.contains("..") ? result.replace("../", "") : result;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 	static public String getResolvedUrl(String url) {
 		if (url.startsWith("file://")) {
 			try {
@@ -48,14 +39,6 @@ public class UrlUtil {
 		}
 		return url;
 	}
-
-    static public String normalize(String url) {
-        try {
-            return new URI(url).normalize().toString().replace("../", "");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static String cutHostInUri(String uri){
 		if(uri.contains(DELIMITTER)){

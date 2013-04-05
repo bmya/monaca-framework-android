@@ -28,20 +28,6 @@ public class UrlUtilTest extends AndroidTestCase {
 		assertFalse(UrlUtil.isEmbedding("file://data/data/hoge.foo/aaa.html#embeddinghoge"));
 	}
 
-	public void testResolveMethod() {
-		eq("http://hoge/fuga", UrlUtil.resolve("http://hoge/hoge", "fuga"));
-		eq("http://hoge/fuga", UrlUtil.resolve("http://hoge/hoge", "./fuga"));
-		eq("http://hoge/fuga", UrlUtil.resolve("http://hoge/hoge/hoge", "../fuga"));
-		eq("http://hoge/fuga", UrlUtil.resolve("http://hoge/hoge", "../fuga"));
-	}
-
-	public void testNormalizeMethod() {
-		eq("http://hoge/hoge", UrlUtil.normalize("http://hoge/hoge"));
-		eq("http://hoge/hoge", UrlUtil.normalize("http://hoge/./hoge"));
-		eq("http://hoge/hoge", UrlUtil.normalize("http://hoge/../hoge"));
-		eq("http://hoge/hoge", UrlUtil.normalize("http://hoge/../../hoge"));
-	}
-
 	public void testIsMonacaUriMethod() {
 		//Built project uri
 		assertTrue(UrlUtil.isMonacaUri(mContext, "file:///android_asset/"));
