@@ -393,11 +393,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 			float titleFontScaleFloat = Float.parseFloat(titleFontScale);
 			if (titleView != null) {
 				
-				titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,titleFontScaleFloat * mDefaultTitleFontSize);
-			}
-
-			if (subTitleMainTitleView != null) {
-				subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleFontScaleFloat * mDefaultSubtitleFontSize);
+				titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleFontScaleFloat * mDefaultTitleFontSize);
 			}
 
 		} catch (Exception e) {
