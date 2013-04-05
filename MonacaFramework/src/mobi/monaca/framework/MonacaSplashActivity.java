@@ -3,6 +3,7 @@ package mobi.monaca.framework;
 import java.io.IOException;
 import java.io.InputStream;
 
+import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;
 
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.Toast;
 
 import com.google.android.gcm.GCMRegistrar;
 
@@ -24,6 +26,13 @@ public class MonacaSplashActivity extends Activity {
 	private static final String TAG = MonacaSplashActivity.class.getSimpleName();
     protected static final String SPLASH_IMAGE_PATH = "android/splash_default.png";
     public static final String SHOWS_SPLASH_KEY = "showSplashAtFirst";
+
+    /**
+     * modify "false" to "true" this if want to use LocalFileBootloader
+     **/
+    @SuppressWarnings("unused")
+	protected static final boolean usesLocalFileBootloader = (false && LocalFileBootloader.needToUseLocalFileBootloader());
+
 	protected ImageView splashView;
 	protected JSONObject appJson;
 
@@ -35,34 +44,56 @@ public class MonacaSplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         loadAppJson();
         registerGCM();
-        if (hasSplashScreenExists()) {
-            splashView = new ImageView(this);
-            splashView.setScaleType(ScaleType.FIT_CENTER);
-            InputStream stream = getSplashFileStream();
-            splashView.setImageBitmap(BitmapFactory.decodeStream(stream));
-            splashView.setBackgroundColor(getBackgroundColor());
-            try {
-                stream.close();
-            } catch (Exception e) {
-            }
-            setContentView(splashView);
 
-            overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
+        setup();
+    }
 
-            handler = new Handler();
-            pageLauncher = new Runnable() {
-                @Override
-                public void run() {
-                    Intent intent = createActivityIntent();
-                    startActivity(intent);
-                    finish();
-                }
-            };
+    protected void setup() {
+    	Runnable pageActivityLauncher = new Runnable() {
+    		@Override
+    		public void run() {
+    			if (hasSplashScreenExists()) {
+    				splashView = new ImageView(getApplicationContext());
+    				splashView.setScaleType(ScaleType.FIT_CENTER);
+    				InputStream stream = getSplashFileStream();
+    				splashView.setImageBitmap(BitmapFactory.decodeStream(stream));
+    				splashView.setBackgroundColor(getBackgroundColor());
+    				try {
+    					stream.close();
+    				} catch (Exception e) {
+    				}
+    				setContentView(splashView);
 
-            handler.postDelayed(pageLauncher, 1000);
-        } else {
-        	goNextActivityWithoutSplash();
-        }
+    				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
+
+    				handler = new Handler();
+    				pageLauncher = new Runnable() {
+    					@Override
+    					public void run() {
+    						Intent intent = createActivityIntent();
+    						startActivity(intent);
+    						finish();
+    					}
+    				};
+
+    				handler.postDelayed(pageLauncher, 1000);
+    			} else {
+    				goNextActivityWithoutSplash();
+    			}
+    		}
+    	};
+
+    	if (!usesLocalFileBootloader) {
+    		pageActivityLauncher.run();
+    	} else {
+    		LocalFileBootloader.setup(this, pageActivityLauncher, new Runnable() {
+    			@Override
+    			public void run() {
+    				Toast.makeText(MonacaSplashActivity.this, "Application launch fail...", Toast.LENGTH_LONG).show();
+    				finish();
+    			}
+    		});
+    	}
     }
 
     protected void loadAppJson() {
