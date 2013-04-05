@@ -95,8 +95,8 @@ public class DefaultStyleJSON {
 			style.put("visibility", true);
 			style.put("disable", false);
 			style.put("opacity", 1.0);
-			style.put("backgroundColor", "#000000");
-			style.put("textColor", "#FFFFFF");
+			style.put("backgroundColor", "#FFFFFF");
+			style.put("textColor", "#000000");
 			style.put("focus", false);
 			style.put("placeholder", "");
 		} catch (Exception e) {
