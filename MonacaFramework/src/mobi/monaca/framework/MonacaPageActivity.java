@@ -682,6 +682,7 @@ public class MonacaPageActivity extends DroidGap {
 						public void onSizeChanged(int w, int h, int oldw, int oldh) {
 							int shadowViewHeight = cv.getShadowHeight();
 							appViewLayoutParams.topMargin = h - shadowViewHeight;
+							applyAppViewLayoutParams();
 						}
 
 						@Override
@@ -692,6 +693,11 @@ public class MonacaPageActivity extends DroidGap {
 							}else{
 								appViewLayoutParams.topMargin = 0;
 							}
+							applyAppViewLayoutParams();
+						}
+						
+						private void applyAppViewLayoutParams(){
+							appView.setLayoutParams(appViewLayoutParams);
 						}
 					});
 					
@@ -730,11 +736,17 @@ public class MonacaPageActivity extends DroidGap {
 							} else {
 								appViewLayoutParams.bottomMargin = 0;
 							}
+							applyAppViewLayoutParams();
 						}
 						@Override
 						public void onSizeChanged(int w, int h, int oldw, int oldh) {
 							int shadowViewHeight = cv.getShadowHeight();
 							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
+							applyAppViewLayoutParams();
+						}
+						
+						private void applyAppViewLayoutParams(){
+							appView.setLayoutParams(appViewLayoutParams);
 						}
 					});
 				}
