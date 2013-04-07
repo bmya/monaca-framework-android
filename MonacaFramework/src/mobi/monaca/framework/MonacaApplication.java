@@ -97,6 +97,11 @@ public class MonacaApplication extends Application {
 	}
 
 	public void showMonacaSpinnerDialog(UIContext uiContext, JSONArray args) throws Exception {
+		// dismiss old one if any
+		if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
+			monacaSpinnerDialog.dismiss();
+		}
+		
 		try {
 			monacaSpinnerDialog = new SpinnerDialog(uiContext, args);
 			monacaSpinnerDialog.setCancelable(true);

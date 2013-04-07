@@ -143,32 +143,34 @@ public class SpinnerDialog extends Dialog {
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		spinnerContent.addView(imageView, imageViewParams);
 		
+		
+		mTitleView = new TextView(getContext());
+		
+		float titleFontScale = (float) args.optDouble(7, 1.0f);
+		int defaultFontSize = context.getFontSizeFromDip(Component.SPINNER_TEXT_DIP);
+		float titleFontSize = titleFontScale * defaultFontSize;
+		mTitleView.setTextSize(titleFontSize);
+
+		String titleColor = args.optString(6, "#000000");
+		if(titleColor.equalsIgnoreCase("null")){
+			titleColor = "#000000";
+		}
+		
+		try{
+			mTitleView.setTextColor(Color.parseColor(titleColor));
+		}catch (IllegalArgumentException e){
+			throw new SpinnerDialogException("Spinner titleColor is invalid. You provided: " + titleColor);
+		}
+		
+		LinearLayout.LayoutParams titleParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		titleParams.gravity = Gravity.CENTER;
+		titleParams.topMargin = (int) (titleFontSize * 1.5);
+		spinnerContent.addView(mTitleView, titleParams);
 		String title = args.optString(5);
 		if (title != null && !TextUtils.isEmpty(title) && !title.equals("null")) {
-			mTitleView = new TextView(getContext());
 			mTitleView.setText(title);
-			
-			float titleFontScale = (float) args.optDouble(7, 1.0f);
-			int defaultFontSize = context.getFontSizeFromDip(Component.SPINNER_TEXT_DIP);
-			float titleFontSize = titleFontScale * defaultFontSize;
-			mTitleView.setTextSize(titleFontSize);
-
-			String titleColor = args.optString(6, "#000000");
-			if(titleColor.equalsIgnoreCase("null")){
-				titleColor = "#000000";
-			}
-			
-			try{
-				mTitleView.setTextColor(Color.parseColor(titleColor));
-			}catch (IllegalArgumentException e){
-				throw new SpinnerDialogException("Spinner titleColor is invalid. You provided: " + titleColor);
-			}
-			
-			LinearLayout.LayoutParams titleParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			titleParams.gravity = Gravity.CENTER;
-			titleParams.topMargin = (int) (titleFontSize * 1.5);
-			spinnerContent.addView(mTitleView, titleParams);
 		}
+			
 
 		FrameLayout.LayoutParams spinnerContentParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		spinnerContentParams.gravity = Gravity.CENTER;
