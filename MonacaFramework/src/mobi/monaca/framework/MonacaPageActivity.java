@@ -77,9 +77,11 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -290,21 +292,27 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MyLog.v(TAG, "onPrepareOptionMenu()");
-		if (uiBuilderResult != null) {
-			MyLog.v(TAG, "building menu");
-
-			menu.clear();
-			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
-			MyLog.v(TAG, "menuRepresentation:" + menuRepresentation);
-			if (menuRepresentation != null) {
-				menuRepresentation.configureMenu(uiContext, menu);
-			}
-
-			return true;
-		} else {
-			return false;
-		}
+		MyLog.e(TAG, "onPrepareOptionMenu()");
+//		FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams) appView.getLayoutParams();
+//		MyLog.e(TAG, "topMargin: " + params.topMargin + ", gravity: " + params.gravity);
+//		appView.setLayoutParams(params);
+		
+//		appView.postInvalidate();
+		appView.invalidate();
+		return true;
+//		if (uiBuilderResult != null) {
+//			MyLog.v(TAG, "building menu");
+//
+//			menu.clear();
+//			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
+//			MyLog.v(TAG, "menuRepresentation:" + menuRepresentation);
+//			if (menuRepresentation != null) {
+//				menuRepresentation.configureMenu(uiContext, menu);
+//			}
+//			return true;
+//		} else {
+//			return false;
+//		}
 	}
 
 	protected void prepare() {
@@ -680,6 +688,7 @@ public class MonacaPageActivity extends DroidGap {
 						
 						@Override
 						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+							MyLog.v(TAG, "TopToolBar onSizeChanged()");
 							int shadowViewHeight = cv.getShadowHeight();
 							appViewLayoutParams.topMargin = h - shadowViewHeight;
 							applyAppViewLayoutParams();
@@ -697,7 +706,13 @@ public class MonacaPageActivity extends DroidGap {
 						}
 						
 						private void applyAppViewLayoutParams(){
-							appView.setLayoutParams(appViewLayoutParams);
+							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
+							handler.post(new Runnable() {
+								@Override
+								public void run() {
+									appView.setLayoutParams(appViewLayoutParams);
+								}
+							});
 						}
 					});
 					
@@ -740,13 +755,20 @@ public class MonacaPageActivity extends DroidGap {
 						}
 						@Override
 						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+							MyLog.v(TAG, "Bottom Tabbar onSizeChanged()");
 							int shadowViewHeight = cv.getShadowHeight();
 							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
 							applyAppViewLayoutParams();
 						}
 						
 						private void applyAppViewLayoutParams(){
-							appView.setLayoutParams(appViewLayoutParams);
+							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
+							handler.post(new Runnable() {
+								@Override
+								public void run() {
+									appView.setLayoutParams(appViewLayoutParams);
+								}
+							});
 						}
 					});
 				}
@@ -759,6 +781,8 @@ public class MonacaPageActivity extends DroidGap {
 			root.addView(appView);
 			this.dict = new HashMap<String, Component>();
 		}
+		
+		root.requestLayout();
 	}
 	
 	public UIContext getUiContext() {
