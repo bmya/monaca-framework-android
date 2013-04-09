@@ -1,5 +1,8 @@
 package mobi.monaca.framework.nativeui.component;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import mobi.monaca.framework.nativeui.ComponentEventer;
 
 import mobi.monaca.framework.nativeui.UIContext;
@@ -28,7 +31,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
 
-public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateListener {
+public class SearchBoxComponent extends ToolbarComponent implements UIContext.OnRotateListener {
 
     protected UIContext context;
     protected JSONObject style;
@@ -37,22 +40,41 @@ public class SearchBoxComponent implements ToolbarComponent, UIContext.OnRotateL
     protected Button clearButton;
     protected ComponentEventer eventer;
 
-    public SearchBoxComponent(UIContext context, JSONObject style,
-            final ComponentEventer eventer) {
+    protected static Set<String> validKeys;
+	static{
+		validKeys = new HashSet<String>();
+		validKeys.add("component");
+		validKeys.add("style");
+		validKeys.add("id");
+		validKeys.add("event");
+	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+    public SearchBoxComponent(UIContext context, JSONObject searchBoxJSON) {
+	super(searchBoxJSON);
         this.context = context;
-        this.style = style != null ? style : new JSONObject();
-        this.eventer = eventer;
+	JSONObject searchBoxStyle = searchBoxJSON.optJSONObject("style");
+	this.style = searchBoxStyle != null ? searchBoxStyle : new JSONObject();
 
+	buildEventer();
         initView();
-
         style();
+
         try {
-            style.put("focus", false);
+	    searchBoxJSON.put("focus", false);
         } catch (JSONException e) {
         	throw new RuntimeException(e);
         }
 
         context.addOnRotateListener(this);
+    }
+
+    private void buildEventer() {
+	this.eventer = new ComponentEventer(context, getComponentJSON().optJSONObject("event"));
     }
 
     @Override

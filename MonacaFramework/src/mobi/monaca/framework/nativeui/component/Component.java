@@ -1,16 +1,46 @@
 package mobi.monaca.framework.nativeui.component;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import mobi.monaca.framework.util.MyLog;
+
 import org.json.JSONObject;
 
 import android.view.View;
 
-public interface Component {
+public abstract class Component {
+    private static final String TAG = Component.class.getSimpleName();
+    protected JSONObject componentJSON;
 
-    public View getView();
+    public Component(JSONObject compoJSON) {
+	this.componentJSON = compoJSON;
+	}
 
-    public void updateStyle(JSONObject update);
+	public abstract View getView();
 
-    public JSONObject getStyle();
+    public abstract void updateStyle(JSONObject update);
+
+    public abstract JSONObject getStyle();
+
+    public JSONObject getComponentJSON(){
+	return componentJSON;
+    }
+
+    public abstract Set<String> getValidKeys();
+
+    public void validate(){
+	JSONObject componentJSON = getComponentJSON();
+	Set<String> validKeys = getValidKeys();
+	Iterator keys = componentJSON.keys();
+	if(keys.hasNext()){
+		String key = (String) keys.next();
+		if(!validKeys.contains(key)){
+			MyLog.w(TAG, "KEY " + key + " IS NOT ONE OF VALID KEYS");
+		}
+	}
+    }
 
     public static final int BUTTON_TEXT_DIP = 14;
     public static final int LABEL_TEXT_DIP = 14;

@@ -3,6 +3,12 @@ package mobi.monaca.framework.nativeui.component;
 import static mobi.monaca.framework.nativeui.UIUtil.TAG;
 import static mobi.monaca.framework.nativeui.UIUtil.createBitmapWithColorFilter;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
@@ -10,6 +16,8 @@ import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.view.MonacaButton;
 import mobi.monaca.framework.util.MyLog;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -26,7 +34,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
-public class ButtonComponent implements ToolbarComponent {
+public class ButtonComponent extends ToolbarComponent {
 
 	protected UIContext context;
 	protected JSONObject style;
@@ -34,14 +42,29 @@ public class ButtonComponent implements ToolbarComponent {
 	protected MonacaButton button;
 	protected MonacaImageButton imageButton;
 	protected ComponentEventer eventer;
+	protected static Set<String> validKeys;
+	static{
+		validKeys = new HashSet<String>();
+		validKeys.add("component");
+		validKeys.add("style");
+		validKeys.add("iosStyle");
+		validKeys.add("androidStyle");
+		validKeys.add("id");
+		validKeys.add("event");
+	}
 
-	public ButtonComponent(UIContext context, JSONObject style,
-			final ComponentEventer eventer) {
+	public ButtonComponent(UIContext context, JSONObject buttonJSON){
+		super(buttonJSON);
 		this.context = context;
-		this.style = style != null ? style : new JSONObject();
-		this.eventer = eventer;
+		JSONObject buttonStyle = buttonJSON.optJSONObject("style");
+		this.style = buttonStyle != null ? buttonStyle : new JSONObject();
+		buildEventer();
 
 		initView();
+	}
+
+	private void buildEventer(){
+		this.eventer = new ComponentEventer(context, getComponentJSON().optJSONObject("event"));
 	}
 
 	public ComponentEventer getUIEventer() {
@@ -250,4 +273,11 @@ public class ButtonComponent implements ToolbarComponent {
 			}
 		}
 	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+
 }

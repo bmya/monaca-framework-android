@@ -1,5 +1,8 @@
 package mobi.monaca.framework.nativeui.container;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
@@ -22,7 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
 
-public class TabbarItem implements Component {
+public class TabbarItem extends Component {
 
     protected Drawable drawable;
     protected TabbarItemView view;
@@ -31,10 +34,26 @@ public class TabbarItem implements Component {
     protected String link;
     protected Handler handler;
 
-    public TabbarItem(UIContext context, String link, JSONObject style) {
-    	MyLog.v(TAG, "TabbarItem constructor. link:" + link  + ", style:" + style);
+    protected static Set<String> validKeys;
+	static{
+		validKeys = new HashSet<String>();
+		validKeys.add("component");
+		validKeys.add("style");
+		validKeys.add("link");
+		validKeys.add("id");
+	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+    public TabbarItem(UIContext context, String link, JSONObject tabbarItemJSON) {
+	super(tabbarItemJSON);
+	MyLog.v(TAG, "TabbarItem constructor. link:" + link  + ", style:" + tabbarItemJSON);
         this.view = new TabbarItemView(context);
-        this.style = style != null ? style : new JSONObject();
+	JSONObject tabbarItemStyle = tabbarItemJSON.optJSONObject("style");
+	this.style = tabbarItemStyle != null ? tabbarItemStyle : new JSONObject();
         this.link = link;
         this.context = context;
         this.handler = new Handler();

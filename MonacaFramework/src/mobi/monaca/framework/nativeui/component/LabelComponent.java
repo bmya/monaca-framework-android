@@ -4,6 +4,10 @@ import static mobi.monaca.framework.nativeui.UIUtil.buildColor;
 import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
 import static mobi.monaca.framework.nativeui.UIUtil.dip2px;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import mobi.monaca.framework.nativeui.UIContext;
 
 import org.json.JSONObject;
@@ -13,15 +17,30 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
-public class LabelComponent implements ToolbarComponent {
+public class LabelComponent extends ToolbarComponent {
 
     protected UIContext context;
     protected JSONObject style;
     protected TextView view;
 
-    public LabelComponent(UIContext context, JSONObject style) {
+    protected static Set<String> validKeys;
+	static{
+		validKeys = new HashSet<String>();
+		validKeys.add("style");
+		validKeys.add("component");
+		validKeys.add("id");
+	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+    public LabelComponent(UIContext context, JSONObject labelJSON) {
+	super(labelJSON);
         this.context = context;
-        this.style = style != null ? style : new JSONObject();
+	JSONObject labelStyle = labelJSON.optJSONObject("style");
+	this.style = labelStyle != null ? labelStyle : new JSONObject();
         this.view = new TextView(context);
         this.view.setGravity(Gravity.CENTER_VERTICAL);
 

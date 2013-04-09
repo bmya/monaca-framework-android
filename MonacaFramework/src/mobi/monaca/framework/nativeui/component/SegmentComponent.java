@@ -2,7 +2,9 @@ package mobi.monaca.framework.nativeui.component;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.UIContext;
@@ -23,7 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import static mobi.monaca.framework.nativeui.UIUtil.*;
 
-public class SegmentComponent implements ToolbarComponent {
+public class SegmentComponent extends ToolbarComponent {
 
     protected SegmentComponentView view;
     protected UIContext context;
@@ -32,15 +34,37 @@ public class SegmentComponent implements ToolbarComponent {
     protected int backgroundColor = 0xff555555;
     protected int pressedBackgroundColor;
 
-    public SegmentComponent(UIContext context, JSONObject style,
-            ComponentEventer eventer) {
+    protected static Set<String> validKeys;
+	static{
+		validKeys = new HashSet<String>();
+		validKeys.add("component");
+		validKeys.add("style");
+		validKeys.add("iosStyle");
+		validKeys.add("androidStyle");
+		validKeys.add("id");
+		validKeys.add("event");
+	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+    public SegmentComponent(UIContext context, JSONObject segmentJSON) {
+	super(segmentJSON);
         this.context = context;
-        this.style = style == null ? new JSONObject() : style;
+	JSONObject segmentStyle = segmentJSON.optJSONObject("style");
+	this.style = segmentStyle == null ? new JSONObject() : segmentStyle;
         this.view = new SegmentComponentView(context);
-        this.eventer = eventer;
+
+	buildEventer();
 
         style();
     }
+
+    private void buildEventer(){
+		this.eventer = new ComponentEventer(context, getComponentJSON().optJSONObject("event"));
+	}
 
     public JSONObject getStyle() {
         return style;

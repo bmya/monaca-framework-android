@@ -1,4 +1,11 @@
 package mobi.monaca.framework.nativeui.component;
 
-public interface ToolbarComponent extends Component {
+import org.json.JSONObject;
+
+public abstract class ToolbarComponent extends Component {
+
+	public ToolbarComponent(JSONObject compoJSON) {
+		super(compoJSON);
+	}
+
 }

@@ -1,12 +1,18 @@
 package mobi.monaca.framework.nativeui.component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIGravity;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.container.TabbarContainer;
+import mobi.monaca.framework.nativeui.container.ToolbarContainer;
+import mobi.monaca.framework.nativeui.exception.InvalidValueException;
+import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.TimeStamp;
 import mobi.monaca.utils.log.LogItem;
@@ -15,6 +21,7 @@ import mobi.monaca.utils.log.LogItem.Source;
 
 import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.R.integer;
@@ -34,19 +41,68 @@ import android.view.View;
  * Used for manipulating MonacaPageActivity background style
  * 
  */
-public class PageComponent implements Component {
+public class PageComponent extends Component {
 
 	private static final String TAG = PageComponent.class.getSimpleName();
 	private UIContext uiContext;
 	private JSONObject style;
 	private LayerDrawable mLayeredBackgroundDrawable;
 	private PageOrientation mScreenOrientation;
-	
-	
-	public PageComponent(UIContext uiContext, JSONObject style) {
+	protected Component topComponent;
+	protected Component bottomComponent;
+
+	protected static Set<String> validKeys;
+	static {
+		validKeys = new HashSet<String>();
+		validKeys.add("top");
+		validKeys.add("bottom");
+		validKeys.add("event");
+		validKeys.add("style");
+		validKeys.add("menu");
+	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws RequiredKeyNotFoundException {
+		super(pageJSON);
 		this.uiContext = uiContext;
-		this.style = style;
+		JSONObject pageStyle = pageJSON.optJSONObject("style");
+		this.style = pageStyle != null ? pageStyle : new JSONObject();
 		style();
+
+		try {
+			buildChildren();
+		} catch (InvalidValueException e) {
+			// TODO: SEND DEBUG LOG TO SERVER
+			e.printStackTrace();
+		}
+	}
+
+	private void buildChildren() throws RequiredKeyNotFoundException, InvalidValueException {
+		JSONObject topJSON = getComponentJSON().optJSONObject("top");
+		if (topJSON != null) {
+			// right now top is always toolbar
+			topComponent = new ToolbarContainer(uiContext, topJSON, true);
+		}
+
+		JSONObject bottomJSON = getComponentJSON().optJSONObject("bottom");
+		if (bottomJSON != null) {
+			String containerType;
+			try {
+				containerType = bottomJSON.getString("container");
+				if (containerType.equalsIgnoreCase("toolbar")) {
+					bottomComponent = new ToolbarContainer(uiContext, bottomJSON, false);
+				}
+				if (containerType.equalsIgnoreCase("tabbar")) {
+					bottomComponent = new TabbarContainer(uiContext, bottomJSON);
+				}
+			} catch (JSONException e) {
+				throw new RequiredKeyNotFoundException("top", "container");
+			}
+		}
 	}
 
 	@Override
@@ -54,6 +110,14 @@ public class PageComponent implements Component {
 		return null;
 	}
 	
+	public Component getTopComponent() {
+		return topComponent;
+	}
+
+	public Component getBottomComponent() {
+		return bottomComponent;
+	}
+
 	public PageOrientation getScreenOrientation() {
 		return mScreenOrientation;
 	}
@@ -76,7 +140,7 @@ public class PageComponent implements Component {
 
 	private void style() {
 		ArrayList<Drawable> layerList = new ArrayList<Drawable>();
-		
+
 		processScreenOrientation();
 
 		processPageStyleBackgroundColor(style, layerList);
@@ -86,16 +150,16 @@ public class PageComponent implements Component {
 		Drawable[] layers = new Drawable[layerList.size()];
 		mLayeredBackgroundDrawable = new LayerDrawable(layerList.toArray(layers));
 	}
-	
-	private void processScreenOrientation(){
+
+	private void processScreenOrientation() {
 		String screenOrientationString = style.optString("screenOrientation").trim();
-		if(TextUtils.isEmpty(screenOrientationString)){
+		if (TextUtils.isEmpty(screenOrientationString)) {
 			mScreenOrientation = PageOrientation.INHERIT;
-		}else if(screenOrientationString.equalsIgnoreCase("portrait")){
+		} else if (screenOrientationString.equalsIgnoreCase("portrait")) {
 			mScreenOrientation = PageOrientation.PORTRAIT;
-		}else if(screenOrientationString.equalsIgnoreCase("landscape")){
+		} else if (screenOrientationString.equalsIgnoreCase("landscape")) {
 			mScreenOrientation = PageOrientation.LANDSCAPE;
-		}else{
+		} else {
 			mScreenOrientation = PageOrientation.SENSOR;
 		}
 	}
@@ -137,7 +201,7 @@ public class PageComponent implements Component {
 	private void processPageStyleBackgroundColor(JSONObject pageStyle, ArrayList<Drawable> layerList) {
 		// // background color
 		String backgroundColorString = pageStyle.optString("backgroundColor").trim();
-		
+
 		// default
 		int color = Color.WHITE;
 		if (!backgroundColorString.equalsIgnoreCase("")) {
@@ -147,17 +211,17 @@ public class PageComponent implements Component {
 					color = Color.parseColor(backgroundColorString);
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
-					LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidColorValue: Cannot parse backgroundColor "
-							+ backgroundColorString, "", 0);
+					LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR,
+							"NativeComponent:InvalidColorValue: Cannot parse backgroundColor " + backgroundColorString, "", 0);
 					MyLog.sendBloadcastDebugLog(uiContext, logItem);
 				}
 			} else {
-				LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidColorValue: Cannot parse backgroundColor "
-						+ backgroundColorString, "", 0);
+				LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR,
+						"NativeComponent:InvalidColorValue: Cannot parse backgroundColor " + backgroundColorString, "", 0);
 				MyLog.sendBloadcastDebugLog(uiContext, logItem);
 			}
 		}
-		
+
 		ColorDrawable colorDrawable = new ColorDrawable(color);
 		layerList.add(colorDrawable);
 	}
@@ -214,10 +278,10 @@ public class PageComponent implements Component {
 								String percentageString = widthString.replace("%", "");
 								int percentage = Integer.parseInt(percentageString);
 								width = (int) (deviceWidth * percentage / 100);
-							} else if(widthString.endsWith("px")) {
+							} else if (widthString.endsWith("px")) {
 								widthString = widthString.replace("px", "");
 								width = Integer.parseInt(widthString);
-							}else{
+							} else {
 								widthString = widthString.replace("dip", "");
 								width = Integer.parseInt(widthString);
 								width = UIUtil.dip2px(uiContext, width);
@@ -229,17 +293,17 @@ public class PageComponent implements Component {
 								String percentageString = heightString.replace("%", "");
 								int percentage = Integer.parseInt(percentageString);
 								height = (int) (deviceHeight * percentage / 100);
-							} else  if(widthString.endsWith("px")) {
+							} else if (widthString.endsWith("px")) {
 								heightString = heightString.replace("px", "");
 								height = Integer.parseInt(heightString);
-							}else{
+							} else {
 								heightString = widthString.replace("dip", "");
 								height = Integer.parseInt(widthString);
 								height = UIUtil.dip2px(uiContext, width);
 							}
 						} else {
-							LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidColorValue: Cannot parse backgroundSize "
-									+ backgroundSize, "", 0);
+							LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR,
+									"NativeComponent:InvalidColorValue: Cannot parse backgroundSize " + backgroundSize, "", 0);
 							MyLog.sendBloadcastDebugLog(uiContext, logItem);
 						}
 
@@ -250,10 +314,10 @@ public class PageComponent implements Component {
 							String percentageString = widthString.replace("%", "");
 							int percentage = Integer.parseInt(percentageString);
 							width = (int) (deviceWidth * percentage / 100);
-						} else if(widthString.endsWith("px")) {
+						} else if (widthString.endsWith("px")) {
 							widthString = widthString.replace("px", "");
 							width = Integer.parseInt(widthString);
-						}else{
+						} else {
 							widthString = widthString.replace("dip", "");
 							width = Integer.parseInt(widthString);
 							width = UIUtil.dip2px(uiContext, width);
@@ -280,10 +344,10 @@ public class PageComponent implements Component {
 	}
 
 	private void processBackgroundPosition(JSONObject pageStyle, BitmapDrawable backgroundImage, boolean shouldSkipBackgroundPosition) {
-		if(shouldSkipBackgroundPosition){
+		if (shouldSkipBackgroundPosition) {
 			return;
 		}
-		
+
 		// // position
 		String horizontalPositionString = "center";
 		String verticalPositionString = "center";

@@ -8,9 +8,8 @@ import org.json.JSONObject;
 
 public class BackButtonComponent extends ButtonComponent {
 
-    public BackButtonComponent(UIContext context, JSONObject style,
-            ComponentEventer eventer) {
-        super(context, style, eventer);
+    public BackButtonComponent(UIContext context, JSONObject buttonJSON) {
+	super(context, buttonJSON);
 
         try {
             style.put("visibility", style.optBoolean("forceVisibility", false));

@@ -21,6 +21,7 @@ import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.UpdateStyleQuery;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.nativeui.component.PageOrientation;
 import mobi.monaca.framework.nativeui.container.ContainerViewInterface;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
@@ -152,6 +153,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected GCMPushDataset pushData;
 	private MonacaApplication mApp;
+	private PageComponent mPageComponent;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
@@ -542,7 +544,8 @@ public class MonacaPageActivity extends DroidGap {
 		ResultSet result = null;
 		try {
 			uiJSON = new JSONObject(uiString);
-			result = new UIBuilder(uiContext, uiJSON).build();
+			mPageComponent = new PageComponent(uiContext, uiJSON);
+//			result = new UIBuilder(uiContext, uiJSON).build();
 		} catch (JSONException e) {
 			UIUtil.reportJSONParseError(getApplicationContext(), e.getMessage());
 			return;

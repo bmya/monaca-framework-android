@@ -1,7 +1,9 @@
 package mobi.monaca.framework.nativeui.container;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
@@ -24,7 +26,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-public class TabbarContainer implements Component {
+public class TabbarContainer extends Component {
 
 	protected TabbarContainerView view;
 	protected Context context;
@@ -32,19 +34,42 @@ public class TabbarContainer implements Component {
 	protected List<TabbarItem> items;
 	protected Integer oldActiveIndex = null;
 
-	public TabbarContainer(UIContext context, List<TabbarItem> items, JSONObject style) {
-		MyLog.v(TAG, "TabbarContainer constructor. items:" + items + ", style:" + style);
-		this.context = context;
-		this.style = style == null ? new JSONObject() : style;
-		this.view = new TabbarContainerView(context);
-		this.items = items;
-
-		for (TabbarItem item : items) {
-			view.addTabbarItemView(item.getView());
-		}
-
-		style();
+	protected static Set<String> validKeys;
+	static{
+		validKeys = new HashSet<String>();
+		validKeys.add("container");
+		validKeys.add("id");
+		validKeys.add("style");
+		validKeys.add("items");
 	}
+
+	@Override
+	public Set<String> getValidKeys() {
+		return validKeys;
+	}
+
+	public TabbarContainer(UIContext context, JSONObject tabbarJSON) {
+		super(tabbarJSON);
+		this.context = context;
+		JSONObject tabbarJSONStyle = tabbarJSON.optJSONObject("style");
+		this.style = tabbarJSONStyle == null ? new JSONObject() : tabbarJSONStyle;
+	}
+
+//	public TabbarContainer(UIContext context, List<TabbarItem> items, JSONObject tabbarJSON) {
+//		super(tabbarJSON);
+//		MyLog.v(TAG, "TabbarContainer constructor. items:" + items + ", style:" + tabbarJSON);
+//		this.context = context;
+//		JSONObject tabbarJSONStyle = tabbarJSON.optJSONObject("style");
+//		this.style = tabbarJSONStyle == null ? new JSONObject() : tabbarJSONStyle;
+//		this.view = new TabbarContainerView(context);
+//		this.items = items;
+//
+//		for (TabbarItem item : items) {
+//			view.addTabbarItemView(item.getView());
+//		}
+//
+//		style();
+//	}
 
 	public void updateStyle(JSONObject update) {
 		oldActiveIndex = style.has("activeIndex") ? style.optInt("activeIndex", 0) : null;
