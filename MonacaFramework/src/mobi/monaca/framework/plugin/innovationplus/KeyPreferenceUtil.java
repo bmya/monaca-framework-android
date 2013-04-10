@@ -3,6 +3,7 @@ package mobi.monaca.framework.plugin.innovationplus;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 public class KeyPreferenceUtil {
@@ -52,8 +53,9 @@ public class KeyPreferenceUtil {
 
 	public static String getApplicationId(Context context) {
 		try {
-			ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), 128);
-			return currentApplicationId == null ? appInfo.metaData.getString("application_id") : currentApplicationId;
+			ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+			return currentApplicationId == null ? (appInfo.metaData != null ? appInfo.metaData.getString("application_id") : null)
+												: currentApplicationId;
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 			return null;
