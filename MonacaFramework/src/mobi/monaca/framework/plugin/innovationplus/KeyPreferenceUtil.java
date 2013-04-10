@@ -10,7 +10,7 @@ public class KeyPreferenceUtil {
 	private static final String PREF = "ipp_auth_pref";
 	private static final String KEY_AUTH ="ipp_auth_key";
 
-	private static String currentApplicationId;
+	private static String currentApplicationId = null;
 
 	private KeyPreferenceUtil() {};
 
@@ -54,8 +54,8 @@ public class KeyPreferenceUtil {
 	public static String getApplicationId(Context context) {
 		try {
 			ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-			return currentApplicationId == null ? (appInfo.metaData != null ? appInfo.metaData.getString("application_id") : null)
-												: currentApplicationId;
+			String idInManifest = (appInfo.metaData != null ? appInfo.metaData.getString("application_id") : null);
+			return currentApplicationId == null ? idInManifest : currentApplicationId;
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 			return null;
