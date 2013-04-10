@@ -2,11 +2,16 @@ package mobi.monaca.framework.plugin.innovationplus;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 
-public class AuthKeyPreferenceUtil {
+public class KeyPreferenceUtil {
 	private static final String PREF = "ipp_auth_pref";
 	private static final String KEY_AUTH ="ipp_auth_key";
-	private AuthKeyPreferenceUtil() {};
+
+	private static String currentApplicationId;
+
+	private KeyPreferenceUtil() {};
 
 	/**
 	 * get last saved auth key.
@@ -35,5 +40,19 @@ public class AuthKeyPreferenceUtil {
 	public static void removeAuthKey(Context context) {
 		SharedPreferences pref = context.getSharedPreferences(PREF, Context.MODE_PRIVATE);
 		pref.edit().clear().commit();
+	}
+
+	public static void setApplicationId(String id) {
+		currentApplicationId = id;
+	}
+
+	public static String getApplicationId(Context context) {
+		try {
+			ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), 128);
+			return currentApplicationId == null ? appInfo.metaData.getString("application_id") : currentApplicationId;
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -23,7 +23,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 
 	@Override
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-		final String authKey = AuthKeyPreferenceUtil.getAuthKey(context);
+		final String authKey = KeyPreferenceUtil.getAuthKey(context);
 
 		if (authKey.equals("")) {
 			callbackContext.error(InnovationPlusPlugin.ERROR_NO_AUTH_KEY);
@@ -89,6 +89,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 		}
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.delete(resourceName, resourceId, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int i) {
@@ -133,6 +134,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		//client.setDebugMessage(true);
 		client.create(resourceName, resource, new IPPQueryCallback<String>() {
 			@Override
@@ -178,6 +180,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 
 		IPPApplicationResourceClient client = new IPPApplicationResourceClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.createAll(args.optString(1), resources, new IPPQueryCallback<Void>() {
 			@Override
 			public void ippDidError(int i) {
@@ -216,7 +219,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			e.printStackTrace();
 			return;
 		}
-
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.get(resourceName, resourceId, new IPPQueryCallback<IPPApplicationResource>() {
 			@Override
 			public void ippDidError(int i) {
@@ -278,6 +281,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			condition.setUntil(param.getInt("until"));
 		} catch (JSONException e) {
 		}
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.query(resourceName, condition, new IPPQueryCallback<IPPApplicationResource[]>() {
 			@Override
 			public void ippDidError(int i) {

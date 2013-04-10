@@ -20,7 +20,7 @@ public class Geolocation extends CordovaPluginExecutor{
 
 	@Override
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-		final String authKey = AuthKeyPreferenceUtil.getAuthKey(context);
+		final String authKey = KeyPreferenceUtil.getAuthKey(context);
 
 		if (authKey.equals("")) {
 			callbackContext.error(InnovationPlusPlugin.ERROR_NO_AUTH_KEY);// TODO not commentouted in product
@@ -158,6 +158,7 @@ public class Geolocation extends CordovaPluginExecutor{
 		}
 
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.setAuthKey(authKey);
 		client.query(query, new IPPQueryCallback<IPPGeoLocation[]>() {
 			@Override
@@ -198,6 +199,7 @@ public class Geolocation extends CordovaPluginExecutor{
 
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.delete(resourceId, new IPPQueryCallback<String>() {
 			@Override
 			public void ippDidError(int arg0) {
@@ -227,7 +229,7 @@ public class Geolocation extends CordovaPluginExecutor{
 
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
 		client.setAuthKey(authKey);
-
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.createAll(postData, new IPPQueryCallback<Void>() {
 			@Override
 			public void ippDidFinishLoading(Void arg0) {
@@ -270,6 +272,7 @@ public class Geolocation extends CordovaPluginExecutor{
 		}
 
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.setAuthKey(authKey);
 		client.create(newRes, new IPPQueryCallback<String>() {
 			@Override
@@ -294,6 +297,7 @@ public class Geolocation extends CordovaPluginExecutor{
 
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.get(resourceId, new IPPQueryCallback<IPPGeoLocation>() {
 			@Override
 			public void ippDidFinishLoading(IPPGeoLocation arg0) {
@@ -318,6 +322,7 @@ public class Geolocation extends CordovaPluginExecutor{
 	private void retrieveOwnResource(JSONArray args, String authKey, final CallbackContext callbackContext) {
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.get(new IPPQueryCallback<IPPGeoLocation>() {
 			@Override
 			public void ippDidFinishLoading(IPPGeoLocation arg0) {
