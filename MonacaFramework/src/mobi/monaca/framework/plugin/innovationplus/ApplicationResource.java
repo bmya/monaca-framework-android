@@ -1,5 +1,6 @@
 package mobi.monaca.framework.plugin.innovationplus;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -268,7 +269,28 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
 			return;
 		}
+
 		IPPApplicationResourceClient.QueryCondition condition = new IPPApplicationResourceClient.QueryCondition();
+
+		if (param.has("query")) {
+			JSONObject query = null;
+			try {
+				query = param.getJSONObject("query");
+				Iterator<String> i = query.keys();
+				String key;
+				while (i.hasNext() && (key = i.next()) != null) {
+					condition.eq(key, query.opt(key));
+					if (i.hasNext()) {
+						condition.and();
+					}
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+				callbackContext.error(InnovationPlusPlugin.ERROR_INVALID_PARAMETER);
+				return;
+			}
+		}
+
 		try {
 			condition.setCount(param.getInt("count"));
 		} catch (JSONException e) {

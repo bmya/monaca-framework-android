@@ -42,6 +42,10 @@ public class KeyPreferenceUtil {
 		pref.edit().clear().commit();
 	}
 
+	/**
+	 * used by debugger
+	 * @param id
+	 */
 	public static void setApplicationId(String id) {
 		currentApplicationId = id;
 	}
