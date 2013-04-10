@@ -23,7 +23,7 @@ public class Profile extends CordovaPluginExecutor{
 		final String authKey = KeyPreferenceUtil.getAuthKey(context);
 
 		if (authKey.equals("")) {
-			callbackContext.error(InnovationPlusPlugin.ERROR_NO_AUTH_KEY);// TODO not commentouted in product
+			callbackContext.error(InnovationPlusPlugin.ERROR_NO_AUTH_KEY);
 			return true;
 		}
 
