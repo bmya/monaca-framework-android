@@ -315,12 +315,6 @@ public class ApplicationResource extends CordovaPluginExecutor {
 				JSONObject response = new JSONObject();
 				try {
 					int length = arg0.length;
-
-					if (length == 0) {
-						this.ippDidError(-10000);
-						return;
-					}
-
 					response.put("resultCount", length);
 					JSONArray resultArray  = new JSONArray();
 					for (int i = 0; i < length; i++) {
