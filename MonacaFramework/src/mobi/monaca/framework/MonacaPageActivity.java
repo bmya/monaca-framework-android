@@ -293,26 +293,16 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MyLog.e(TAG, "onPrepareOptionMenu()");
-//		FrameLayout.LayoutParams params = (android.widget.FrameLayout.LayoutParams) appView.getLayoutParams();
-//		MyLog.e(TAG, "topMargin: " + params.topMargin + ", gravity: " + params.gravity);
-//		appView.setLayoutParams(params);
-		
-//		appView.postInvalidate();
-		appView.invalidate();
-		return true;
-//		if (uiBuilderResult != null) {
-//			MyLog.v(TAG, "building menu");
-//
-//			menu.clear();
-//			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
-//			MyLog.v(TAG, "menuRepresentation:" + menuRepresentation);
-//			if (menuRepresentation != null) {
-//				menuRepresentation.configureMenu(uiContext, menu);
-//			}
-//			return true;
-//		} else {
-//			return false;
-//		}
+		if (uiBuilderResult != null) {
+			menu.clear();
+			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
+			if (menuRepresentation != null) {
+				menuRepresentation.configureMenu(uiContext, menu);
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	protected void prepare() {
