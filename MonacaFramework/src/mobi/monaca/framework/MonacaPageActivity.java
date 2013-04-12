@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Build.VERSION;
@@ -75,9 +77,11 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -154,6 +158,10 @@ public class MonacaPageActivity extends DroidGap {
 		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
 		
+		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED); 
+		}
+		
 		mApp = (MonacaApplication) getApplication();
 
 		// initialize receiver
@@ -188,8 +196,10 @@ public class MonacaPageActivity extends DroidGap {
 		// dirty fix for android4's strange bug
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_dialog_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_dialog_open_exit);
-		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
+		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_open_exit);
+		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_RIGHT) {
+			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_exit);
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
@@ -282,17 +292,13 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MyLog.v(TAG, "onPrepareOptionMenu()");
+		MyLog.e(TAG, "onPrepareOptionMenu()");
 		if (uiBuilderResult != null) {
-			MyLog.v(TAG, "building menu");
-
 			menu.clear();
 			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
-			MyLog.v(TAG, "menuRepresentation:" + menuRepresentation);
 			if (menuRepresentation != null) {
 				menuRepresentation.configureMenu(uiContext, menu);
 			}
-
 			return true;
 		} else {
 			return false;
@@ -323,7 +329,7 @@ public class MonacaPageActivity extends DroidGap {
 		if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 			setTheme(mobi.monaca.framework.psedo.R.style.MonacaDialogTheme);
-		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
+		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 			setTheme(mobi.monaca.framework.psedo.R.style.MonacaSlideTheme);
 		} else {
 		}
@@ -420,9 +426,21 @@ public class MonacaPageActivity extends DroidGap {
 	public void init() {
 		CordovaWebView webView = new MonacaWebView(this);
 		// Fix webview bug on ICS_MR1 where webview background is always white when hardware accerleration is on
-		if(VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
+		if (VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
+		
+		if (uiContext.getSettings().forceDisableWebviewGPU) {
+    		Method method;
+    		try {
+    		    method = webView.getClass().getMethod("setLayerType", new Class[]{ int.class, Paint.class });
+    		    method.invoke(webView, new Object[]{ View.LAYER_TYPE_SOFTWARE, null });
+        		MyLog.v(TAG, "webview.setLayerType() is done.");
+    		} catch (Exception e) {
+        		MyLog.v(TAG, "webview.setLayerType() is fail.");
+            }
+		}
+		
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
@@ -660,8 +678,10 @@ public class MonacaPageActivity extends DroidGap {
 						
 						@Override
 						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+							MyLog.v(TAG, "TopToolBar onSizeChanged()");
 							int shadowViewHeight = cv.getShadowHeight();
 							appViewLayoutParams.topMargin = h - shadowViewHeight;
+							applyAppViewLayoutParams();
 						}
 
 						@Override
@@ -672,6 +692,17 @@ public class MonacaPageActivity extends DroidGap {
 							}else{
 								appViewLayoutParams.topMargin = 0;
 							}
+							applyAppViewLayoutParams();
+						}
+						
+						private void applyAppViewLayoutParams(){
+							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
+							handler.post(new Runnable() {
+								@Override
+								public void run() {
+									appView.setLayoutParams(appViewLayoutParams);
+								}
+							});
 						}
 					});
 					
@@ -699,9 +730,37 @@ public class MonacaPageActivity extends DroidGap {
 					} catch (JSONException e) {
 						MyLog.e(TAG, e.getMessage());
 					}
-					ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
-					int shadowViewHeight = cv.getShadowHeight();
-					appViewLayoutParams.bottomMargin = bottomViewHeight - shadowViewHeight;
+
+					final ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
+					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
+						@Override
+						public void onVisibilityChanged(int visibility) {
+							if (visibility == View.VISIBLE) {
+								int shadowViewHeight = cv.getShadowHeight();
+								appViewLayoutParams.bottomMargin = cv.getContainerViewHeight() - shadowViewHeight;
+							} else {
+								appViewLayoutParams.bottomMargin = 0;
+							}
+							applyAppViewLayoutParams();
+						}
+						@Override
+						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+							MyLog.v(TAG, "Bottom Tabbar onSizeChanged()");
+							int shadowViewHeight = cv.getShadowHeight();
+							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
+							applyAppViewLayoutParams();
+						}
+						
+						private void applyAppViewLayoutParams(){
+							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
+							handler.post(new Runnable() {
+								@Override
+								public void run() {
+									appView.setLayoutParams(appViewLayoutParams);
+								}
+							});
+						}
+					});
 				}
 			}
 		} else {
@@ -712,6 +771,8 @@ public class MonacaPageActivity extends DroidGap {
 			root.addView(appView);
 			this.dict = new HashMap<String, Component>();
 		}
+		
+		root.requestLayout();
 	}
 	
 	public UIContext getUiContext() {
@@ -1106,9 +1167,12 @@ public class MonacaPageActivity extends DroidGap {
 			if (transitionParams.animationType == TransitionParams.TransitionAnimationType.MODAL) {
 				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_dialog_close_enter,
 						mobi.monaca.framework.psedo.R.anim.monaca_dialog_close_exit);
-			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.TRANSIT) {
+			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_close_enter,
 						mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
+			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_RIGHT) {
+				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_right_close_enter,
+						mobi.monaca.framework.psedo.R.anim.monaca_slide_right_close_exit);
 			} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 				overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 			}

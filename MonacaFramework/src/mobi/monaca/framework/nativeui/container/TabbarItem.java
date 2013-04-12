@@ -68,7 +68,7 @@ public class TabbarItem implements Component {
         String imagePath = style.optString("image");
 		if (imagePath.length() > 0) {
         	MyLog.v(TAG, "we have image icon for Tabbar!");
-            Bitmap bitmap = context.readBitmap(imagePath);
+            Bitmap bitmap = context.readScaledBitmap(imagePath);
             if (bitmap != null) {
                 view.setIconBitmap(bitmap);
             }

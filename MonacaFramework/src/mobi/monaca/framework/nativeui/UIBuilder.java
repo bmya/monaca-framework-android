@@ -89,15 +89,15 @@ public class UIBuilder {
 		if (componentId.equals("backButton")) {
 			resultSet.backButtonEventer = new ComponentEventer(context, json.optJSONObject("event"));
 
-			component = new BackButtonComponent(context, buildStyleJSONObject(json), new ComponentEventer(context, json.optJSONObject("event")));
+			component = new BackButtonComponent(context, buildStyleJSONObject(json, DefaultStyleJSON.backButton()), new ComponentEventer(context, json.optJSONObject("event")));
 		} else if (componentId.equals("button")) {
-			component = new ButtonComponent(context, buildStyleJSONObject(json), new ComponentEventer(context, json.optJSONObject("event")));
+			component = new ButtonComponent(context, buildStyleJSONObject(json, DefaultStyleJSON.button()), new ComponentEventer(context, json.optJSONObject("event")));
 		} else if (componentId.equals("searchBox")) {
-			component = new SearchBoxComponent(context, buildStyleJSONObject(json), new ComponentEventer(context, json.optJSONObject("event")));
+			component = new SearchBoxComponent(context, buildStyleJSONObject(json, DefaultStyleJSON.searchBox()), new ComponentEventer(context, json.optJSONObject("event")));
 		} else if (componentId.equals("label")) {
-			component = new LabelComponent(context, buildStyleJSONObject(json));
+			component = new LabelComponent(context, buildStyleJSONObject(json, DefaultStyleJSON.label()));
 		} else if (componentId.equals("segment")) {
-			component = new SegmentComponent(context, buildStyleJSONObject(json), new ComponentEventer(context, json.optJSONObject("event")));
+			component = new SegmentComponent(context, buildStyleJSONObject(json, DefaultStyleJSON.segment()), new ComponentEventer(context, json.optJSONObject("event")));
 		} else {
 			// fail
 			return Collections.emptyList();
@@ -126,7 +126,7 @@ public class UIBuilder {
 		if (json.optString("container").equals("toolbar")) {
 
 			ToolbarContainer toolbar = new ToolbarContainer(context, buildToolbarComponents(json.optJSONArray("left"), resultSet), buildToolbarComponents(
-					json.optJSONArray("center"), resultSet), buildToolbarComponents(json.optJSONArray("right"), resultSet), buildStyleJSONObject(json), isTop);
+					json.optJSONArray("center"), resultSet), buildToolbarComponents(json.optJSONArray("right"), resultSet), buildStyleJSONObject(json, DefaultStyleJSON.toolbar()), isTop);
 			if (json.optString("id", "").length() > 0) {
 				resultSet.dict.put(json.optString("id", ""), toolbar);
 			}
@@ -141,7 +141,7 @@ public class UIBuilder {
 
 		if (json.optString("container").equals("tabbar")) {
 
-			TabbarContainer tabbar = new TabbarContainer(context, buildTabbarItems(json.optJSONArray("items"), resultSet), buildStyleJSONObject(json));
+			TabbarContainer tabbar = new TabbarContainer(context, buildTabbarItems(json.optJSONArray("items"), resultSet), buildStyleJSONObject(json, DefaultStyleJSON.tabbar()));
 			if (json.optString("id").length() > 0) {
 				resultSet.dict.put(json.optString("id"), tabbar);
 			}
@@ -179,7 +179,7 @@ public class UIBuilder {
 		// MyLog.v(TAG, "buildTabbarItem(). json=" + json + ", resultSet:" +
 		// resultSet);
 		String componentId = json.optString("component");
-		JSONObject style = buildStyleJSONObject(json);
+		JSONObject style = buildStyleJSONObject(json, DefaultStyleJSON.tabbarItem());
 
 		if (componentId.equals("tabbarItem")) {
 			TabbarItem item = new TabbarItem(context, json.optString("link"), style);
@@ -210,7 +210,7 @@ public class UIBuilder {
 		} catch (JSONException e) {
 			pageBackgroundStyleJsonObject = new JSONObject();
 		}
-		
+
 		resultSet.pageComponent = buildPageComponent(pageBackgroundStyleJsonObject);
 		if (uiJSON.optString("id").length() > 0) {
 			resultSet.dict.put(uiJSON.optString("id"), resultSet.pageComponent);
@@ -235,7 +235,7 @@ public class UIBuilder {
 		}
 	}
 
-	protected JSONObject buildStyleJSONObject(JSONObject component) {
+	protected JSONObject buildStyleJSONObject(JSONObject component, JSONObject defaultValuesJson) {
 		// MyLog.v(TAG, "buildStyleJSONObject(). component=" + component);
 		JSONObject style = component.optJSONObject("style");
 		style = style != null ? style : new JSONObject();
@@ -243,7 +243,7 @@ public class UIBuilder {
 		JSONObject androidStyle = component.optJSONObject("androidStyle");
 		androidStyle = androidStyle != null ? androidStyle : new JSONObject();
 
-		JSONObject result = new JSONObject();
+		JSONObject result = defaultValuesJson;
 
 		Iterator<String> keys = style.keys();
 		while (keys.hasNext()) {

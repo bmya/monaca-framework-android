@@ -27,7 +27,9 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
@@ -38,6 +40,7 @@ public class MonacaApplication extends Application {
 	protected static Map<String, MenuRepresentation> menuMap = null;
 	protected static MonacaApplication self = null;
 	private SpinnerDialog monacaSpinnerDialog;
+    protected static InternalSettings settings = null;
 
 	protected JSONObject appJson;
 
@@ -94,6 +97,11 @@ public class MonacaApplication extends Application {
 	}
 
 	public void showMonacaSpinnerDialog(UIContext uiContext, JSONArray args) throws Exception {
+		// dismiss old one if any
+		if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
+			monacaSpinnerDialog.dismiss();
+		}
+		
 		try {
 			monacaSpinnerDialog = new SpinnerDialog(uiContext, args);
 			monacaSpinnerDialog.setCancelable(true);
@@ -205,13 +213,26 @@ public class MonacaApplication extends Application {
 	public static List<MonacaPageActivity> getPages() {
 		return pages != null ? pages : new ArrayList<MonacaPageActivity>();
 	}
+	
+	/** Get Monaca's internal settings object */
+    public static InternalSettings getInternalSettings() {
+        if (settings == null) {
+            try {
+                settings = new InternalSettings(self.getPackageManager().getApplicationInfo(self.getPackageName(), PackageManager.GET_META_DATA).metaData);
+            } catch (Exception e) {
+                Log.d(self.getClass().getSimpleName(), "InternalSettings initialization fail", e);
+                settings = new InternalSettings(new Bundle());
+            }
+            
+        }
+        return settings;
+    }
 
 	@Override
 	public void onTerminate() {
 		MyLog.i(TAG, "onTerminate()");
 		pages = null;
 		menuMap = null;
-
 		self = null;
 
 		super.onTerminate();
@@ -246,4 +267,5 @@ public class MonacaApplication extends Application {
 			}
 		}.execute();
 	}
+    
 }

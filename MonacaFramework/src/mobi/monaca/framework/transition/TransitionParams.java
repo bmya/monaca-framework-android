@@ -11,7 +11,7 @@ public class TransitionParams implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public static enum TransitionAnimationType {
-        TRANSIT, MODAL, NONE, POP, DISMISS
+        SLIDE_LEFT, SLIDE_RIGHT, MODAL, NONE, POP, DISMISS
     }
 
     public final TransitionAnimationType animationType;
@@ -50,8 +50,10 @@ public class TransitionParams implements Serializable {
         String orientationString = json.optString("orientation", "portrait");
         TransitionAnimationType animationType = null;
 
-        if (animationTypeString.equals("transit")) {
-            animationType = TransitionAnimationType.TRANSIT;
+        if (animationTypeString.equals("slideLeft")) {
+            animationType = TransitionAnimationType.SLIDE_LEFT;
+        } else if (animationTypeString.equals("slideRight")) {
+        	animationType = TransitionAnimationType.SLIDE_RIGHT;
         } else if (animationTypeString.equals("modal")) {
             animationType = TransitionAnimationType.MODAL;
         } else if (animationTypeString.equals("none")) {
@@ -82,7 +84,7 @@ public class TransitionParams implements Serializable {
     }
 
     public static TransitionParams createDefaultParams(int orientation) {
-        return new TransitionParams(TransitionAnimationType.TRANSIT, "",
+        return new TransitionParams(TransitionAnimationType.SLIDE_LEFT, "",
                orientation);
     }
 }

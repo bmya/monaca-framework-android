@@ -5,16 +5,21 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
+import mobi.monaca.framework.InternalSettings;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -33,6 +38,7 @@ public class UIContext extends ContextWrapper {
     protected DisplayMetrics metrics;
     protected SparseIntArray computedFontSizeCache = new SparseIntArray();
     protected ArrayList<OnRotateListener> onRotateListeners = new ArrayList<OnRotateListener>();
+    protected InternalSettings settings;
 
     public UIContext(String uiFilePath, MonacaPageActivity pageActivity) {
         super(pageActivity);
@@ -41,8 +47,14 @@ public class UIContext extends ContextWrapper {
 
         metrics = new DisplayMetrics();
         pageActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        
+        this.settings = MonacaApplication.getInternalSettings();
     }
-
+    
+    public InternalSettings getSettings() {
+        return this.settings;
+    }
+    
     public DisplayMetrics getDisplayMetrics() {
         return metrics;
     }
@@ -78,7 +90,7 @@ public class UIContext extends ContextWrapper {
 		pageActivity.setCurrentUri(resolvedUri);
 	}
 
-    public Bitmap readBitmap(String path) {
+    public Bitmap readScaledBitmap(String path) {
         path = resolve(path);
 
         try {
@@ -200,5 +212,4 @@ public class UIContext extends ContextWrapper {
     public int getUIOrientation() {
         return pageActivity.getResources().getConfiguration().orientation;
     }
-
 }

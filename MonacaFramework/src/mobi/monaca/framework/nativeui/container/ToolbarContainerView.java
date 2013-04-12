@@ -1,8 +1,9 @@
 package mobi.monaca.framework.nativeui.container;
 
+import static mobi.monaca.framework.nativeui.UIUtil.dip2px;
+
 import java.util.List;
 
-import static mobi.monaca.framework.nativeui.UIUtil.*;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
@@ -10,10 +11,11 @@ import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
-
 import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -31,7 +33,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	protected ToolbarContainerViewListener mContainerSizeListener;
 	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper,
-			titleSubtitleWrapper;
+			titleSubtitleWrapper, titleImageWrapper;
 	protected UIContext context;
 	protected FrameLayout content;
 	private TextView titleView;
@@ -40,6 +42,9 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	private View shadowView;
 	boolean isTop = true;
 	private int mShadowHeight;
+	private ImageView titleImageView;
+	private int mDefaultSubtitleFontSize;
+	private int mDefaultTitleFontSize;
 
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
@@ -125,14 +130,16 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
 			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
 		}
+		
+		int borderWidth = context.getSettings().disableUIContainerBorder ? 0 : 1;
 
 		addView(createBorderView(), new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, 1));
+				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 		addView(content, new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT,
-				UIUtil.dip2px(getContext(), CONTAINER_HEIGHT)) );
+				LinearLayout.LayoutParams.WRAP_CONTENT));
 		addView(createBorderView(), new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, 1));
+				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 		
 		// top toolbar -> shadow is under
 		if(isTop){
@@ -140,7 +147,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 			shadowView.setBackgroundResource(R.drawable.shadow_bg);
 			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
 		}
-		
 		
 		left = new LinearLayout(context);
 		left.setOrientation(LinearLayout.HORIZONTAL);
@@ -159,14 +165,27 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		titleView.setTextColor(0xffffffff);
 		titleView.setShadowLayer(1.0f, 0f, -1f, 0xcc000000);
 		titleView.setTypeface(null, Typeface.BOLD);
-		titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-				context.getFontSizeFromDip(Component.BIG_TITLE_TEXT_DIP));
+		mDefaultTitleFontSize = context.getFontSizeFromDip(Component.BIG_TITLE_TEXT_DIP);
+		titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mDefaultTitleFontSize);
+		
+		
+		titleImageView = new ImageView(context);
 
 		titleWrapper = new LinearLayout(context);
 		titleWrapper.setOrientation(LinearLayout.HORIZONTAL);
 		titleWrapper.setVisibility(View.GONE);
 		titleWrapper.setGravity(Gravity.CENTER);
 		titleWrapper.addView(titleView);
+		
+		titleImageWrapper = new LinearLayout(context);
+		titleImageWrapper.setOrientation(LinearLayout.HORIZONTAL);
+		titleImageWrapper.setVisibility(View.GONE);
+		titleImageWrapper.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
+		titleImageWrapper.addView(titleImageView, new LinearLayout.LayoutParams(
+	        LinearLayout.LayoutParams.WRAP_CONTENT, 
+	        LinearLayout.LayoutParams.WRAP_CONTENT,
+	        Gravity.CENTER)
+        );
 
 		subTitleMainTitleView = new TextView(context);
 		subTitleMainTitleView.setId(TITLE_ID);
@@ -174,8 +193,9 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		subTitleMainTitleView.setShadowLayer(1.0f, 0f, -1f, 0xcc000000);
 		subTitleMainTitleView.setTypeface(null, Typeface.BOLD);
 		subTitleMainTitleView.setPadding(0, 0, 0, 0);
+		mDefaultSubtitleFontSize = context.getFontSizeFromDip(Component.TITLE_TEXT_DIP);
 		subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-				context.getFontSizeFromDip(Component.TITLE_TEXT_DIP));
+				mDefaultSubtitleFontSize);
 
 		subtitleView = new TextView(context);
 		subtitleView.setId(SUBTITLE_ID);
@@ -215,6 +235,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 				FrameLayout.LayoutParams.WRAP_CONTENT,
 				FrameLayout.LayoutParams.MATCH_PARENT, Gravity.CENTER));
 		center.setGravity(Gravity.CENTER);
+		content.addView(titleImageWrapper, p);
 		content.addView(titleWrapper, p);
 		content.addView(titleSubtitleWrapper, p);
 	}
@@ -227,28 +248,42 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		return shadowView;
 	}
 	
-	public void setTitleSubtitle(String title, String subtitle) {
+	public void setTitleImage(Drawable drawable) {
+	}
+
+	public void setTitleSubtitle(String title, String subtitle, Bitmap titleImage) {
 		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:"
 				+ subtitle);
 
-		if (subtitle.length() > 0) {
+		if (titleImage != null) {
+			titleImageWrapper.setVisibility(View.VISIBLE);
+			titleSubtitleWrapper.setVisibility(View.GONE);
+			titleWrapper.setVisibility(View.GONE);
+			center.setVisibility(View.GONE);
+		} else if (subtitle.length() > 0) {
 			titleSubtitleWrapper.setVisibility(View.VISIBLE);
 			titleWrapper.setVisibility(View.GONE);
 			center.setVisibility(View.GONE);
+			titleImageWrapper.setVisibility(View.GONE);
 		} else if (title.length() > 0) {
 			titleWrapper.setVisibility(View.VISIBLE);
 			center.setVisibility(View.GONE);
 			titleSubtitleWrapper.setVisibility(View.GONE);
+			titleImageWrapper.setVisibility(View.GONE);
 		} else {
 			titleWrapper.setVisibility(View.GONE);
 			center.setVisibility(View.VISIBLE);
 			titleSubtitleWrapper.setVisibility(View.GONE);
+			titleImageWrapper.setVisibility(View.GONE);
 		}
 
 		((TextView) titleWrapper.findViewById(TITLE_ID)).setText(title);
 		((TextView) titleSubtitleWrapper.findViewById(TITLE_ID)).setText(title);
 		((TextView) titleSubtitleWrapper.findViewById(SUBTITLE_ID))
 				.setText(subtitle);
+		if (titleImage != null) {
+    		titleImageView.setImageBitmap(titleImage);
+		}
 	}
 
 	public void setRightView(List<ToolbarComponent> list) {
@@ -256,7 +291,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		for (Component component : list) {
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
-					LinearLayout.LayoutParams.MATCH_PARENT);
+					LinearLayout.LayoutParams.WRAP_CONTENT);
 			params.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
 			params.setMargins(dip2px(context, 4), 0, 0, 0);
 			right.addView(component.getView(), params);
@@ -268,7 +303,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		for (Component component : list) {
 			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 					LinearLayout.LayoutParams.WRAP_CONTENT,
-					LinearLayout.LayoutParams.MATCH_PARENT);
+					LinearLayout.LayoutParams.WRAP_CONTENT);
 			params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
 			params.setMargins(0, 0, dip2px(context, 4), 0);
 			left.addView(component.getView(), params);
@@ -293,7 +328,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.WRAP_CONTENT,
-						LinearLayout.LayoutParams.MATCH_PARENT);
+						LinearLayout.LayoutParams.WRAP_CONTENT);
 				params.setMargins(dip2px(context, 2), 0, dip2px(context, 2), 0);
 				params.weight = 1;
 
@@ -308,7 +343,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 			for (Component component : list) {
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.WRAP_CONTENT,
-						LinearLayout.LayoutParams.MATCH_PARENT);
+						LinearLayout.LayoutParams.WRAP_CONTENT);
 				params.setMargins(dip2px(context, 2), 0, dip2px(context, 2), 0);
 
 				if (component instanceof SearchBoxComponent) {
@@ -351,17 +386,15 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	}
 
 	public void setTitleFontScale(String titleFontScale) {
+		MyLog.v(TAG, "settitle font scale");
 		if (titleFontScale == "")
 			return;
 
 		try {
 			float titleFontScaleFloat = Float.parseFloat(titleFontScale);
 			if (titleView != null) {
-				titleView.setTextSize(titleFontScaleFloat);
-			}
-
-			if (subTitleMainTitleView != null) {
-				subTitleMainTitleView.setTextSize(titleFontScaleFloat);
+				
+				titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleFontScaleFloat * mDefaultTitleFontSize);
 			}
 
 		} catch (Exception e) {
@@ -376,7 +409,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		try {
 			float titleFontScaleFloat = Float.parseFloat(subtitleFontScale);
 			if (subtitleView != null) {
-				subtitleView.setTextSize(titleFontScaleFloat);
+				subtitleView.setTextSize(titleFontScaleFloat * mDefaultSubtitleFontSize);
 			}
 		} catch (Exception e) {
 			MyLog.e(TAG, e.getMessage());
