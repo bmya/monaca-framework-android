@@ -51,6 +51,7 @@ public class MonacaWebView extends CordovaWebView {
 	}
 
 	protected void init() {
+		resumeTimers();
 		loadCordovaConfigurationFromManifest();
 		notBackButton = true;
 	}
