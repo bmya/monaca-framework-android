@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import android.widget.Toast;
 
-//TODO not tested
 public class User extends CordovaPluginExecutor{
 
 	public User(CordovaInterface cordovaInterface) {
@@ -31,15 +30,15 @@ public class User extends CordovaPluginExecutor{
 			}
 		}
 		if (action.equals("getAuthKey")) {
-			callbackContext.success(AuthKeyPreferenceUtil.getAuthKey(context));
+			callbackContext.success(KeyPreferenceUtil.getAuthKey(context));
 			return true;
 		}
 		if (action.equals("logout")) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					AuthKeyPreferenceUtil.removeAuthKey(context);
-					if (AuthKeyPreferenceUtil.getAuthKey(context).equals("")) {
+					KeyPreferenceUtil.removeAuthKey(context);
+					if (KeyPreferenceUtil.getAuthKey(context).equals("")) {
 						callbackContext.success();
 					} else {
 						MyLog.d("user", "unexpected error occured");
@@ -57,6 +56,7 @@ public class User extends CordovaPluginExecutor{
 			@Override
 			public void run() {
 				IPPLoginClient loginClient = new IPPLoginClient(context);
+				loginClient.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 				try {
 					loginClient.login(loginSet.getString("username"), loginSet.getString("password"), new IPPQueryCallback<IPPLoginResult>() {
 						@Override
@@ -66,7 +66,7 @@ public class User extends CordovaPluginExecutor{
 							try {
 								String authKey = arg0.getAuth_key();
 								result.put("auth_key", authKey);
-								AuthKeyPreferenceUtil.saveAuthKey(context, authKey);
+								KeyPreferenceUtil.saveAuthKey(context, authKey);
 								callback.success(result);
 							} catch (JSONException e) {
 								callback.error(InnovationPlusPlugin.ERROR_WITH_EXCEPTION); // this code is defined by this plugin.
