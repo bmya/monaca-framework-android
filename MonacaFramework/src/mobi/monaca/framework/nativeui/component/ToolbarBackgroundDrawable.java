@@ -45,10 +45,8 @@ public class ToolbarBackgroundDrawable extends Drawable {
         }
         drawable.draw(new Canvas(bitmap));
 
-        Drawable filteredDrawable = new NonScaleBitmapDrawable(bitmap);
-        filteredDrawable.setAlpha(alpha);
-        filteredDrawable.draw(canvas);
-        filteredDrawable = null;
+        canvas.drawBitmap(bitmap, 0, 0, new Paint());
+        canvas.drawColor((alpha & 0xff) << 24, PorterDuff.Mode.DST_IN);
 
         bitmap.recycle();
     }
