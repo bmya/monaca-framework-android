@@ -1,18 +1,27 @@
 package mobi.monaca.framework.nativeui.component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
+import mobi.monaca.framework.nativeui.ComponentEventer;
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.UIEventer;
 import mobi.monaca.framework.nativeui.UIGravity;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.container.TabbarContainer;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.exception.InvalidValueException;
+import mobi.monaca.framework.nativeui.exception.MenuNameNotDefinedInAppMenuFileException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
+import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.TimeStamp;
 import mobi.monaca.utils.log.LogItem;
@@ -45,43 +54,48 @@ public class PageComponent extends Component {
 
 	private static final String TAG = PageComponent.class.getSimpleName();
 	private UIContext uiContext;
-	private JSONObject style;
 	private LayerDrawable mLayeredBackgroundDrawable;
 	private PageOrientation mScreenOrientation;
 	protected Component topComponent;
 	protected Component bottomComponent;
+	public static ComponentEventer BACK_BUTTON_EVENTER;
+	public UIEventer eventer;
+	public String menuName;
 
-	protected static Set<String> validKeys;
-	static {
-		validKeys = new HashSet<String>();
-		validKeys.add("top");
-		validKeys.add("bottom");
-		validKeys.add("event");
-		validKeys.add("style");
-		validKeys.add("menu");
-	}
+	protected static String[] validKeys = {
+		"top",
+		"bottom",
+		"event",
+		"style",
+		"menu"
+	};
 
 	@Override
-	public Set<String> getValidKeys() {
+	public String[] getValidKeys() {
 		return validKeys;
 	}
 
-	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws RequiredKeyNotFoundException {
+	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws NativeUIException {
 		super(pageJSON);
 		this.uiContext = uiContext;
-		JSONObject pageStyle = pageJSON.optJSONObject("style");
-		this.style = pageStyle != null ? pageStyle : new JSONObject();
+		JSONObject event = getComponentJSON().optJSONObject("event");
+		if(event != null) {
+			eventer = new UIEventer(uiContext, getComponentJSON().optJSONObject("event"));
+		}
+		menuName = getComponentJSON().optString("menu");
+		if( !TextUtils.isEmpty(menuName) ) {
+			MonacaApplication app = (MonacaApplication) uiContext.getPageActivity().getApplication();
+			MenuRepresentation menuRepresentation = app.findMenuRepresentation(menuName);
+			if(menuRepresentation == null){
+				throw new MenuNameNotDefinedInAppMenuFileException(getComponentName(), menuName);
+			}
+		}
 		style();
 
-		try {
-			buildChildren();
-		} catch (InvalidValueException e) {
-			// TODO: SEND DEBUG LOG TO SERVER
-			e.printStackTrace();
-		}
+		buildChildren();
 	}
 
-	private void buildChildren() throws RequiredKeyNotFoundException, InvalidValueException {
+	private void buildChildren() throws NativeUIException {
 		JSONObject topJSON = getComponentJSON().optJSONObject("top");
 		if (topJSON != null) {
 			// right now top is always toolbar
@@ -133,16 +147,9 @@ public class PageComponent extends Component {
 		uiContext.getPageActivity().setupBackground(mLayeredBackgroundDrawable);
 	}
 
-	@Override
-	public JSONObject getStyle() {
-		return style;
-	}
-
 	private void style() {
 		ArrayList<Drawable> layerList = new ArrayList<Drawable>();
-
 		processScreenOrientation();
-
 		processPageStyleBackgroundColor(style, layerList);
 		processPageStyleBackgroundImage(style, layerList);
 		processPageStyleBackgroundRepeat(layerList);
@@ -385,5 +392,15 @@ public class PageComponent extends Component {
 			}
 		}
 		backgroundImage.setGravity(horizontalGravity | verticalGravity);
+	}
+
+	@Override
+	public String getComponentName() {
+		return "Page";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.page();
 	}
 }

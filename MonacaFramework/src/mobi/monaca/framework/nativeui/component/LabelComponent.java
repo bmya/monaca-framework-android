@@ -8,7 +8,9 @@ import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 import java.util.HashSet;
 import java.util.Set;
 
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONObject;
 
@@ -20,29 +22,20 @@ import android.widget.TextView;
 public class LabelComponent extends ToolbarComponent {
 
     protected UIContext context;
-    protected JSONObject style;
     protected TextView view;
 
-    protected static Set<String> validKeys;
-	static{
-		validKeys = new HashSet<String>();
-		validKeys.add("style");
-		validKeys.add("component");
-		validKeys.add("id");
-	}
+    protected static String[] validKeys = {
+		"style",
+		"component",
+		"id",
+	};
 
-	@Override
-	public Set<String> getValidKeys() {
-		return validKeys;
-	}
 
-    public LabelComponent(UIContext context, JSONObject labelJSON) {
+    public LabelComponent(UIContext context, JSONObject labelJSON) throws NativeUIException {
 	super(labelJSON);
-        this.context = context;
-	JSONObject labelStyle = labelJSON.optJSONObject("style");
-	this.style = labelStyle != null ? labelStyle : new JSONObject();
-        this.view = new TextView(context);
-        this.view.setGravity(Gravity.CENTER_VERTICAL);
+	this.context = context;
+	this.view = new TextView(context);
+	this.view.setGravity(Gravity.CENTER_VERTICAL);
 
         style();
     }
@@ -50,10 +43,6 @@ public class LabelComponent extends ToolbarComponent {
     public void updateStyle(JSONObject update) {
         updateJSONObject(style, update);
         style();
-    }
-
-    public JSONObject getStyle() {
-        return style;
     }
 
     public View getView() {
@@ -87,4 +76,19 @@ public class LabelComponent extends ToolbarComponent {
             view.setBackgroundColor(0);
         }
     }
+
+	@Override
+	public String getComponentName() {
+		return "Label";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.label();
+	}
+
+	@Override
+	public String[] getValidKeys() {
+		return validKeys;
+	}
 }

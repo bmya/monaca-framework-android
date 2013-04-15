@@ -24,6 +24,7 @@ import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.nativeui.component.PageOrientation;
 import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
+import mobi.monaca.framework.nativeui.container.Container;
 import mobi.monaca.framework.nativeui.container.ContainerViewInterface;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.container.ToolbarContainerViewListener;
@@ -106,11 +107,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected Drawable background = null;
 
-	protected HashMap<String, Component> dict;
-
 	protected Handler handler = new Handler();
-
-	protected UIBuilder.ResultSet uiBuilderResult = null;
 
 	protected int pageIndex = 0;
 
@@ -152,7 +149,6 @@ public class MonacaPageActivity extends DroidGap {
 	protected JSONObject infoForJavaScript = new JSONObject();
 	protected String mCurrentHtml;
 	private ScreenReceiver mScreenReceiver;
-
 	protected GCMPushDataset pushData;
 	private MonacaApplication mApp;
 	private PageComponent mPageComponent;
@@ -161,11 +157,11 @@ public class MonacaPageActivity extends DroidGap {
 	public void onCreate(Bundle savedInstance) {
 		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
-		
-//		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
-//			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-//		}
-		
+
+		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
+			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+		}
+
 		mApp = (MonacaApplication) getApplication();
 
 		// initialize receiver
@@ -297,9 +293,9 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MyLog.e(TAG, "onPrepareOptionMenu()");
-		if (uiBuilderResult != null) {
+		if (mPageComponent != null) {
 			menu.clear();
-			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(uiBuilderResult.menuName);
+			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(mPageComponent.menuName);
 			if (menuRepresentation != null) {
 				menuRepresentation.configureMenu(uiContext, menu);
 			}
@@ -508,7 +504,7 @@ public class MonacaPageActivity extends DroidGap {
 			transitionParams = TransitionParams.createDefaultParams(this.getRequestedOrientation());
 		}
 
-		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
+		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/test/autotest/pages/all.html");
 
 		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
 		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
@@ -532,23 +528,21 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		JSONObject uiJSON;
-		ResultSet result = null;
 		try {
 			uiJSON = new JSONObject(uiString);
 			mPageComponent = new PageComponent(uiContext, uiJSON);
-//			result = new UIBuilder(uiContext, uiJSON).build();
 		} catch (JSONException e) {
+			e.printStackTrace();
 			UIUtil.reportJSONParseError(getApplicationContext(), e.getMessage());
 			return;
 		} catch (Exception e) {
-//			MyLog.e(TAG, e.getMessage());
 			e.printStackTrace();
 			LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
 			MyLog.sendBloadcastDebugLog(getContext(), logItem);
 			return;
 		}
 
-		applyUiToView(result);
+		applyUiToView();
 	}
 
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
@@ -573,206 +567,9 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-//	protected void applyUiToView(ResultSet result) {
-//		MyLog.d(TAG, "applyUiToView()");
-//
-//		uiBuilderResult = result;
-//		this.dict = result.dict;
-//
-//		setupBackground(result.pageComponent.getBackgroundDrawable());
-//		applyScreenOrientation(result.pageComponent.getScreenOrientation());
-//
-//		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//		params.setMargins(0, 0, 0, 0);
-//
-//		if (result.bottomView != null || result.topView != null) {
-//			MyLog.v(TAG, "result.bottomView != null || result.topView != null");
-//
-//			if (hasOpacityBar(result)) {
-//				MyLog.v(TAG, "hasOpacityBar");
-//
-//				FrameLayout frame = new FrameLayout(this);
-//				LinearLayout nativeUIViews = new LinearLayout(this);
-//				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
-//
-//				root.removeAllViews();
-//				MyLog.v(TAG, "root.removeAllViews()");
-//				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-//
-//				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
-//				if (appViewParent != null) {
-//					appViewParent.removeAllViews();
-//				}
-//
-//				frame.addView(appView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-//				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-//
-//				// top bar view
-//				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
-//
-//				// center
-//				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-//
-//				// bottom bar view
-//				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
-//
-//				if (result.topView != null) {
-//					MyLog.v(TAG, "result.topView != null");
-//					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-//					int topViewHeight = result.topView.getMeasuredHeight();
-//					try {
-//						infoForJavaScript.put("topViewHeight", topViewHeight);
-//					} catch (JSONException e) {
-//						MyLog.e(TAG, e.getMessage());
-//					}
-//				}
-//				if (result.bottomView != null) {
-//					MyLog.v(TAG, "result.bottomView != null");
-//					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-//					int bottomViewHeight = result.bottomView.getMeasuredHeight();
-//					try {
-//						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
-//					} catch (JSONException e) {
-//						MyLog.e(TAG, e.getMessage());
-//					}
-//				}
-//			} else {
-//				MyLog.v(TAG, "noOpacityBar");
-//				root.removeAllViews();
-//				MyLog.v(TAG, "root.removeAllViews()");
-//
-//				FrameLayout frame = new FrameLayout(this);
-//				LinearLayout nativeUIViews = new LinearLayout(this);
-//				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
-//
-//				root.removeAllViews();
-//				MyLog.v(TAG, "root.removeAllViews()");
-//				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-//
-//				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
-//				if (appViewParent != null) {
-//					appViewParent.removeAllViews();
-//				}
-//
-//				final android.widget.FrameLayout.LayoutParams appViewLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-//				appViewLayoutParams.gravity = Gravity.TOP; // a bug in 2.*.* where the topMargin is not respected without gravity = TOP
-//
-//				if (result.topView != null) {
-//					MyLog.v(TAG, "result.topView != null");
-//					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-//					int topViewHeight = result.topView.getMeasuredHeight();
-//					try {
-//						infoForJavaScript.put("topViewHeight", topViewHeight);
-//					} catch (JSONException e) {
-//						MyLog.e(TAG, e.getMessage());
-//					}
-//
-//					final ContainerViewInterface cv = (ContainerViewInterface) result.topView;
-//					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
-//
-//						@Override
-//						public void onSizeChanged(int w, int h, int oldw, int oldh) {
-//							MyLog.v(TAG, "TopToolBar onSizeChanged()");
-//							int shadowViewHeight = cv.getShadowHeight();
-//							appViewLayoutParams.topMargin = h - shadowViewHeight;
-//							applyAppViewLayoutParams();
-//						}
-//
-//						@Override
-//						public void onVisibilityChanged(int visibility) {
-//							if(visibility == View.VISIBLE){
-//								int shadowViewHeight = cv.getShadowHeight();
-//								appViewLayoutParams.topMargin =  cv.getContainerViewHeight() - shadowViewHeight;
-//							}else{
-//								appViewLayoutParams.topMargin = 0;
-//							}
-//							applyAppViewLayoutParams();
-//						}
-//
-//						private void applyAppViewLayoutParams(){
-//							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
-//							handler.post(new Runnable() {
-//								@Override
-//								public void run() {
-//									appView.setLayoutParams(appViewLayoutParams);
-//								}
-//							});
-//						}
-//					});
-//
-//				}
-//
-//				frame.addView(appView, appViewLayoutParams);
-//				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-//
-//				// top bar view
-//				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
-//
-//				// center
-//				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-//
-//				// bottom bar view
-//				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
-//
-//				if (result.bottomView != null) {
-//					MyLog.v(TAG, "result.bottomView != null");
-//					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-//					int bottomViewHeight = result.bottomView.getMeasuredHeight();
-//					try {
-//						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
-//					} catch (JSONException e) {
-//						MyLog.e(TAG, e.getMessage());
-//					}
-//
-//					final ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
-//					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
-//						@Override
-//						public void onVisibilityChanged(int visibility) {
-//							if (visibility == View.VISIBLE) {
-//								int shadowViewHeight = cv.getShadowHeight();
-//								appViewLayoutParams.bottomMargin = cv.getContainerViewHeight() - shadowViewHeight;
-//							} else {
-//								appViewLayoutParams.bottomMargin = 0;
-//							}
-//							applyAppViewLayoutParams();
-//						}
-//						@Override
-//						public void onSizeChanged(int w, int h, int oldw, int oldh) {
-//							MyLog.v(TAG, "Bottom Tabbar onSizeChanged()");
-//							int shadowViewHeight = cv.getShadowHeight();
-//							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
-//							applyAppViewLayoutParams();
-//						}
-//
-//						private void applyAppViewLayoutParams(){
-//							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
-//							handler.post(new Runnable() {
-//								@Override
-//								public void run() {
-//									appView.setLayoutParams(appViewLayoutParams);
-//								}
-//							});
-//						}
-//					});
-//				}
-//			}
-//		} else {
-//			MyLog.v(TAG, "Reverse of result.bottomView != null || result.topView != null");
-//			((ViewGroup) appView.getParent()).removeView(appView);
-//			root.removeAllViews();
-//			MyLog.v(TAG, "root.removeAllViews()");
-//			root.addView(appView);
-//			this.dict = new HashMap<String, Component>();
-//		}
-//
-//		root.requestLayout();
-//	}
 
-	protected void applyUiToView(ResultSet result) {
+	protected void applyUiToView() {
 		MyLog.d(TAG, "applyUiToView()");
-
 
 		setupBackground(mPageComponent.getBackgroundDrawable());
 		applyScreenOrientation(mPageComponent.getScreenOrientation());
@@ -791,10 +588,31 @@ public class MonacaPageActivity extends DroidGap {
 		ToolbarContainer topComponent = (ToolbarContainer) mPageComponent.getTopComponent();
 		int topComponentViewId = 0;
 		if (topComponent != null){
+			// view
 			topComponentViewId = topComponent.getView().getId();
 			RelativeLayout.LayoutParams topComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			topComponentParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			container.addView(topComponent.getView(), topComponentParams);
+
+			// shadow
+			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			shadowViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
+			container.addView(topComponent.getShadowView(), shadowViewParams);
+		}
+
+		// bottom
+		Container bottomComponentContainer = (Container) mPageComponent.getBottomComponent();
+		int bottomComponentContainerViewId = 0;
+		if(bottomComponentContainer != null){
+			bottomComponentContainerViewId = bottomComponentContainer.getView().getId();
+			RelativeLayout.LayoutParams bottomComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			bottomComponentParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			container.addView(bottomComponentContainer.getView(), bottomComponentParams);
+
+			// shadow
+			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			shadowViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
+			container.addView(bottomComponentContainer.getShadowView(), shadowViewParams);
 		}
 
 		// webview
@@ -805,20 +623,16 @@ public class MonacaPageActivity extends DroidGap {
 		}else{
 			webViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
 		}
+
+		if(bottomComponentContainer != null && bottomComponentContainer.isTransparent()){
+			webViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else{
+			webViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
+		}
 		container.addView(appView, 0,  webViewParams);
 
-		// top shadow
-//		if (topComponent != null){
-//			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-//			shadowViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
-//			container.addView(topComponent.getShadowView(), shadowViewParams);
-//		}
-
-
-		
-		this.dict = new HashMap<String, Component>();
 	}
-	
+
 	public UIContext getUiContext() {
 		return uiContext;
 	}
@@ -865,8 +679,9 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Retrieve a style of Native UI Framework component. */
 	public JSONObject getStyle(String componentId) {
-		if (dict.containsKey(componentId)) {
-			return dict.get(componentId).getStyle();
+		if (mPageComponent.getComponentIdMap().containsKey(componentId)) {
+			Component component = mPageComponent.getComponentIdMap().get(componentId);
+			return component.getStyle();
 		}
 
 		return null;
@@ -889,8 +704,8 @@ public class MonacaPageActivity extends DroidGap {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
 
-						if (dict != null && dict.containsKey(componentId)) {
-							Component component = dict.get(componentId);
+						if (mPageComponent.getComponentIdMap() != null && mPageComponent.getComponentIdMap().containsKey(componentId)) {
+							Component component = mPageComponent.getComponentIdMap().get(componentId);
 							if (component != null) {
 								component.updateStyle(query.style);
 								MyLog.d(MonacaPageActivity.class.getSimpleName(), "updated => id: " + componentId + ", style: " + query.style.toString());
@@ -1035,11 +850,10 @@ public class MonacaPageActivity extends DroidGap {
 			background = null;
 		}
 
-		if (dict != null) {
-			dict.clear();
+		if (mPageComponent != null) {
+			mPageComponent.getComponentIdMap().clear();
+			mPageComponent = null;
 		}
-		dict = null;
-		uiBuilderResult = null;
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		closePageReceiver = null;
@@ -1173,12 +987,12 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.d(TAG, "debug - onKeyDown");
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 
-			if (uiBuilderResult != null && uiBuilderResult.eventer.hasOnTapBackButtonAction()) {
+			if (mPageComponent != null && mPageComponent.eventer != null && mPageComponent.eventer.hasOnTapBackButtonAction()) {
 				MyLog.d(TAG, "debug - Run backButtonEventer.onTapBackButtonAction()");
-				uiBuilderResult.eventer.onTapBackButton();
-			} else if (uiBuilderResult != null && uiBuilderResult.backButtonEventer != null) {
+				mPageComponent.eventer.onTapBackButton();
+			} else if (mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null) {
 				MyLog.d(TAG, "debug - Run backButtonEventer.onTap()");
-				uiBuilderResult.backButtonEventer.onTap();
+				PageComponent.BACK_BUTTON_EVENTER.onTap();
 			} else {
 				MyLog.d(TAG, "debug - Run popPage()");
 				popPage();

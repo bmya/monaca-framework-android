@@ -22,7 +22,9 @@ import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.SegmentComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarBackgroundDrawable;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
+import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
 import mobi.monaca.framework.nativeui.exception.InvalidValueException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
@@ -42,26 +44,24 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 
-public class ToolbarContainer extends Component {
+public class ToolbarContainer extends Container {
 	protected UIContext context;
 	protected ToolbarContainerView view;
 	protected ToolbarComponent left, center, right;
-	protected JSONObject style;
 	protected AlphaAnimation animation = null;
+	private ContainerShadowView shadowView;
 	protected static final int mContainerViewID = 1001;
 
-	protected static Set<String> validKeys;
-	static {
-		validKeys = new HashSet<String>();
-		validKeys.add("container");
-		validKeys.add("style");
-		validKeys.add("iosStyle");
-		validKeys.add("androidStyle");
-		validKeys.add("id");
-		validKeys.add("left");
-		validKeys.add("center");
-		validKeys.add("right");
-	}
+	protected static String[] validKeys = {
+		"container",
+		"style",
+		"iosStyle",
+		"androidStyle",
+		"id",
+		"left",
+		"center",
+		"right"
+	};
 
 	protected static String[] validComponents = {"backButton",
 												"button",
@@ -70,40 +70,19 @@ public class ToolbarContainer extends Component {
 												"segment"
 	};
 
-	@Override
-	public Set<String> getValidKeys() {
-		return validKeys;
-	}
 
-	// public ToolbarContainer(UIContext context, List<ToolbarComponent> left,
-	// List<ToolbarComponent> center, List<ToolbarComponent> right,
-	// JSONObject toolbarJSON, boolean isTop) {
-	// super(toolbarJSON);
-	// view = new ToolbarContainerView(context, isTop);
-	// JSONObject toolbarStyle = toolbarJSON.optJSONObject("style");
-	// this.style = toolbarStyle != null ? toolbarStyle : new JSONObject();
-	// this.context = context;
-	//
-	// view.setLeftView(left);
-	// view.setRightView(right);
-	// view.setCenterView(center, left.size() == 0 && right.size() == 0);
-	//
-	// style();
-	// }
-
-	public ToolbarContainer(UIContext context, JSONObject toolbarJSON, boolean isTop) throws InvalidValueException {
+	public ToolbarContainer(UIContext context, JSONObject toolbarJSON, boolean isTop) throws NativeUIException {
 		super(toolbarJSON);
+		this.context = context;
 		view = new ToolbarContainerView(context, isTop);
 		view.setId(mContainerViewID);
-		this.context = context;
-		JSONObject toolbarStyle = toolbarJSON.optJSONObject("style");
-		this.style = toolbarStyle != null ? toolbarStyle : new JSONObject();
+		shadowView = new ContainerShadowView(context, isTop);
 
 		buildChildren();
 		style();
 	}
 
-	private void buildChildren() throws InvalidValueException {
+	private void buildChildren() throws NativeUIException {
 		JSONArray left = getComponentJSON().optJSONArray("left");
 		if (left != null) {
 			ArrayList<ToolbarComponent> leftComponents = buildComponents(left);
@@ -126,7 +105,7 @@ public class ToolbarContainer extends Component {
 		}
 	}
 
-	private ArrayList<ToolbarComponent> buildComponents(JSONArray left) throws InvalidValueException {
+	private ArrayList<ToolbarComponent> buildComponents(JSONArray left) throws NativeUIException {
 		ArrayList<ToolbarComponent> leftComponents = new ArrayList<ToolbarComponent>();
 		ToolbarComponent component;
 		JSONObject componentJSON;
@@ -138,30 +117,26 @@ public class ToolbarContainer extends Component {
 		return leftComponents;
 	}
 
-	private ToolbarComponent buildComponent(JSONObject childJSON) throws InvalidValueException{
-		String componentId = childJSON.optString("component");
-		if (componentId.equals("backButton")) {
+	private ToolbarComponent buildComponent(JSONObject childJSON) throws NativeUIException{
+		String componentType = childJSON.optString("component");
+		if (componentType.equals("backButton")) {
 			return new BackButtonComponent(context, childJSON);
-		} else if (componentId.equals("button")) {
+		} else if (componentType.equals("button")) {
 			return new ButtonComponent(context, childJSON);
-		} else if (componentId.equals("searchBox")) {
+		} else if (componentType.equals("searchBox")) {
 			return new SearchBoxComponent(context, childJSON);
-		} else if (componentId.equals("label")) {
+		} else if (componentType.equals("label")) {
 			return new LabelComponent(context, childJSON);
-		} else if (componentId.equals("segment")) {
+		} else if (componentType.equals("segment")) {
 			return new SegmentComponent(context, childJSON);
 		}else{
-			throw new InvalidValueException("Toolbar", "component", componentId, validComponents);
+			throw new InvalidValueException("Toolbar", "component", componentType, validComponents);
 		}
 	}
 
 	public void updateStyle(JSONObject update) {
 		updateJSONObject(style, update);
 		style();
-	}
-
-	public JSONObject getStyle() {
-		return style;
 	}
 
 	public View getView() {
@@ -235,14 +210,13 @@ public class ToolbarContainer extends Component {
 
 		Drawable toolbarBackground = new ToolbarBackgroundDrawable(context);
 		toolbarBackground.setColorFilter(filter);
-//		toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+		toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
 
 		view.getContentView().setBackgroundDrawable(toolbarBackground);
 
 		double shadowOpacity = style.optDouble("shadowOpacity", 0.3);
 		double relativeShadowOpacity = toolbarOpacity * shadowOpacity;
-		MyLog.v(TAG, "shadowOpacity:" + shadowOpacity + ", relativeShadowOpacity:" + relativeShadowOpacity);
-//		view.getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
+		shadowView.getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
 
 		view.setBackgroundDrawable(null);
 		view.setBackgroundColor(0);
@@ -264,5 +238,24 @@ public class ToolbarContainer extends Component {
 	public boolean isTransparent() {
 		double opacity = style.optDouble("opacity", 1.0);
 		return opacity <= 0.999;
+	}
+
+	public View getShadowView() {
+		return shadowView;
+	}
+
+	@Override
+	public String getComponentName() {
+		return "Toolbar";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.toolbar();
+	}
+
+	@Override
+	public String[] getValidKeys() {
+		return validKeys;
 	}
 }

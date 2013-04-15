@@ -5,8 +5,10 @@ import java.util.Set;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
 
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
@@ -34,34 +36,29 @@ import static mobi.monaca.framework.nativeui.UIUtil.*;
 public class SearchBoxComponent extends ToolbarComponent implements UIContext.OnRotateListener {
 
     protected UIContext context;
-    protected JSONObject style;
     protected EditText searchEditText;
     protected FrameLayout layout;
     protected Button clearButton;
     protected ComponentEventer eventer;
 
-    protected static Set<String> validKeys;
-	static{
-		validKeys = new HashSet<String>();
-		validKeys.add("component");
-		validKeys.add("style");
-		validKeys.add("id");
-		validKeys.add("event");
-	}
+    protected static String[] validKeys = {
+		"component",
+		"style",
+		"id",
+		"event"
+	};
 
 	@Override
-	public Set<String> getValidKeys() {
+	public String[] getValidKeys() {
 		return validKeys;
 	}
 
-    public SearchBoxComponent(UIContext context, JSONObject searchBoxJSON) {
+    public SearchBoxComponent(UIContext context, JSONObject searchBoxJSON) throws NativeUIException {
 	super(searchBoxJSON);
-        this.context = context;
-	JSONObject searchBoxStyle = searchBoxJSON.optJSONObject("style");
-	this.style = searchBoxStyle != null ? searchBoxStyle : new JSONObject();
+	this.context = context;
 
 	buildEventer();
-        initView();
+	initView();
         style();
 
         try {
@@ -216,5 +213,15 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
                 buildOpacity(style.optDouble("opacity", 1.0))));
         updateWidthForOrientation(context.getUIOrientation());
     }
+
+	@Override
+	public String getComponentName() {
+		return "SearchBox";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.searchBox();
+	}
 
 }

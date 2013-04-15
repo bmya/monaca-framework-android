@@ -128,4 +128,8 @@ public class DefaultStyleJSON {
 		}
 		return style;
 	}
+	public static JSONObject page() {
+		JSONObject style = new JSONObject();
+		return style;
+	}
 }

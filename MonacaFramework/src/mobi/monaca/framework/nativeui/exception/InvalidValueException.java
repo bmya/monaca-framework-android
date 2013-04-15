@@ -16,6 +16,6 @@ public class InvalidValueException extends NativeUIException {
 
 	@Override
 	public String getMessage() {
-		return componentName + " " + componentKey + ": " + " is not one of " + Arrays.toString(validValues);
+		return componentName + " " + componentKey + ": " + userSpecifiedValue + " is not one of " + Arrays.toString(validValues);
 	}
 }

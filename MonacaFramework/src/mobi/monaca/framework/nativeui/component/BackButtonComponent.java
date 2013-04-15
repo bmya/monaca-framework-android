@@ -1,22 +1,35 @@
 package mobi.monaca.framework.nativeui.component;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class BackButtonComponent extends ButtonComponent {
 
-    public BackButtonComponent(UIContext context, JSONObject buttonJSON) {
+    public BackButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException {
 	super(context, buttonJSON);
 
-        try {
+	try {
             style.put("visibility", style.optBoolean("forceVisibility", false));
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
         style();
+	PageComponent.BACK_BUTTON_EVENTER = this.eventer;
+    }
+
+    @Override
+    public String getComponentName() {
+	return "BackButton";
+    }
+
+    @Override
+    public JSONObject getDefaultStyle() {
+	return DefaultStyleJSON.backButton();
     }
 
     @Override

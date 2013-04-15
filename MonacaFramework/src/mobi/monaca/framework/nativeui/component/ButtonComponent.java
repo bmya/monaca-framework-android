@@ -10,10 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.view.MonacaButton;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
@@ -37,29 +39,23 @@ import android.widget.ImageButton;
 public class ButtonComponent extends ToolbarComponent {
 
 	protected UIContext context;
-	protected JSONObject style;
 	protected FrameLayout layout;
 	protected MonacaButton button;
 	protected MonacaImageButton imageButton;
 	protected ComponentEventer eventer;
-	protected static Set<String> validKeys;
-	static{
-		validKeys = new HashSet<String>();
-		validKeys.add("component");
-		validKeys.add("style");
-		validKeys.add("iosStyle");
-		validKeys.add("androidStyle");
-		validKeys.add("id");
-		validKeys.add("event");
-	}
+	protected static String[] validKeys = {
+		"component",
+		"style",
+		"iosStyle",
+		"androidStyle",
+		"id",
+		"event"
+	};
 
-	public ButtonComponent(UIContext context, JSONObject buttonJSON){
+	public ButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException{
 		super(buttonJSON);
 		this.context = context;
-		JSONObject buttonStyle = buttonJSON.optJSONObject("style");
-		this.style = buttonStyle != null ? buttonStyle : new JSONObject();
 		buildEventer();
-
 		initView();
 	}
 
@@ -176,10 +172,6 @@ public class ButtonComponent extends ToolbarComponent {
 		style();
 	}
 
-	public JSONObject getStyle() {
-		return style;
-	}
-
 	public static class ButtonDrawable extends LayerDrawable {
 		protected int backgroundColor, pressedBackgroundColor;
 
@@ -275,8 +267,18 @@ public class ButtonComponent extends ToolbarComponent {
 	}
 
 	@Override
-	public Set<String> getValidKeys() {
+	public String[] getValidKeys() {
 		return validKeys;
+	}
+
+	@Override
+	public String getComponentName() {
+		return "Button";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.button();
 	}
 
 

@@ -3,9 +3,12 @@ package mobi.monaca.framework.nativeui.container;
 import java.util.HashSet;
 import java.util.Set;
 
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
@@ -27,47 +30,36 @@ import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 public class TabbarItem extends Component {
 
-    protected Drawable drawable;
+	protected Drawable drawable;
     protected TabbarItemView view;
-    protected JSONObject style;
     protected UIContext context;
     protected String link;
     protected Handler handler;
 
-    protected static Set<String> validKeys;
-	static{
-		validKeys = new HashSet<String>();
-		validKeys.add("component");
-		validKeys.add("style");
-		validKeys.add("link");
-		validKeys.add("id");
-	}
+    protected static String[] validKeys = {
+	"component",
+	"style",
+	"link",
+	"id"
+	};
 
 	@Override
-	public Set<String> getValidKeys() {
+	public String[] getValidKeys() {
 		return validKeys;
 	}
 
-    public TabbarItem(UIContext context, String link, JSONObject tabbarItemJSON) {
+    public TabbarItem(UIContext context, JSONObject tabbarItemJSON) throws NativeUIException {
 	super(tabbarItemJSON);
-	MyLog.v(TAG, "TabbarItem constructor. link:" + link  + ", style:" + tabbarItemJSON);
-        this.view = new TabbarItemView(context);
-	JSONObject tabbarItemStyle = tabbarItemJSON.optJSONObject("style");
-	this.style = tabbarItemStyle != null ? tabbarItemStyle : new JSONObject();
-        this.link = link;
-        this.context = context;
-        this.handler = new Handler();
+	this.context = context;
+	this.view = new TabbarItemView(context);
+	this.link = tabbarItemJSON.optString("link");
+	this.handler = new Handler();
 
-        style();
+	style();
     }
 
     public TabbarItemView getView() {
         return view;
-    }
-
-    @Override
-    public JSONObject getStyle() {
-        return style;
     }
 
     @Override
@@ -235,5 +227,15 @@ public class TabbarItem extends Component {
             return isSelected;
         }
     }
+
+	@Override
+	public String getComponentName() {
+		return TabbarItem.class.getSimpleName();
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.tabbarItem();
+	}
 
 }

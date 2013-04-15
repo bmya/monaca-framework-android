@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Set;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
@@ -29,33 +31,28 @@ public class SegmentComponent extends ToolbarComponent {
 
     protected SegmentComponentView view;
     protected UIContext context;
-    protected JSONObject style;
     protected ComponentEventer eventer;
     protected int backgroundColor = 0xff555555;
     protected int pressedBackgroundColor;
 
-    protected static Set<String> validKeys;
-	static{
-		validKeys = new HashSet<String>();
-		validKeys.add("component");
-		validKeys.add("style");
-		validKeys.add("iosStyle");
-		validKeys.add("androidStyle");
-		validKeys.add("id");
-		validKeys.add("event");
-	}
+    protected static String[] validKeys = {
+	"component",
+	"style",
+	"iosStyle",
+	"androidStyle",
+	"id",
+	"event",
+	};
 
 	@Override
-	public Set<String> getValidKeys() {
+	public String[] getValidKeys() {
 		return validKeys;
 	}
 
-    public SegmentComponent(UIContext context, JSONObject segmentJSON) {
+    public SegmentComponent(UIContext context, JSONObject segmentJSON) throws NativeUIException {
 	super(segmentJSON);
-        this.context = context;
-	JSONObject segmentStyle = segmentJSON.optJSONObject("style");
-	this.style = segmentStyle == null ? new JSONObject() : segmentStyle;
-        this.view = new SegmentComponentView(context);
+	this.context = context;
+	this.view = new SegmentComponentView(context);
 
 	buildEventer();
 
@@ -65,10 +62,6 @@ public class SegmentComponent extends ToolbarComponent {
     private void buildEventer(){
 		this.eventer = new ComponentEventer(context, getComponentJSON().optJSONObject("event"));
 	}
-
-    public JSONObject getStyle() {
-        return style;
-    }
 
     public View getView() {
         return view;
@@ -343,5 +336,15 @@ public class SegmentComponent extends ToolbarComponent {
             return isSelected;
         }
     }
+
+	@Override
+	public String getComponentName() {
+		return "Segment";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.segment();
+	}
 
 }

@@ -2,6 +2,8 @@ package mobi.monaca.framework.nativeui.component;
 
 import java.util.Set;
 
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -12,10 +14,10 @@ public class NullComponent extends ToolbarComponent {
 
     protected View view;
 
-    public NullComponent(Context context) {
+    public NullComponent(Context context) throws NativeUIException {
 	super(new JSONObject());
-        view = new FrameLayout(context);
-        view.setVisibility(View.GONE);
+	view = new FrameLayout(context);
+	view.setVisibility(View.GONE);
     }
 
     public View getView() {
@@ -25,12 +27,18 @@ public class NullComponent extends ToolbarComponent {
     public void updateStyle(JSONObject style) {
     }
 
-    public JSONObject getStyle() {
-        return new JSONObject();
-    }
+	@Override
+	public String[] getValidKeys() {
+		return null;
+	}
 
 	@Override
-	public Set<String> getValidKeys() {
+	public String getComponentName() {
+		return "NULL";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
 		return null;
 	}
 

@@ -39,7 +39,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	private TextView titleView;
 	private TextView subTitleMainTitleView;
 	private TextView subtitleView;
-	private View shadowView;
 	boolean isTop = true;
 //	private int mShadowHeight;
 	private ImageView titleImageView;
@@ -112,7 +111,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public ToolbarContainerView(UIContext context, boolean isTop) {
 		super(context);
-//		mShadowHeight = UIUtil.dip2px(getContext(), 3);
 
 		this.context = context;
 		this.isTop = isTop;
@@ -124,12 +122,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		content = new FrameLayout(context);
 		content.setId(CONTENT_VIEW_ID);
 		
-		// bottom toolbar -> shadow on top
-//		if(!isTop){
-//			shadowView = new View(getContext());
-//			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
-//			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
-//		}
 		
 		int borderWidth = context.getSettings().disableUIContainerBorder ? 0 : 1;
 
@@ -141,12 +133,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		addView(createBorderView(), new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 		
-		// top toolbar -> shadow is under
-//		if(isTop){
-//			shadowView = new View(getContext());
-//			shadowView.setBackgroundResource(R.drawable.shadow_bg);
-//			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
-//		}
 		
 		left = new LinearLayout(context);
 		left.setOrientation(LinearLayout.HORIZONTAL);
@@ -242,10 +228,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	
 	public View getContentView() {
 		return content;
-	}
-	
-	public View getShadowView() {
-		return shadowView;
 	}
 	
 	public void setTitleImage(Drawable drawable) {
