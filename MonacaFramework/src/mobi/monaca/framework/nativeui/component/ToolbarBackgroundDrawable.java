@@ -44,9 +44,10 @@ public class ToolbarBackgroundDrawable extends Drawable {
             drawable.setColorFilter(colorFilter);
         }
         drawable.draw(new Canvas(bitmap));
-
-        canvas.drawBitmap(bitmap, 0, 0, new Paint());
-        canvas.drawColor((alpha & 0xff) << 24, PorterDuff.Mode.DST_IN);
+        
+        Paint paint = new Paint();
+        paint.setAlpha(alpha);
+        canvas.drawBitmap(bitmap, 0, 0, paint);
 
         bitmap.recycle();
     }
