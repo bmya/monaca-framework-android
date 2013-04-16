@@ -35,6 +35,12 @@ public class MyLog {
 		}
 	}
 
+	public static void d(String TAG, String msg, Throwable e) {
+		if (BuildConfig.DEBUG) {
+			Log.d(PREFIX + TAG, msg, e);
+		}
+	}
+
 	public static void e(String TAG, String msg) {
 		if (BuildConfig.DEBUG) {
 			Log.e(PREFIX + TAG, msg);

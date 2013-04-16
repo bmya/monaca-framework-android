@@ -220,7 +220,7 @@ public class MonacaApplication extends Application {
             try {
                 settings = new InternalSettings(self.getPackageManager().getApplicationInfo(self.getPackageName(), PackageManager.GET_META_DATA).metaData);
             } catch (Exception e) {
-                Log.d(self.getClass().getSimpleName(), "InternalSettings initialization fail", e);
+                MyLog.d(self.getClass().getSimpleName(), "InternalSettings initialization fail", e);
                 settings = new InternalSettings(new Bundle());
             }
             
