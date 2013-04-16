@@ -996,8 +996,6 @@ public class MonacaPageActivity extends DroidGap {
 		}
 		dict = null;
 		uiBuilderResult = null;
-		appView.setBackgroundDrawable(null);
-		root.setBackgroundDrawable(null);
 		closePageReceiver = null;
 		unregisterReceiver(mScreenReceiver);
 
