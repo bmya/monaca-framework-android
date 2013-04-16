@@ -13,6 +13,8 @@ public class MyLog {
 	public static void i(String TAG, String msg) {
 		if (BuildConfig.DEBUG) {
 			Log.i(PREFIX + TAG, msg);
+		}else{
+			Log.i("MYLOG", "no log cos not in debug");
 		}
 	}
 

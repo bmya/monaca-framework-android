@@ -1,32 +1,43 @@
 <!DOCTYPE HTML>
 <html>
     <head>
-        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <title>Plain Project Skeleton</title>
-        <script type="text/javascript" src="plugins/plugin-loader.js"></script>
-        <script type="text/javascript">
-            // Set virtual screen width size to 640 pixels
+	<meta charset="utf-8">
+	<script src="plugins/plugin-loader.js"></script>
+	<link rel="stylesheet" href="plugins/plugin-loader.css">
+	<script>
+	    // Set virtual screen width size to 640 pixels (横幅640pxに設定)
             monaca.viewport({width: 640});
-        </script>
 
-        <link rel="stylesheet" href="css/style.css" />
-        <script type="text/javascript" src="js/zepto.min.js"></script>
-        <script type="text/javascript">
-            document.addEventListener("deviceready", onDeviceReady, false);
-            function onDeviceReady() {
-                // Update Toolbar Header
-                monaca.updateUIStyle("header", "title", "Your First App");
-                monaca.updateUIStyle("tapme-button", "disable", false);
-                $('h1').show();
-            }
-            function onTapButton(){
-                // Triggers when button is tapped: defined in index.ui
-                navigator.notification.alert("HelloWorld", function() {}, " ", "OK")
+	    function reload(){
+		monaca.load("index.html");
             }
         </script>
     </head>
     <body>
-        <h1 onclick="monaca.showSpinner();" style="display : none;">HelloWorld!</h1>
-        <h2 onclick="monaca.pushPage('test/index.html')">TEST</h2>
+
+      Your code here
+    <h1 onclick="reload();">
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde veritatis harum ipsum perferendis vero molestiae labore consequuntur nostrum sed illum quis nihil voluptates amet sequi officia autem dolore magni dolorem.
+
+    </h1>
+
+    <h1>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde veritatis harum ipsum perferendis vero molestiae labore consequuntur nostrum sed illum quis nihil voluptates amet sequi officia autem dolore magni dolorem.
+
+    </h1>
+
+    <h1>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde veritatis harum ipsum perferendis vero molestiae labore consequuntur nostrum sed illum quis nihil voluptates amet sequi officia autem dolore magni dolorem.
+
+    </h1>
+
+    <p>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officiis reiciendis aspernatur ea error eos magni obcaecati aperiam cum ab incidunt quam aut quos voluptatibus optio laudantium perferendis fugiat dicta maiores!
+    </p>
+
+    <h1>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde veritatis harum ipsum perferendis vero molestiae labore consequuntur nostrum sed illum quis nihil voluptates amet sequi officia autem dolore magni dolorem.
+	Last sentence!!!! Can you see me?
+    </h1>
     </body>
 </html>

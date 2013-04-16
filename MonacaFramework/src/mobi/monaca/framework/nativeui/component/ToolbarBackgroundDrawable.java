@@ -3,6 +3,7 @@ package mobi.monaca.framework.nativeui.component;
 import android.graphics.Canvas;
 import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.psedo.R;
+import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,8 +19,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 public class ToolbarBackgroundDrawable extends Drawable {
-    protected Drawable drawable;
-    protected int alpha = 255;
+    private static final String TAG = ToolbarBackgroundDrawable.class.getSimpleName();
+	protected Drawable drawable;
+    protected int alpha = 79;
     protected ColorFilter colorFilter = null;
     protected Context context;
 
@@ -99,6 +101,7 @@ public class ToolbarBackgroundDrawable extends Drawable {
 
     @Override
     public void setColorFilter(ColorFilter colorFilter) {
+	MyLog.v(TAG, "set color filter: " + colorFilter);
         this.colorFilter = colorFilter;
         invalidateSelf();
     }

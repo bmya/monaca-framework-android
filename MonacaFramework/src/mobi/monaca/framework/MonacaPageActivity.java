@@ -23,6 +23,7 @@ import mobi.monaca.framework.nativeui.UpdateStyleQuery;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.nativeui.component.PageOrientation;
+import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
 import mobi.monaca.framework.nativeui.container.ContainerViewInterface;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.container.ToolbarContainerViewListener;
@@ -91,6 +92,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 /**
  * This class represent a page of Monaca application.
@@ -160,9 +162,9 @@ public class MonacaPageActivity extends DroidGap {
 		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
 		prepare();
 		
-		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
-			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED); 
-		}
+//		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
+//			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+//		}
 		
 		mApp = (MonacaApplication) getApplication();
 
@@ -516,17 +518,6 @@ public class MonacaPageActivity extends DroidGap {
 		return infoForJavaScript;
 	}
 
-	protected boolean hasOpacityBar(ResultSet resultSet) {
-		if (resultSet.top != null && ToolbarContainer.isTransparent(resultSet.top.getStyle().optDouble("opacity", 1.0))) {
-			return true;
-		}
-
-		if (resultSet.bottom != null && ToolbarContainer.isTransparent(resultSet.bottom.getStyle().optDouble("opacity", 1.0))) {
-			return true;
-		}
-
-		return false;
-	}
 
 	/** Load local ui file */
 	public void loadUiFile(String uri) {
@@ -550,7 +541,8 @@ public class MonacaPageActivity extends DroidGap {
 			UIUtil.reportJSONParseError(getApplicationContext(), e.getMessage());
 			return;
 		} catch (Exception e) {
-			MyLog.e(TAG, e.getMessage());
+//			MyLog.e(TAG, e.getMessage());
+			e.printStackTrace();
 			LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
 			MyLog.sendBloadcastDebugLog(getContext(), logItem);
 			return;
@@ -581,201 +573,250 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
+//	protected void applyUiToView(ResultSet result) {
+//		MyLog.d(TAG, "applyUiToView()");
+//
+//		uiBuilderResult = result;
+//		this.dict = result.dict;
+//
+//		setupBackground(result.pageComponent.getBackgroundDrawable());
+//		applyScreenOrientation(result.pageComponent.getScreenOrientation());
+//
+//		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//		params.setMargins(0, 0, 0, 0);
+//
+//		if (result.bottomView != null || result.topView != null) {
+//			MyLog.v(TAG, "result.bottomView != null || result.topView != null");
+//
+//			if (hasOpacityBar(result)) {
+//				MyLog.v(TAG, "hasOpacityBar");
+//
+//				FrameLayout frame = new FrameLayout(this);
+//				LinearLayout nativeUIViews = new LinearLayout(this);
+//				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
+//
+//				root.removeAllViews();
+//				MyLog.v(TAG, "root.removeAllViews()");
+//				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+//
+//				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
+//				if (appViewParent != null) {
+//					appViewParent.removeAllViews();
+//				}
+//
+//				frame.addView(appView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+//				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+//
+//				// top bar view
+//				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
+//
+//				// center
+//				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+//						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+//
+//				// bottom bar view
+//				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
+//
+//				if (result.topView != null) {
+//					MyLog.v(TAG, "result.topView != null");
+//					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//					int topViewHeight = result.topView.getMeasuredHeight();
+//					try {
+//						infoForJavaScript.put("topViewHeight", topViewHeight);
+//					} catch (JSONException e) {
+//						MyLog.e(TAG, e.getMessage());
+//					}
+//				}
+//				if (result.bottomView != null) {
+//					MyLog.v(TAG, "result.bottomView != null");
+//					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//					int bottomViewHeight = result.bottomView.getMeasuredHeight();
+//					try {
+//						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
+//					} catch (JSONException e) {
+//						MyLog.e(TAG, e.getMessage());
+//					}
+//				}
+//			} else {
+//				MyLog.v(TAG, "noOpacityBar");
+//				root.removeAllViews();
+//				MyLog.v(TAG, "root.removeAllViews()");
+//
+//				FrameLayout frame = new FrameLayout(this);
+//				LinearLayout nativeUIViews = new LinearLayout(this);
+//				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
+//
+//				root.removeAllViews();
+//				MyLog.v(TAG, "root.removeAllViews()");
+//				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+//
+//				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
+//				if (appViewParent != null) {
+//					appViewParent.removeAllViews();
+//				}
+//
+//				final android.widget.FrameLayout.LayoutParams appViewLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+//				appViewLayoutParams.gravity = Gravity.TOP; // a bug in 2.*.* where the topMargin is not respected without gravity = TOP
+//
+//				if (result.topView != null) {
+//					MyLog.v(TAG, "result.topView != null");
+//					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//					int topViewHeight = result.topView.getMeasuredHeight();
+//					try {
+//						infoForJavaScript.put("topViewHeight", topViewHeight);
+//					} catch (JSONException e) {
+//						MyLog.e(TAG, e.getMessage());
+//					}
+//
+//					final ContainerViewInterface cv = (ContainerViewInterface) result.topView;
+//					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
+//
+//						@Override
+//						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+//							MyLog.v(TAG, "TopToolBar onSizeChanged()");
+//							int shadowViewHeight = cv.getShadowHeight();
+//							appViewLayoutParams.topMargin = h - shadowViewHeight;
+//							applyAppViewLayoutParams();
+//						}
+//
+//						@Override
+//						public void onVisibilityChanged(int visibility) {
+//							if(visibility == View.VISIBLE){
+//								int shadowViewHeight = cv.getShadowHeight();
+//								appViewLayoutParams.topMargin =  cv.getContainerViewHeight() - shadowViewHeight;
+//							}else{
+//								appViewLayoutParams.topMargin = 0;
+//							}
+//							applyAppViewLayoutParams();
+//						}
+//
+//						private void applyAppViewLayoutParams(){
+//							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
+//							handler.post(new Runnable() {
+//								@Override
+//								public void run() {
+//									appView.setLayoutParams(appViewLayoutParams);
+//								}
+//							});
+//						}
+//					});
+//
+//				}
+//
+//				frame.addView(appView, appViewLayoutParams);
+//				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+//
+//				// top bar view
+//				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
+//
+//				// center
+//				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+//						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+//
+//				// bottom bar view
+//				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
+//
+//				if (result.bottomView != null) {
+//					MyLog.v(TAG, "result.bottomView != null");
+//					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//					int bottomViewHeight = result.bottomView.getMeasuredHeight();
+//					try {
+//						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
+//					} catch (JSONException e) {
+//						MyLog.e(TAG, e.getMessage());
+//					}
+//
+//					final ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
+//					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
+//						@Override
+//						public void onVisibilityChanged(int visibility) {
+//							if (visibility == View.VISIBLE) {
+//								int shadowViewHeight = cv.getShadowHeight();
+//								appViewLayoutParams.bottomMargin = cv.getContainerViewHeight() - shadowViewHeight;
+//							} else {
+//								appViewLayoutParams.bottomMargin = 0;
+//							}
+//							applyAppViewLayoutParams();
+//						}
+//						@Override
+//						public void onSizeChanged(int w, int h, int oldw, int oldh) {
+//							MyLog.v(TAG, "Bottom Tabbar onSizeChanged()");
+//							int shadowViewHeight = cv.getShadowHeight();
+//							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
+//							applyAppViewLayoutParams();
+//						}
+//
+//						private void applyAppViewLayoutParams(){
+//							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
+//							handler.post(new Runnable() {
+//								@Override
+//								public void run() {
+//									appView.setLayoutParams(appViewLayoutParams);
+//								}
+//							});
+//						}
+//					});
+//				}
+//			}
+//		} else {
+//			MyLog.v(TAG, "Reverse of result.bottomView != null || result.topView != null");
+//			((ViewGroup) appView.getParent()).removeView(appView);
+//			root.removeAllViews();
+//			MyLog.v(TAG, "root.removeAllViews()");
+//			root.addView(appView);
+//			this.dict = new HashMap<String, Component>();
+//		}
+//
+//		root.requestLayout();
+//	}
+
 	protected void applyUiToView(ResultSet result) {
 		MyLog.d(TAG, "applyUiToView()");
 
-		uiBuilderResult = result;
-		this.dict = result.dict;
 
-		setupBackground(result.pageComponent.getBackgroundDrawable());
-		applyScreenOrientation(result.pageComponent.getScreenOrientation());
+		setupBackground(mPageComponent.getBackgroundDrawable());
+		applyScreenOrientation(mPageComponent.getScreenOrientation());
 
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		params.setMargins(0, 0, 0, 0);
-
-		if (result.bottomView != null || result.topView != null) {
-			MyLog.v(TAG, "result.bottomView != null || result.topView != null");
-
-			if (hasOpacityBar(result)) {
-				MyLog.v(TAG, "hasOpacityBar");
-
-				FrameLayout frame = new FrameLayout(this);
-				LinearLayout nativeUIViews = new LinearLayout(this);
-				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
-
-				root.removeAllViews();
-				MyLog.v(TAG, "root.removeAllViews()");
-				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
-				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
-				if (appViewParent != null) {
-					appViewParent.removeAllViews();
-				}
-
-				frame.addView(appView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-
-				// top bar view
-				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
-
-				// center
-				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-
-				// bottom bar view
-				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
-
-				if (result.topView != null) {
-					MyLog.v(TAG, "result.topView != null");
-					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-					int topViewHeight = result.topView.getMeasuredHeight();
-					try {
-						infoForJavaScript.put("topViewHeight", topViewHeight);
-					} catch (JSONException e) {
-						MyLog.e(TAG, e.getMessage());
-					}
-				}
-				if (result.bottomView != null) {
-					MyLog.v(TAG, "result.bottomView != null");
-					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-					int bottomViewHeight = result.bottomView.getMeasuredHeight();
-					try {
-						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
-					} catch (JSONException e) {
-						MyLog.e(TAG, e.getMessage());
-					}
-				}
-			} else {
-				MyLog.v(TAG, "noOpacityBar");
-				root.removeAllViews();
-				MyLog.v(TAG, "root.removeAllViews()");
-				
-				FrameLayout frame = new FrameLayout(this);
-				LinearLayout nativeUIViews = new LinearLayout(this);
-				nativeUIViews.setOrientation(LinearLayout.VERTICAL);
-
-				root.removeAllViews();
-				MyLog.v(TAG, "root.removeAllViews()");
-				root.addView(frame, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
-				ViewGroup appViewParent = ((ViewGroup) appView.getParent());
-				if (appViewParent != null) {
-					appViewParent.removeAllViews();
-				}
-				
-				final android.widget.FrameLayout.LayoutParams appViewLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-				appViewLayoutParams.gravity = Gravity.TOP; // a bug in 2.*.* where the topMargin is not respected without gravity = TOP
-				
-				if (result.topView != null) {
-					MyLog.v(TAG, "result.topView != null");
-					result.topView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-					int topViewHeight = result.topView.getMeasuredHeight();
-					try {
-						infoForJavaScript.put("topViewHeight", topViewHeight);
-					} catch (JSONException e) {
-						MyLog.e(TAG, e.getMessage());
-					}
-					
-					final ContainerViewInterface cv = (ContainerViewInterface) result.topView;
-					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
-						
-						@Override
-						public void onSizeChanged(int w, int h, int oldw, int oldh) {
-							MyLog.v(TAG, "TopToolBar onSizeChanged()");
-							int shadowViewHeight = cv.getShadowHeight();
-							appViewLayoutParams.topMargin = h - shadowViewHeight;
-							applyAppViewLayoutParams();
-						}
-
-						@Override
-						public void onVisibilityChanged(int visibility) {
-							if(visibility == View.VISIBLE){
-								int shadowViewHeight = cv.getShadowHeight();
-								appViewLayoutParams.topMargin =  cv.getContainerViewHeight() - shadowViewHeight;
-							}else{
-								appViewLayoutParams.topMargin = 0;
-							}
-							applyAppViewLayoutParams();
-						}
-						
-						private void applyAppViewLayoutParams(){
-							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
-							handler.post(new Runnable() {
-								@Override
-								public void run() {
-									appView.setLayoutParams(appViewLayoutParams);
-								}
-							});
-						}
-					});
-					
-				}
-				
-				frame.addView(appView, appViewLayoutParams);
-				frame.addView(nativeUIViews, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-
-				// top bar view
-				nativeUIViews.addView(result.topView != null ? result.topView : new FrameLayout(this), 0, params);
-
-				// center
-				nativeUIViews.addView(new LinearLayout(this), 1, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-						LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-
-				// bottom bar view
-				nativeUIViews.addView(result.bottomView != null ? result.bottomView : new FrameLayout(this), 2, params);
-
-				if (result.bottomView != null) {
-					MyLog.v(TAG, "result.bottomView != null");
-					result.bottomView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-					int bottomViewHeight = result.bottomView.getMeasuredHeight();
-					try {
-						infoForJavaScript.put("bottomViewHeight", bottomViewHeight);
-					} catch (JSONException e) {
-						MyLog.e(TAG, e.getMessage());
-					}
-
-					final ContainerViewInterface cv = (ContainerViewInterface) result.bottomView;
-					cv.setContainerSizeListener(new ToolbarContainerViewListener() {
-						@Override
-						public void onVisibilityChanged(int visibility) {
-							if (visibility == View.VISIBLE) {
-								int shadowViewHeight = cv.getShadowHeight();
-								appViewLayoutParams.bottomMargin = cv.getContainerViewHeight() - shadowViewHeight;
-							} else {
-								appViewLayoutParams.bottomMargin = 0;
-							}
-							applyAppViewLayoutParams();
-						}
-						@Override
-						public void onSizeChanged(int w, int h, int oldw, int oldh) {
-							MyLog.v(TAG, "Bottom Tabbar onSizeChanged()");
-							int shadowViewHeight = cv.getShadowHeight();
-							appViewLayoutParams.bottomMargin = h - shadowViewHeight;
-							applyAppViewLayoutParams();
-						}
-						
-						private void applyAppViewLayoutParams(){
-							// Android 2.3 bug. need to setLayout() and put it to handler for executing on another cycle
-							handler.post(new Runnable() {
-								@Override
-								public void run() {
-									appView.setLayoutParams(appViewLayoutParams);
-								}
-							});
-						}
-					});
-				}
-			}
-		} else {
-			MyLog.v(TAG, "Reverse of result.bottomView != null || result.topView != null");
-			((ViewGroup) appView.getParent()).removeView(appView);
-			root.removeAllViews();
-			MyLog.v(TAG, "root.removeAllViews()");
-			root.addView(appView);
-			this.dict = new HashMap<String, Component>();
+		// clean up
+		root.removeAllViews();
+		ViewGroup appViewParent = ((ViewGroup) appView.getParent());
+		if (appViewParent != null) {
+			appViewParent.removeAllViews();
 		}
+
+		RelativeLayout container = new RelativeLayout(this);
+		root.addView(container, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+
+		// top
+		ToolbarContainer topComponent = (ToolbarContainer) mPageComponent.getTopComponent();
+		int topComponentViewId = 0;
+		if (topComponent != null){
+			topComponentViewId = topComponent.getView().getId();
+			RelativeLayout.LayoutParams topComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			topComponentParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			container.addView(topComponent.getView(), topComponentParams);
+		}
+
+		// webview
+		RelativeLayout.LayoutParams webViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		webViewParams.alignWithParent = true;
+		if(topComponent != null && topComponent.isTransparent()){
+			webViewParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else{
+			webViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
+		}
+		container.addView(appView, 0,  webViewParams);
+
+		// top shadow
+//		if (topComponent != null){
+//			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+//			shadowViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
+//			container.addView(topComponent.getShadowView(), shadowViewParams);
+//		}
+
+
 		
-		root.requestLayout();
+		this.dict = new HashMap<String, Component>();
 	}
 	
 	public UIContext getUiContext() {

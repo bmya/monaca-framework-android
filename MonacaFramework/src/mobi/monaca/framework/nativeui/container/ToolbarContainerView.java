@@ -41,7 +41,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	private TextView subtitleView;
 	private View shadowView;
 	boolean isTop = true;
-	private int mShadowHeight;
+//	private int mShadowHeight;
 	private ImageView titleImageView;
 	private int mDefaultSubtitleFontSize;
 	private int mDefaultTitleFontSize;
@@ -112,7 +112,7 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public ToolbarContainerView(UIContext context, boolean isTop) {
 		super(context);
-		mShadowHeight = UIUtil.dip2px(getContext(), 3);
+//		mShadowHeight = UIUtil.dip2px(getContext(), 3);
 
 		this.context = context;
 		this.isTop = isTop;
@@ -125,11 +125,11 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		content.setId(CONTENT_VIEW_ID);
 		
 		// bottom toolbar -> shadow on top
-		if(!isTop){
-			shadowView = new View(getContext());
-			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
-			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
-		}
+//		if(!isTop){
+//			shadowView = new View(getContext());
+//			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
+//			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
+//		}
 		
 		int borderWidth = context.getSettings().disableUIContainerBorder ? 0 : 1;
 
@@ -142,11 +142,11 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 				LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 		
 		// top toolbar -> shadow is under
-		if(isTop){
-			shadowView = new View(getContext());
-			shadowView.setBackgroundResource(R.drawable.shadow_bg);
-			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
-		}
+//		if(isTop){
+//			shadowView = new View(getContext());
+//			shadowView.setBackgroundResource(R.drawable.shadow_bg);
+//			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
+//		}
 		
 		left = new LinearLayout(context);
 		left.setOrientation(LinearLayout.HORIZONTAL);
@@ -418,7 +418,8 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 
 	@Override
 	public int getShadowHeight() {
-		return mShadowHeight;
+		return 0; //TODO: REMOVE
+//		return mShadowHeight;
 	}
 
 	@Override

@@ -48,6 +48,7 @@ public class ToolbarContainer extends Component {
 	protected ToolbarComponent left, center, right;
 	protected JSONObject style;
 	protected AlphaAnimation animation = null;
+	protected static final int mContainerViewID = 1001;
 
 	protected static Set<String> validKeys;
 	static {
@@ -93,6 +94,7 @@ public class ToolbarContainer extends Component {
 	public ToolbarContainer(UIContext context, JSONObject toolbarJSON, boolean isTop) throws InvalidValueException {
 		super(toolbarJSON);
 		view = new ToolbarContainerView(context, isTop);
+		view.setId(mContainerViewID);
 		this.context = context;
 		JSONObject toolbarStyle = toolbarJSON.optJSONObject("style");
 		this.style = toolbarStyle != null ? toolbarStyle : new JSONObject();
@@ -175,7 +177,7 @@ public class ToolbarContainer extends Component {
 	 */
 	protected void style() {
 		double toolbarOpacity = style.optDouble("opacity", 1.0);
-		if (isTransparent(toolbarOpacity) && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE)) {
+		if (isTransparent() && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE)) {
 			if (animation != null) {
 				// animation.cancel(); //TODO only available in Android 4.0
 			}
@@ -229,18 +231,18 @@ public class ToolbarContainer extends Component {
 		view.setTitleSubtitle(style.optString("title"), style.optString("subtitle"),
 				titleImagePath.equals("") ? null : context.readScaledBitmap(titleImagePath));
 
-		ColorFilter filter = new PorterDuffColorFilter(buildColor(style.optString("backgroundColor", "#000000")), PorterDuff.Mode.SCREEN);
+		ColorFilter filter = new PorterDuffColorFilter(buildColor(style.optString("backgroundColor", "#ff0000")), PorterDuff.Mode.SCREEN);
 
 		Drawable toolbarBackground = new ToolbarBackgroundDrawable(context);
 		toolbarBackground.setColorFilter(filter);
-		toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+//		toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
 
 		view.getContentView().setBackgroundDrawable(toolbarBackground);
 
 		double shadowOpacity = style.optDouble("shadowOpacity", 0.3);
 		double relativeShadowOpacity = toolbarOpacity * shadowOpacity;
 		MyLog.v(TAG, "shadowOpacity:" + shadowOpacity + ", relativeShadowOpacity:" + relativeShadowOpacity);
-		view.getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
+//		view.getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
 
 		view.setBackgroundDrawable(null);
 		view.setBackgroundColor(0);
@@ -259,7 +261,8 @@ public class ToolbarContainer extends Component {
 		view.getContentView().setBackgroundDrawable(null);
 	}
 
-	static public boolean isTransparent(double opacity) {
+	public boolean isTransparent() {
+		double opacity = style.optDouble("opacity", 1.0);
 		return opacity <= 0.999;
 	}
 }
