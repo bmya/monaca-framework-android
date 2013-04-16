@@ -4,6 +4,7 @@ import static mobi.monaca.framework.nativeui.UIUtil.TAG;
 import static mobi.monaca.framework.nativeui.UIUtil.createBitmapWithColorFilter;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,8 +15,12 @@ import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.view.MonacaButton;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
@@ -31,6 +36,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -38,55 +44,48 @@ import android.widget.ImageButton;
 
 public class ButtonComponent extends ToolbarComponent {
 
-	protected UIContext context;
 	protected FrameLayout layout;
 	protected MonacaButton button;
 	protected MonacaImageButton imageButton;
 	protected ComponentEventer eventer;
-	protected static String[] validKeys = {
-		"component",
-		"style",
-		"iosStyle",
-		"androidStyle",
-		"id",
-		"event"
-	};
+	protected static final String[] BUTTON_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event" };
+	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "image", "innerImage", "text" };
 
-	public ButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException{
-		super(buttonJSON);
-		this.context = context;
+	public ButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException {
+		super(context, buttonJSON);
+		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
+		
 		buildEventer();
 		initView();
 	}
 
-	private void buildEventer(){
-		this.eventer = new ComponentEventer(context, getComponentJSON().optJSONObject("event"));
+	private void buildEventer() throws NativeUIException {
+		this.eventer = new ComponentEventer(uiContext, getComponentJSON().optJSONObject("event"));
 	}
 
 	public ComponentEventer getUIEventer() {
 		return eventer;
 	}
 
-	protected void initView() {
-		layout = new FrameLayout(context);
+	protected void initView() throws NativeUIException {
+		layout = new FrameLayout(uiContext);
 		layout.setClickable(true);
 
-		button = new MonacaButton(context);
+		button = new MonacaButton(uiContext);
 		button.getButton().setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				eventer.onTap();
 			}
 		});
-		button.getInnerImageButton().setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						eventer.onTap();
-					}
-				});
+		button.getInnerImageButton().setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				eventer.onTap();
+			}
+		});
 
-		imageButton = new MonacaImageButton(context);
+		imageButton = new MonacaImageButton(uiContext);
 		imageButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -116,8 +115,9 @@ public class ButtonComponent extends ToolbarComponent {
 	 * backgroundColor: #000000 [string] (default: #000000) activeColor: #000000
 	 * [string] (default: #0000FF) textColor: #000000 [string] (default:
 	 * #FFFFFF) image: hoge.png (このファイルからみたときの相対パス) [string] text: テキスト [string]
+	 * @throws NativeUIException 
 	 */
-	protected void style() {
+	protected void style() throws NativeUIException {
 		if (style.optString("image").length() > 0) {
 			button.setVisibility(View.GONE);
 			imageButton.setVisibility(View.VISIBLE);
@@ -129,45 +129,40 @@ public class ButtonComponent extends ToolbarComponent {
 		}
 	}
 
-	protected void styleButton() {
+	protected void styleButton() throws NativeUIException {
 		button.updateStyle(style);
 		button.style();
 
-		if (!style.optString("innerImage", "").equals("")) {
+		Bitmap bitmap = readImage("innerImage");
+		if( bitmap != null ) {
 			ImageButton imageButton = button.getInnerImageButton();
-			imageButton.setImageBitmap(context.readScaledBitmap(style
-					.optString("innerImage")));
+			imageButton.setImageBitmap(bitmap);
 		}
 	}
 
-	protected void styleImageButton() {
+	protected void styleImageButton() throws NativeUIIOException {
 		MyLog.e(TAG, "style image button");
-		imageButton
-				.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
-						: View.GONE);
+		imageButton.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
 		imageButton.setBackgroundColor(0);
 		imageButton.setEnabled(!style.optBoolean("disable", false));
 
-		Bitmap bitmap = context.readScaledBitmap(style.optString("image", ""));
-		if (bitmap != null) {
-			MyLog.e(TAG, "style. image.height:" + imageButton.getHeight());
+		Bitmap bitmap = readImage("image");
+		if(bitmap != null){
 			if (imageButton.getHeight() > 0) {
 				int scaledHeight = imageButton.getHeight();
 				bitmap = UIUtil.resizeBitmap(bitmap, scaledHeight);
 			}
-			Drawable drawable = new ImageButtonDrawable(
-					new NonScaleBitmapDrawable(bitmap));
+			Drawable drawable = new ImageButtonDrawable(new NonScaleBitmapDrawable(bitmap));
 
 			imageButton.setBackgroundDrawable(drawable);
 			imageButton.setPadding(0, 0, 0, 0);
-		} else {
+		}else{
 			imageButton.setBackgroundDrawable(null);
-		}
-
+		}		
 	}
 
 	@Override
-	public void updateStyle(JSONObject update) {
+	public void updateStyle(JSONObject update) throws NativeUIException {
 		updateJSONObject(style, update);
 		style();
 	}
@@ -203,14 +198,10 @@ public class ButtonComponent extends ToolbarComponent {
 
 		private ImageButtonDrawable(Drawable drawable) {
 			super();
-			Drawable pressed = new BitmapDrawable(context.getResources(),
-					createBitmapWithColorFilter(drawable,
-							new PorterDuffColorFilter(0x66000000,
-									PorterDuff.Mode.MULTIPLY)));
-			Drawable disabled = new BitmapDrawable(context.getResources(),
-					createBitmapWithColorFilter(drawable,
-							new PorterDuffColorFilter(0x66000000,
-									PorterDuff.Mode.MULTIPLY)));
+			Drawable pressed = new BitmapDrawable(uiContext.getResources(), createBitmapWithColorFilter(drawable, new PorterDuffColorFilter(0x66000000,
+					PorterDuff.Mode.MULTIPLY)));
+			Drawable disabled = new BitmapDrawable(uiContext.getResources(), createBitmapWithColorFilter(drawable, new PorterDuffColorFilter(0x66000000,
+					PorterDuff.Mode.MULTIPLY)));
 
 			addState(new int[] { android.R.attr.state_pressed }, pressed);
 			addState(new int[] { -android.R.attr.state_enabled }, disabled);
@@ -226,17 +217,23 @@ public class ButtonComponent extends ToolbarComponent {
 
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-			Bitmap bitmap = context.readScaledBitmap(style.optString("image", ""));
-			if (bitmap != null) {
-				int width = bitmap.getWidth();
-				int height = bitmap.getHeight();
+			Bitmap bitmap;
+			try {
+				bitmap = readImage("image");
+				if (bitmap != null) {
+					int width = bitmap.getWidth();
+					int height = bitmap.getHeight();
 
-				int resolvedWidth = resolveSize(width, widthMeasureSpec);
-				int resolvedHeight = resolveSize(height, heightMeasureSpec);
+					int resolvedWidth = resolveSize(width, widthMeasureSpec);
+					int resolvedHeight = resolveSize(height, heightMeasureSpec);
 
-				MyLog.v(TAG, "bitmapW:" + width + ", bitmapH:" + height + ", resolvedW:" + resolvedWidth + ", resolvedH:" + resolvedHeight);
-				setMeasuredDimension(resolvedWidth, resolvedHeight);
-			}else{
+					MyLog.v(TAG, "bitmapW:" + width + ", bitmapH:" + height + ", resolvedW:" + resolvedWidth + ", resolvedH:" + resolvedHeight);
+					setMeasuredDimension(resolvedWidth, resolvedHeight);
+				} else {
+					super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+				}
+			} catch (NativeUIIOException e) {
+				e.printStackTrace();
 				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 			}
 		}
@@ -244,19 +241,22 @@ public class ButtonComponent extends ToolbarComponent {
 		@Override
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 			MyLog.w(TAG, "onSizeChanged. w:" + w + ", h:" + h + ", oldw:" + oldw + ", oldh:" + oldh);
-			resizeImage();
+			try {
+				resizeImage();
+			} catch (NativeUIIOException e) {
+				e.printStackTrace();
+			}
 			super.onSizeChanged(w, h, oldw, oldh);
 		}
 
-		private void resizeImage() {
-			Bitmap bitmap = context.readScaledBitmap(style.optString("image", ""));
+		private void resizeImage() throws NativeUIIOException {
+			Bitmap bitmap = readImage("image");
 			if (bitmap != null) {
 				if (getMeasuredHeight() > 0) {
 					int scaledHeight = getMeasuredHeight();
 					bitmap = UIUtil.resizeBitmap(bitmap, scaledHeight);
 				}
-				Drawable drawable = new ImageButtonDrawable(
-						new NonScaleBitmapDrawable(bitmap));
+				Drawable drawable = new ImageButtonDrawable(new NonScaleBitmapDrawable(bitmap));
 
 				imageButton.setBackgroundDrawable(drawable);
 				imageButton.setPadding(0, 0, 0, 0);
@@ -265,10 +265,24 @@ public class ButtonComponent extends ToolbarComponent {
 			}
 		}
 	}
+	
+	private Bitmap readImage(String imageKeyName) throws NativeUIIOException {
+		String imagePath = style.optString(imageKeyName);
+		if (!TextUtils.isEmpty(imagePath)) {
+			try {
+				Bitmap bitmap = uiContext.readScaledBitmap(imagePath);
+				return bitmap;
+			} catch (IOException e) {
+				NativeUIIOException exception = new NativeUIIOException(getComponentName() + " style", imageKeyName, imagePath, e.getMessage());
+				throw exception;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public String[] getValidKeys() {
-		return validKeys;
+		return BUTTON_VALID_KEYS;
 	}
 
 	@Override
@@ -280,6 +294,5 @@ public class ButtonComponent extends ToolbarComponent {
 	public JSONObject getDefaultStyle() {
 		return DefaultStyleJSON.button();
 	}
-
 
 }

@@ -10,6 +10,8 @@ import java.util.Set;
 
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONObject;
@@ -21,7 +23,6 @@ import android.widget.TextView;
 
 public class LabelComponent extends ToolbarComponent {
 
-    protected UIContext context;
     protected TextView view;
 
     protected static String[] validKeys = {
@@ -31,9 +32,8 @@ public class LabelComponent extends ToolbarComponent {
 	};
 
 
-    public LabelComponent(UIContext context, JSONObject labelJSON) throws NativeUIException {
-	super(labelJSON);
-	this.context = context;
+    public LabelComponent(UIContext context, JSONObject labelJSON) throws KeyNotValidException, DuplicateIDException {
+	super(context, labelJSON);
 	this.view = new TextView(context);
 	this.view.setGravity(Gravity.CENTER_VERTICAL);
 
@@ -62,10 +62,10 @@ public class LabelComponent extends ToolbarComponent {
                 buildOpacity(style.optDouble("opacity", 1.0))));
         view.setShadowLayer(1f, 0f, -1f, 0xcc000000);
         view.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                context.getFontSizeFromDip(Component.LABEL_TEXT_DIP));
+                uiContext.getFontSizeFromDip(Component.LABEL_TEXT_DIP));
 
-        view.setPadding(dip2px(context, 3), dip2px(context, 4),
-                dip2px(context, 3), dip2px(context, 4));
+        view.setPadding(dip2px(uiContext, 3), dip2px(uiContext, 4),
+                dip2px(uiContext, 3), dip2px(uiContext, 4));
 
         if (style.has("backgroundColor")) {
             view.setBackgroundColor(buildColor(style.optString(

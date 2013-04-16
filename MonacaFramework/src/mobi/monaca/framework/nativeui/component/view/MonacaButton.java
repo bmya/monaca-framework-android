@@ -4,7 +4,11 @@ import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 import org.json.JSONObject;
 
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.ButtonBackgroundDrawable;
+import mobi.monaca.framework.nativeui.exception.ConversionException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.ValueNotInRangeException;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -24,7 +28,7 @@ public class MonacaButton extends FrameLayout {
     protected ImageButton innerImageButton;
     protected MonacaTextButton button;
 
-    public MonacaButton(Context context, AttributeSet attr) {
+    public MonacaButton(Context context, AttributeSet attr) throws NativeUIException {
         super(context);
         this.context = context;
         this.style = new JSONObject();
@@ -38,7 +42,7 @@ public class MonacaButton extends FrameLayout {
         style();
     }
     
-    public MonacaButton(Context context) {
+    public MonacaButton(Context context) throws NativeUIException {
         super(context);
         this.context = context;
         this.style = new JSONObject();
@@ -61,13 +65,13 @@ public class MonacaButton extends FrameLayout {
     }
 
     
-    public void updateStyle(JSONObject update) {
+    public void updateStyle(JSONObject update) throws NativeUIException {
         updateJSONObject(style, update);
         style();
     }
     
 
-    public void style() {
+    public void style() throws NativeUIException {
         if (style.optString("innerImage", "").equals("")) {
             button.setVisibility(View.VISIBLE);
             innerImageButton.setVisibility(View.GONE);
@@ -79,16 +83,18 @@ public class MonacaButton extends FrameLayout {
         }
     }
     
-    protected void styleInnerImageButton() {
-        ButtonBackgroundDrawable background = new ButtonBackgroundDrawable(
-                context, buildColor(style.optString("backgroundColor",
-                        "#000000")));
-        background.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+    protected void styleInnerImageButton() throws NativeUIException {
+		int backgroundColor = UIValidator.parseAndValidateColor(context, "Button style", "backgroundColor", "#000000", style);
+		
+		ButtonBackgroundDrawable background = new ButtonBackgroundDrawable(
+                context, backgroundColor);
+		
+        float opacity = UIValidator.parseAndValidateFloat(context, "Button style", "opacity", "1.0", style, "[0.0-1.0]");
+		background.setAlpha(buildOpacity(opacity));
         innerImageButton.setBackgroundDrawable(new ButtonDrawable(background));
 
         setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
                 : View.GONE);
-
 
         innerImageButton.setEnabled(!style.optBoolean("disable", false));
     }

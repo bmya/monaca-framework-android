@@ -1,16 +1,23 @@
 package mobi.monaca.framework.nativeui;
 
+import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-public class ComponentEventer {
+public class ComponentEventer extends Component{
     protected JSONObject event;
     protected UIContext context;
+    protected static final String[] VALID_KEYS = {"onTap"}; 
 
-    public ComponentEventer(UIContext context, JSONObject event) {
+    public ComponentEventer(UIContext context, JSONObject event) throws NativeUIException {
+    	super(context, event);
         this.context = context;
         this.event = event == null ? new JSONObject() : event;
     }
@@ -42,4 +49,29 @@ public class ComponentEventer {
         } catch (Exception e) {
         }
     }
+
+	@Override
+	public String getComponentName() {
+		return ComponentEventer.class.getSimpleName();
+	}
+
+	@Override
+	public String[] getValidKeys() {
+		return VALID_KEYS;
+	}
+
+	@Override
+	public View getView() {
+		return null;
+	}
+
+	@Override
+	public void updateStyle(JSONObject update) throws NativeUIException {
+		
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return null;
+	}
 }

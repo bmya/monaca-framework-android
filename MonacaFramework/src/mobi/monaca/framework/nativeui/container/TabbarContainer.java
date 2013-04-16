@@ -11,6 +11,8 @@ import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
 import mobi.monaca.framework.nativeui.container.TabbarItem.TabbarItemView;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
@@ -35,7 +37,6 @@ public class TabbarContainer extends Container {
 
 	protected TabbarContainerView view;
 	private ContainerShadowView shadowView;
-	protected UIContext context;
 	protected Integer oldActiveIndex = null;
 	protected static final int mContainerViewID = 1002;
 
@@ -51,9 +52,8 @@ public class TabbarContainer extends Container {
 		return validKeys;
 	}
 
-	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws NativeUIException {
-		super(tabbarJSON);
-		this.context = context;
+	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws RequiredKeyNotFoundException, KeyNotValidException, DuplicateIDException {
+		super(context, tabbarJSON);
 		this.view = new TabbarContainerView(context);
 		this.view.setId(mContainerViewID);
 		shadowView = new ContainerShadowView(context, false);
@@ -63,11 +63,11 @@ public class TabbarContainer extends Container {
 		style();
 	}
 
-	private void buildChildren() throws NativeUIException {
+	private void buildChildren() throws RequiredKeyNotFoundException, KeyNotValidException, DuplicateIDException {
 		JSONArray itemsJSON = componentJSON.optJSONArray("items");
 		if(itemsJSON != null){
 			for (int i = 0; i < itemsJSON.length(); i++) {
-				TabbarItem tabbarItem = new TabbarItem(context, itemsJSON.optJSONObject(i));
+				TabbarItem tabbarItem = new TabbarItem(uiContext, itemsJSON.optJSONObject(i));
 				view.addTabbarItemView(tabbarItem.getView());
 			}
 		}else{
@@ -100,7 +100,7 @@ public class TabbarContainer extends Container {
 		Bitmap bgBitmap = UIUtil.createBitmapWithColorFilter(view.getContentView().getBackground(), filter);
 
 		view.getContentView().setBackgroundResource(R.drawable.monaca_tabbar_bg);
-		view.getContentView().setBackgroundDrawable(new BitmapDrawable(context.getResources(), bgBitmap));
+		view.getContentView().setBackgroundDrawable(new BitmapDrawable(uiContext.getResources(), bgBitmap));
 		double tabbarOpacity = style.optDouble("opacity", 1.0);
 		view.getContentView().getBackground().setAlpha(buildOpacity(tabbarOpacity));
 
@@ -144,7 +144,7 @@ public class TabbarContainer extends Container {
 		}
 
 		protected View createBorderView() {
-			View v = new FrameLayout(context);
+			View v = new FrameLayout(uiContext);
 			v.setBackgroundColor(0xff000000);
 			return v;
 		}

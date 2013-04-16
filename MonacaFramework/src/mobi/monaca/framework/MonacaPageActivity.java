@@ -11,23 +11,19 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
-import mobi.monaca.framework.nativeui.UIBuilder;
-import mobi.monaca.framework.nativeui.UIBuilder.ResultSet;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.UpdateStyleQuery;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.nativeui.component.PageOrientation;
-import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
 import mobi.monaca.framework.nativeui.container.Container;
-import mobi.monaca.framework.nativeui.container.ContainerViewInterface;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
-import mobi.monaca.framework.nativeui.container.ToolbarContainerViewListener;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.transition.BackgroundDrawable;
@@ -77,14 +73,11 @@ import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -504,7 +497,7 @@ public class MonacaPageActivity extends DroidGap {
 			transitionParams = TransitionParams.createDefaultParams(this.getRequestedOrientation());
 		}
 
-		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/test/autotest/pages/all.html");
+		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
 
 		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
 		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
@@ -546,6 +539,10 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
+		if(pageOrientation == null){
+			return;
+		}
+		
 		switch (pageOrientation) {
 		case PORTRAIT:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -707,7 +704,11 @@ public class MonacaPageActivity extends DroidGap {
 						if (mPageComponent.getComponentIdMap() != null && mPageComponent.getComponentIdMap().containsKey(componentId)) {
 							Component component = mPageComponent.getComponentIdMap().get(componentId);
 							if (component != null) {
-								component.updateStyle(query.style);
+								try {
+									component.updateStyle(query.style);
+								} catch (NativeUIException e) {
+									e.printStackTrace();
+								}
 								MyLog.d(MonacaPageActivity.class.getSimpleName(), "updated => id: " + componentId + ", style: " + query.style.toString());
 							} else {
 								Log.e(MonacaPageActivity.class.getSimpleName(), "update fail => id: " + componentId + ", style: " + query.style.toString());

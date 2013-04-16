@@ -1,14 +1,18 @@
 package mobi.monaca.framework.nativeui.container;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
@@ -32,7 +36,6 @@ public class TabbarItem extends Component {
 
 	protected Drawable drawable;
     protected TabbarItemView view;
-    protected UIContext context;
     protected String link;
     protected Handler handler;
 
@@ -48,9 +51,8 @@ public class TabbarItem extends Component {
 		return validKeys;
 	}
 
-    public TabbarItem(UIContext context, JSONObject tabbarItemJSON) throws NativeUIException {
-	super(tabbarItemJSON);
-	this.context = context;
+    public TabbarItem(UIContext context, JSONObject tabbarItemJSON) throws KeyNotValidException, DuplicateIDException {
+	super(context, tabbarItemJSON);
 	this.view = new TabbarItemView(context);
 	this.link = tabbarItemJSON.optString("link");
 	this.handler = new Handler();
@@ -79,10 +81,17 @@ public class TabbarItem extends Component {
         String imagePath = style.optString("image");
 		if (imagePath.length() > 0) {
         	MyLog.v(TAG, "we have image icon for Tabbar!");
-            Bitmap bitmap = context.readScaledBitmap(imagePath);
-            if (bitmap != null) {
-                view.setIconBitmap(bitmap);
-            }
+            Bitmap bitmap;
+			try {
+				bitmap = uiContext.readScaledBitmap(imagePath);
+				if (bitmap != null) {
+	                view.setIconBitmap(bitmap);
+	            }
+			} catch (IOException e) {
+				e.printStackTrace();
+				NativeUIIOException exception = new NativeUIIOException(getComponentName() + " style", "image", imagePath, e.getMessage());
+				UIValidator.reportException(uiContext, exception);
+			}
         }
     }
 
@@ -148,8 +157,8 @@ public class TabbarItem extends Component {
         }
 
         public void setIconBitmap(Bitmap bitmap) {
-            bitmap = UIUtil.resizeBitmap(bitmap, dip2px(context, 28));
-            Drawable icon = new BitmapDrawable(context.getResources(), bitmap);
+            bitmap = UIUtil.resizeBitmap(bitmap, dip2px(uiContext, 28));
+            Drawable icon = new BitmapDrawable(uiContext.getResources(), bitmap);
             icon.setColorFilter(isSelected() ? 0xffffffff : 0x99ffffff,
                     PorterDuff.Mode.SRC_IN);
             imageView.setImageDrawable(icon);
@@ -186,7 +195,7 @@ public class TabbarItem extends Component {
                 textView.setTextColor(0xffffffff);
                 isSelected = true;
 
-                context.changeCurrentUri(link);
+                uiContext.changeCurrentUri(link);
             }
             imageView.setAlpha(0xff);
             invalidate();
@@ -203,7 +212,7 @@ public class TabbarItem extends Component {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        context.loadRelativePathWithoutUIFile(link);
+                        uiContext.loadRelativePathWithoutUIFile(link);
                     }
                 });
             }

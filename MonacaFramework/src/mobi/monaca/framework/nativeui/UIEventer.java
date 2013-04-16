@@ -1,6 +1,8 @@
 package mobi.monaca.framework.nativeui;
 
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONObject;
@@ -9,15 +11,13 @@ import android.view.View;
 
 public class UIEventer extends Component{
     protected JSONObject event;
-    protected UIContext context;
     protected static final String[] validKeys = {
 	"onTapBackButton",
 	"onTap"
     };
 
-    public UIEventer(UIContext context, JSONObject event) throws NativeUIException {
-	super(event);
-        this.context = context;
+    public UIEventer(UIContext context, JSONObject event) throws KeyNotValidException, DuplicateIDException {
+	super(context, event);
         this.event = event;
     }
 
@@ -29,7 +29,7 @@ public class UIEventer extends Component{
         String code = event.optString("onTapBackButton", "");
 
         if (!code.equals("")) {
-            context.react("javascript:" + code);
+            uiContext.react("javascript:" + code);
         }
     }
 

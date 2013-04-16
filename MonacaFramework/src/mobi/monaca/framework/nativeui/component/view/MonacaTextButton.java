@@ -1,7 +1,11 @@
 package mobi.monaca.framework.nativeui.component.view;
 
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.ButtonBackgroundDrawable;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.exception.ConversionException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.ValueNotInRangeException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,23 +55,27 @@ public class MonacaTextButton extends Button {
         return style;
     }
     
-    public void updateStyle(JSONObject update) {
+    public void updateStyle(JSONObject update) throws NativeUIException {
         updateJSONObject(style, update);
         style();
     }
     
-    protected void style() {
-        ColorStateList textColor = new ColorStateList(new int[][] {
+    protected void style() throws NativeUIException {
+		int activeTextColor = UIValidator.parseAndValidateColor(context, "Button style", "activeTextColor", "#999999", style);
+		int textColorPressed = UIValidator.parseAndValidateColor(context, "Button style", "textColor", "ffffff", style);
+		
+		ColorStateList textColor = new ColorStateList(new int[][] {
                 new int[] { android.R.attr.state_pressed }, new int[0] },
-                new int[] {
-                        buildColor(style.optString("activeTextColor",
-                                style.optString("textColor", "#999999"))),
-                        buildColor(style.optString("textColor", "#ffffff")) });
+                new int[] { activeTextColor,
+                        	textColorPressed });
 
-        ButtonBackgroundDrawable background = new ButtonBackgroundDrawable(
-                context, buildColor(style.optString("backgroundColor",
-                        "#000000")));
-        background.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+		int backgroundColor = UIValidator.parseAndValidateColor(context, "Button style", "backgroundColor", "#000000", style);
+		ButtonBackgroundDrawable background = new ButtonBackgroundDrawable(
+                context, backgroundColor);
+		
+		float opacity = UIValidator.parseAndValidateFloat(context, "Button style", "opacity", "1.0", style, "[0.0-1.0]");
+		background.setAlpha(buildOpacity(opacity));
+        
         setBackgroundDrawable(new ButtonDrawable(background));
         
         setLayoutParams(new FrameLayout.LayoutParams(
@@ -85,13 +93,13 @@ public class MonacaTextButton extends Button {
 
         setTextColor(0xffffffff);
         setTextColor(getTextColors().withAlpha(
-                buildOpacity(style.optDouble("opacity", 1.0))));
+                buildOpacity(opacity)));
 
         setEnabled(!style.optBoolean("disable", false));
         if (style.optBoolean("disable", false)) {
             setTextColor(0xff999999);
             setTextColor(getTextColors().withAlpha(
-                    buildOpacity(style.optDouble("opacity", 1.0))));
+                    buildOpacity(opacity)));
         }
 
         setShadowLayer(1f, 0f, -1f, 0xff000000);

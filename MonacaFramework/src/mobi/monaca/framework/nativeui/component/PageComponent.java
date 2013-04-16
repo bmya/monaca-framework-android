@@ -1,5 +1,6 @@
 package mobi.monaca.framework.nativeui.component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,11 +16,16 @@ import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIEventer;
 import mobi.monaca.framework.nativeui.UIGravity;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.container.TabbarContainer;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
+import mobi.monaca.framework.nativeui.exception.ConversionException;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.InvalidValueException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.MenuNameNotDefinedInAppMenuFileException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.util.MyLog;
@@ -62,13 +68,10 @@ public class PageComponent extends Component {
 	public UIEventer eventer;
 	public String menuName;
 
-	protected static String[] validKeys = {
-		"top",
-		"bottom",
-		"event",
-		"style",
-		"menu"
-	};
+	protected static String[] validKeys = { "top", "bottom", "event", "style", "menu", "id" };
+
+	protected static String[] styleValidKeys = { "backgroundColor", "backgroundImage", "backgroundSize", "backgroundRepeat", "backgroundPosition",
+			"screenOrientation" };
 
 	@Override
 	public String[] getValidKeys() {
@@ -76,17 +79,19 @@ public class PageComponent extends Component {
 	}
 
 	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws NativeUIException {
-		super(pageJSON);
+		super(uiContext, pageJSON);
 		this.uiContext = uiContext;
+		UIValidator.validateKey(uiContext, "Page's style", style, styleValidKeys);
+
 		JSONObject event = getComponentJSON().optJSONObject("event");
-		if(event != null) {
+		if (event != null) {
 			eventer = new UIEventer(uiContext, getComponentJSON().optJSONObject("event"));
 		}
 		menuName = getComponentJSON().optString("menu");
-		if( !TextUtils.isEmpty(menuName) ) {
+		if (!TextUtils.isEmpty(menuName)) {
 			MonacaApplication app = (MonacaApplication) uiContext.getPageActivity().getApplication();
 			MenuRepresentation menuRepresentation = app.findMenuRepresentation(menuName);
-			if(menuRepresentation == null){
+			if (menuRepresentation == null) {
 				throw new MenuNameNotDefinedInAppMenuFileException(getComponentName(), menuName);
 			}
 		}
@@ -95,26 +100,41 @@ public class PageComponent extends Component {
 		buildChildren();
 	}
 
-	private void buildChildren() throws NativeUIException {
+	private static final String[] TOP_CONTAINER_VALID_VALUES = { "toolbar" };
+	private static final String[] BOTTOM_CONTAINER_VALID_VALUES = { "toolbar, tabbar" };
+
+	private void buildChildren() throws NativeUIException   {
 		JSONObject topJSON = getComponentJSON().optJSONObject("top");
 		if (topJSON != null) {
-			// right now top is always toolbar
-			topComponent = new ToolbarContainer(uiContext, topJSON, true);
+			String containerType = topJSON.optString("container");
+			if (!TextUtils.isEmpty(containerType)) {
+				if (containerType.equalsIgnoreCase("toolbar")) {
+					topComponent = new ToolbarContainer(uiContext, topJSON, true);
+				} else {
+					InvalidValueException exception = new InvalidValueException("Page top", "container", containerType, TOP_CONTAINER_VALID_VALUES);
+					throw exception;
+				}
+			} else {
+				RequiredKeyNotFoundException exception = new RequiredKeyNotFoundException("top", "container");
+				throw exception;
+			}
 		}
 
 		JSONObject bottomJSON = getComponentJSON().optJSONObject("bottom");
 		if (bottomJSON != null) {
-			String containerType;
-			try {
-				containerType = bottomJSON.getString("container");
+			String containerType = topJSON.optString("container");
+			if (!TextUtils.isEmpty(containerType)) {
 				if (containerType.equalsIgnoreCase("toolbar")) {
 					bottomComponent = new ToolbarContainer(uiContext, bottomJSON, false);
-				}
-				if (containerType.equalsIgnoreCase("tabbar")) {
+				} else if (containerType.equalsIgnoreCase("tabbar")) {
 					bottomComponent = new TabbarContainer(uiContext, bottomJSON);
+				} else {
+					InvalidValueException exception = new InvalidValueException("Page bottom", "container", containerType, BOTTOM_CONTAINER_VALID_VALUES);
+					UIValidator.reportException(uiContext, exception);
 				}
-			} catch (JSONException e) {
-				throw new RequiredKeyNotFoundException("top", "container");
+			} else {
+				RequiredKeyNotFoundException exception = new RequiredKeyNotFoundException("top", "container");
+				UIValidator.reportException(uiContext, exception);
 			}
 		}
 	}
@@ -123,7 +143,7 @@ public class PageComponent extends Component {
 	public View getView() {
 		return null;
 	}
-	
+
 	public Component getTopComponent() {
 		return topComponent;
 	}
@@ -158,18 +178,21 @@ public class PageComponent extends Component {
 		mLayeredBackgroundDrawable = new LayerDrawable(layerList.toArray(layers));
 	}
 
+	// TODO: support mutiple values ex. "landscape, portrait"
 	private void processScreenOrientation() {
 		String screenOrientationString = style.optString("screenOrientation").trim();
-		if (TextUtils.isEmpty(screenOrientationString)) {
-			mScreenOrientation = PageOrientation.INHERIT;
-		} else if (screenOrientationString.equalsIgnoreCase("portrait")) {
+		if (screenOrientationString.equalsIgnoreCase("portrait")) {
 			mScreenOrientation = PageOrientation.PORTRAIT;
 		} else if (screenOrientationString.equalsIgnoreCase("landscape")) {
 			mScreenOrientation = PageOrientation.LANDSCAPE;
-		} else {
+		} else if (screenOrientationString.equalsIgnoreCase("inherit")) {
 			mScreenOrientation = PageOrientation.SENSOR;
+		} else {
+			// TODO raise error
 		}
 	}
+
+	private static final String[] validBackgroundRepeatValues = { "repeat-x", "repeat-y", "repeat" };
 
 	private void processPageStyleBackgroundRepeat(ArrayList<Drawable> layerList) {
 		String backgroundRepeatString = style.optString("backgroundRepeat");
@@ -185,18 +208,16 @@ public class PageComponent extends Component {
 			MyLog.e(TAG, "background repeat:" + backgroundRepeatString);
 			if (backgroundRepeatString.equalsIgnoreCase("repeat-x")) {
 				bitmapDrawable.setTileModeX(TileMode.REPEAT);
-			}
-
-			if (backgroundRepeatString.equalsIgnoreCase("repeat-y")) {
+			} else if (backgroundRepeatString.equalsIgnoreCase("repeat-y")) {
 				bitmapDrawable.setTileModeY(TileMode.REPEAT);
-			}
-
-			if (backgroundRepeatString.equalsIgnoreCase("repeat")) {
+			} else if (backgroundRepeatString.equalsIgnoreCase("repeat")) {
 				bitmapDrawable.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
-			}
-
-			if (backgroundRepeatString.equalsIgnoreCase("no-repeat")) {
+			} else if (backgroundRepeatString.equalsIgnoreCase("no-repeat")) {
 				bitmapDrawable.setTileModeXY(null, null);
+			} else {
+				InvalidValueException exception = new InvalidValueException("Page's style", "backgroundRepeat", backgroundRepeatString,
+						validBackgroundRepeatValues);
+				UIValidator.reportException(uiContext, exception);
 			}
 		}
 	}
@@ -218,14 +239,12 @@ public class PageComponent extends Component {
 					color = Color.parseColor(backgroundColorString);
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
-					LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR,
-							"NativeComponent:InvalidColorValue: Cannot parse backgroundColor " + backgroundColorString, "", 0);
-					MyLog.sendBloadcastDebugLog(uiContext, logItem);
+					ConversionException exception = new ConversionException("Page's style", "backgroundColor", backgroundColorString, "Color");
+					UIValidator.reportException(uiContext, exception);
 				}
 			} else {
-				LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR,
-						"NativeComponent:InvalidColorValue: Cannot parse backgroundColor " + backgroundColorString, "", 0);
-				MyLog.sendBloadcastDebugLog(uiContext, logItem);
+				ConversionException exception = new ConversionException("Page's style", "backgroundColor", backgroundColorString, "Color");
+				UIValidator.reportException(uiContext, exception);
 			}
 		}
 
@@ -238,8 +257,9 @@ public class PageComponent extends Component {
 		String backgroundImageFile = pageStyle.optString("backgroundImage").trim();
 		boolean shouldSkipBackgroundPosition = false;
 		if (!backgroundImageFile.equalsIgnoreCase("")) {
+			Bitmap bitmap;
 			try {
-				Bitmap bitmap = uiContext.readScaledBitmap(backgroundImageFile);
+				bitmap = uiContext.readScaledBitmap(backgroundImageFile);
 				BitmapDrawable backgroundImage = new BitmapDrawable(uiContext.getResources(), bitmap);
 				layerList.add(backgroundImage);
 				float bitmapWidth = bitmap.getWidth();
@@ -309,9 +329,8 @@ public class PageComponent extends Component {
 								height = UIUtil.dip2px(uiContext, width);
 							}
 						} else {
-							LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR,
-									"NativeComponent:InvalidColorValue: Cannot parse backgroundSize " + backgroundSize, "", 0);
-							MyLog.sendBloadcastDebugLog(uiContext, logItem);
+							ConversionException exception = new ConversionException("Page style", "backgroundSize", backgroundSize, "Size");
+							UIValidator.reportException(uiContext, exception);
 						}
 
 					} else {
@@ -344,8 +363,10 @@ public class PageComponent extends Component {
 
 				BitmapDrawable finalDrawable = (BitmapDrawable) getTopDrawable(layerList);
 				processBackgroundPosition(pageStyle, finalDrawable, shouldSkipBackgroundPosition);
-			} catch (Exception e) {
+			} catch (IOException e) {
 				e.printStackTrace();
+				NativeUIIOException exception = new NativeUIIOException("Page style", "backgroundImage", backgroundImageFile, e.getMessage());
+				UIValidator.reportException(uiContext, exception);
 			}
 		}
 	}
@@ -361,8 +382,8 @@ public class PageComponent extends Component {
 		String backgroundPosition = pageStyle.optString("backgroundPosition").trim();
 
 		// get horizontal and vertical
-		int horizontalGravity = Gravity.CENTER;
-		int verticalGravity = Gravity.CENTER;
+		Integer horizontalGravity = Gravity.CENTER;
+		Integer verticalGravity = Gravity.CENTER;
 		if (!backgroundPosition.equalsIgnoreCase("")) {
 			// default
 			horizontalPositionString = "center";
@@ -383,12 +404,22 @@ public class PageComponent extends Component {
 			// left, center, or right
 			if (UIGravity.hasHorizontalGravity(horizontalPositionString)) {
 				horizontalGravity = UIGravity.getHorizontalGravity(horizontalPositionString);
+				if (horizontalGravity == null) {
+					InvalidValueException exception = new InvalidValueException("Page style", "backgroundPosition", horizontalPositionString,
+							UIGravity.HORIZONTAL_POSITIONS);
+					UIValidator.reportException(uiContext, exception);
+				}
 			}
 
 			// check vertical
 			// top, center, or bottom
 			if (UIGravity.hasVerticalGravity(verticalPositionString)) {
 				verticalGravity = UIGravity.getVerticalGravity(verticalPositionString);
+				if (verticalGravity == null) {
+					InvalidValueException exception = new InvalidValueException("Page style", "backgroundPosition", verticalPositionString,
+							UIGravity.VERTICAL_POSITIONS);
+					UIValidator.reportException(uiContext, exception);
+				}
 			}
 		}
 		backgroundImage.setGravity(horizontalGravity | verticalGravity);

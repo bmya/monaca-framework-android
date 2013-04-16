@@ -10,6 +10,10 @@ import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.UIValidator;
+import mobi.monaca.framework.nativeui.exception.ConversionException;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
@@ -29,313 +33,288 @@ import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 public class SegmentComponent extends ToolbarComponent {
 
-    protected SegmentComponentView view;
-    protected UIContext context;
-    protected ComponentEventer eventer;
-    protected int backgroundColor = 0xff555555;
-    protected int pressedBackgroundColor;
+	protected SegmentComponentView view;
+	protected ComponentEventer eventer;
+	protected int backgroundColor = 0xff555555;
+	protected int pressedBackgroundColor;
 
-    protected static String[] validKeys = {
-	"component",
-	"style",
-	"iosStyle",
-	"androidStyle",
-	"id",
-	"event",
-	};
+	protected static final String[] SEGMENT_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event", };
+	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disalbe", "opacity", "backgroundColor", "activeTextColor", "textColor", "texts", "activeIndex" };
 
 	@Override
 	public String[] getValidKeys() {
-		return validKeys;
+		return SEGMENT_VALID_KEYS;
 	}
 
-    public SegmentComponent(UIContext context, JSONObject segmentJSON) throws NativeUIException {
-	super(segmentJSON);
-	this.context = context;
-	this.view = new SegmentComponentView(context);
+	public SegmentComponent(UIContext context, JSONObject segmentJSON) throws NativeUIException {
+		super(context, segmentJSON);
+		this.view = new SegmentComponentView(context);
 
-	buildEventer();
-
-        style();
-    }
-
-    private void buildEventer(){
-		this.eventer = new ComponentEventer(context, getComponentJSON().optJSONObject("event"));
+		UIValidator.validateKey(context, getComponentName() + " style", segmentJSON, STYLE_VALID_KEYS);
+		buildEventer();
+		style();
 	}
 
-    public View getView() {
-        return view;
-    }
+	private void buildEventer() throws NativeUIException {
+		this.eventer = new ComponentEventer(uiContext, getComponentJSON().optJSONObject("event"));
+	}
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
+	public View getView() {
+		return view;
+	}
 
-    protected void style() {
-        JSONArray texts = style.optJSONArray("texts");
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+	}
 
-        backgroundColor = buildColor(style.optString("backgroundColor",
-                "#ff0000"));
+	protected void style() throws NativeUIException {
+		JSONArray texts = style.optJSONArray("texts");
 
-        if (texts != null) {
-            view.removeAllSegmentItemViews();
-            for (int i = 0; i < texts.length(); i++) {
-                SegmentItemView item = new SegmentItemView(context,
-                        texts.optString(i), backgroundColor);
-                if (i == 0) {
-                    item.setAsLeft();
-                } else if (i == texts.length() - 1) {
-                    item.setAsRight();
-                } else {
-                    item.setAsCenter();
-                }
-                view.addSegmentItemView(item);
-            }
-            if (texts.length() == 1) {
-                view.setAsSingle();
-            }
-        }
+		backgroundColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "backgroundColor", "#ff0000", style);
 
-        view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
-                : View.INVISIBLE);
-        view.setDisable(style.optBoolean("disable", false));
+		if (texts != null) {
+			view.removeAllSegmentItemViews();
+			for (int i = 0; i < texts.length(); i++) {
+				SegmentItemView item = new SegmentItemView(uiContext, texts.optString(i), backgroundColor);
+				if (i == 0) {
+					item.setAsLeft();
+				} else if (i == texts.length() - 1) {
+					item.setAsRight();
+				} else {
+					item.setAsCenter();
+				}
+				view.addSegmentItemView(item);
+			}
+			if (texts.length() == 1) {
+				view.setAsSingle();
+			}
+		}
 
-        view.setActiveIndex(style.optInt("activeIndex", 0));
-        view.updateSegmentItemsWidth();
-    }
+		view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE);
+		view.setDisable(style.optBoolean("disable", false));
 
-    class SegmentComponentView extends FrameLayout implements
-            View.OnClickListener {
+		view.setActiveIndex(style.optInt("activeIndex", 0));
+		view.updateSegmentItemsWidth();
+	}
 
-        protected boolean disabled = false;
-        protected ArrayList<SegmentItemView> items = new ArrayList<SegmentItemView>();
-        protected SegmentItemView currentItemView = null;
-        protected LinearLayout layout;
+	class SegmentComponentView extends FrameLayout implements View.OnClickListener {
 
-        public SegmentComponentView(Context context) {
-            super(context);
+		protected boolean disabled = false;
+		protected ArrayList<SegmentItemView> items = new ArrayList<SegmentItemView>();
+		protected SegmentItemView currentItemView = null;
+		protected LinearLayout layout;
 
-            layout = new LinearLayout(context);
-            layout.setOrientation(LinearLayout.HORIZONTAL);
+		public SegmentComponentView(Context context) {
+			super(context);
 
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT);
-            addView(layout, layoutParams);
-            addView(createFrameView(), layoutParams);
-        }
+			layout = new LinearLayout(context);
+			layout.setOrientation(LinearLayout.HORIZONTAL);
 
-        public View createFrameView() {
-            View v = new FrameLayout(context);
-            v.setBackgroundResource(R.drawable.monaca_button_frame);
-            v.getBackground().setAlpha(0xcc);
+			FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
+			addView(layout, layoutParams);
+			addView(createFrameView(), layoutParams);
+		}
 
-            return v;
-        }
+		public View createFrameView() {
+			View v = new FrameLayout(uiContext);
+			v.setBackgroundResource(R.drawable.monaca_button_frame);
+			v.getBackground().setAlpha(0xcc);
 
-        public List<SegmentItemView> getAllSegmentItems() {
-            return items;
-        }
+			return v;
+		}
 
-        public void setAsSingle() {
-            items.get(0).setAsSingle();
-        }
+		public List<SegmentItemView> getAllSegmentItems() {
+			return items;
+		}
 
-        public void removeAllSegmentItemViews() {
-            layout.removeAllViews();
-            items = new ArrayList<SegmentItemView>();
-        }
+		public void setAsSingle() {
+			items.get(0).setAsSingle();
+		}
 
-        public void setActiveIndex(int i) {
-            if (currentItemView != null) {
-                currentItemView.switchToUnselected();
-            }
-            if (i >= 0 && i < items.size()) {
-                currentItemView = items.get(i);
-                currentItemView.switchToSelected();
-            } else {
-                currentItemView = null;
-            }
-        }
+		public void removeAllSegmentItemViews() {
+			layout.removeAllViews();
+			items = new ArrayList<SegmentItemView>();
+		}
 
-        public void setDisable(boolean disabled) {
-            this.disabled = disabled;
-        }
+		public void setActiveIndex(int i) {
+			if (currentItemView != null) {
+				currentItemView.switchToUnselected();
+			}
+			if (i >= 0 && i < items.size()) {
+				currentItemView = items.get(i);
+				currentItemView.switchToSelected();
+			} else {
+				currentItemView = null;
+			}
+		}
 
-        protected void addSegmentItemView(SegmentItemView itemView) {
-            items.add(itemView);
-            layout.addView(itemView, new LinearLayout.LayoutParams(0,
-                    LinearLayout.LayoutParams.MATCH_PARENT, 1));
+		public void setDisable(boolean disabled) {
+			this.disabled = disabled;
+		}
 
-            if (items.size() == 1) {
-                itemView.switchToSelected();
-                currentItemView = itemView;
-            } else {
-                itemView.switchToUnselected();
-            }
+		protected void addSegmentItemView(SegmentItemView itemView) {
+			items.add(itemView);
+			layout.addView(itemView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1));
 
-            itemView.setOnClickListener(this);
-        }
+			if (items.size() == 1) {
+				itemView.switchToSelected();
+				currentItemView = itemView;
+			} else {
+				itemView.switchToUnselected();
+			}
 
-        protected void updateSegmentItemsWidth() {
-            ArrayList<Integer> widths = new ArrayList<Integer>();
-            for (SegmentItemView segment : items) {
-                segment.measure(View.MeasureSpec.UNSPECIFIED,
-                        View.MeasureSpec.UNSPECIFIED);
-                segment.getMeasuredWidth();
-                widths.add(segment.getMeasuredWidth());
-            }
+			itemView.setOnClickListener(this);
+		}
 
-            int maxWidth = Collections.max(widths);
-            // compensate for sdk > Honeycomb using Holo theme which make item width wider
-            if(android.os.Build.VERSION.SDK_INT >= 11){
-            	maxWidth = maxWidth - UIUtil.dip2px(getContext(), 15);
-            }
-            MyLog.e(TAG, "max width:" + maxWidth);
-            for (SegmentItemView segment : items) {
-                LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) segment
-                        .getLayoutParams();
-                p.width =  maxWidth;
-                segment.setLayoutParams(p);
-            }
+		protected void updateSegmentItemsWidth() {
+			ArrayList<Integer> widths = new ArrayList<Integer>();
+			for (SegmentItemView segment : items) {
+				segment.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+				segment.getMeasuredWidth();
+				widths.add(segment.getMeasuredWidth());
+			}
 
-            View frame = getChildAt(1);
-            FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) frame
-                    .getLayoutParams();
-            p.width = maxWidth * items.size();
-            frame.setLayoutParams(p);
-        }
+			int maxWidth = Collections.max(widths);
+			// compensate for sdk > Honeycomb using Holo theme which make item
+			// width wider
+			if (android.os.Build.VERSION.SDK_INT >= 11) {
+				maxWidth = maxWidth - UIUtil.dip2px(getContext(), 15);
+			}
+			MyLog.e(TAG, "max width:" + maxWidth);
+			for (SegmentItemView segment : items) {
+				LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) segment.getLayoutParams();
+				p.width = maxWidth;
+				segment.setLayoutParams(p);
+			}
 
-        @Override
-        public void onClick(View v) {
-            if (!this.disabled) {
-                SegmentItemView item = (SegmentItemView) v;
-                item.switchToSelected();
+			View frame = getChildAt(1);
+			FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) frame.getLayoutParams();
+			p.width = maxWidth * items.size();
+			frame.setLayoutParams(p);
+		}
 
-                int activeIndex = 0;
-                for (int i = 0; i < items.size(); i++) {
-                    if (items.get(i) == item) {
-                        activeIndex = i;
-                        try {
-                            style.put("activeIndex", i);
-                        } catch (JSONException e) {
-                        }
-                        break;
-                    }
-                }
+		@Override
+		public void onClick(View v) {
+			if (!this.disabled) {
+				SegmentItemView item = (SegmentItemView) v;
+				item.switchToSelected();
 
-                context.react("javascript: __segment_index = " + activeIndex
-                        + ";");
-                if (item == currentItemView) {
-                    eventer.onTap();
-                } else {
-                    eventer.onChange();
-                }
+				int activeIndex = 0;
+				for (int i = 0; i < items.size(); i++) {
+					if (items.get(i) == item) {
+						activeIndex = i;
+						try {
+							style.put("activeIndex", i);
+						} catch (JSONException e) {
+						}
+						break;
+					}
+				}
 
-                if (currentItemView != null && currentItemView != item) {
-                    currentItemView.switchToUnselected();
-                }
-                currentItemView = item;
+				uiContext.react("javascript: __segment_index = " + activeIndex + ";");
+				if (item == currentItemView) {
+					eventer.onTap();
+				} else {
+					eventer.onChange();
+				}
 
-            }
-        }
-    }
+				if (currentItemView != null && currentItemView != item) {
+					currentItemView.switchToUnselected();
+				}
+				currentItemView = item;
 
-    @Override
-    public void updateStyle(JSONObject update) {
-        updateJSONObject(style, update);
-        style();
-    }
+			}
+		}
+	}
 
-    public class SegmentItemView extends FrameLayout {
+	@Override
+	public void updateStyle(JSONObject update) {
+		updateJSONObject(style, update);
+		style();
+	}
 
-        protected Button button;
-        protected boolean isSelected = true;
-        protected int tint;
-        protected SegmentBackgroundDrawable background;
+	public class SegmentItemView extends FrameLayout {
 
-        public SegmentItemView(UIContext context, String title, int tint) {
-            super(context);
+		protected Button button;
+		protected boolean isSelected = true;
+		protected int tint;
+		protected SegmentBackgroundDrawable background;
 
-            this.tint = tint;
+		public SegmentItemView(UIContext context, String title, int tint) {
+			super(context);
 
-            button = new Button(context);
-            button.setText(title);
-            button.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
-            button.setTextColor(0xffffffff);
-            button.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                    context.getFontSizeFromDip(Component.SEGMENT_TEXT_DIP));
-            button.setShadowLayer(1f, 0f, -1f, 0xcc000000);
+			this.tint = tint;
 
-            addView(button, new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT));
+			button = new Button(context);
+			button.setText(title);
+			button.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
+			button.setTextColor(0xffffffff);
+			button.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getFontSizeFromDip(Component.SEGMENT_TEXT_DIP));
+			button.setShadowLayer(1f, 0f, -1f, 0xcc000000);
 
-            setAsSingle();
-            switchToUnselected();
-        }
+			addView(button, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
-        public void setAsLeft() {
-            background = new SegmentBackgroundDrawable(context,
-                    SegmentBackgroundDrawable.Type.LEFT, tint);
-            button.setBackgroundDrawable(background);
-        }
+			setAsSingle();
+			switchToUnselected();
+		}
 
-        public void setAsRight() {
-            background = new SegmentBackgroundDrawable(context,
-                    SegmentBackgroundDrawable.Type.RIGHT, tint);
-            button.setBackgroundDrawable(background);
-        }
+		public void setAsLeft() {
+			background = new SegmentBackgroundDrawable(uiContext, SegmentBackgroundDrawable.Type.LEFT, tint);
+			button.setBackgroundDrawable(background);
+		}
 
-        public void setAsCenter() {
-            background = new SegmentBackgroundDrawable(context,
-                    SegmentBackgroundDrawable.Type.CENTER, tint);
-            button.setBackgroundDrawable(background);
-        }
+		public void setAsRight() {
+			background = new SegmentBackgroundDrawable(uiContext, SegmentBackgroundDrawable.Type.RIGHT, tint);
+			button.setBackgroundDrawable(background);
+		}
 
-        public void setAsSingle() {
-            background = new SegmentBackgroundDrawable(context,
-                    SegmentBackgroundDrawable.Type.SINGLE, tint);
-            button.setBackgroundDrawable(background);
-        }
+		public void setAsCenter() {
+			background = new SegmentBackgroundDrawable(uiContext, SegmentBackgroundDrawable.Type.CENTER, tint);
+			button.setBackgroundDrawable(background);
+		}
 
-        @Override
-        public void setOnClickListener(final View.OnClickListener listener) {
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onClick(SegmentItemView.this);
-                }
-            });
-        }
+		public void setAsSingle() {
+			background = new SegmentBackgroundDrawable(uiContext, SegmentBackgroundDrawable.Type.SINGLE, tint);
+			button.setBackgroundDrawable(background);
+		}
 
-        public void switchToSelected() {
-            background.setSelected(true);
-            isSelected = true;
-            invalidate();
-            MyLog.d(getClass().getSimpleName(), "selected");
-        }
+		@Override
+		public void setOnClickListener(final View.OnClickListener listener) {
+			button.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					listener.onClick(SegmentItemView.this);
+				}
+			});
+		}
 
-        public void switchToUnselected() {
-            background.setSelected(false);
-            isSelected = false;
-            invalidate();
-            MyLog.d(getClass().getSimpleName(), "unselected");
-        }
+		public void switchToSelected() {
+			background.setSelected(true);
+			isSelected = true;
+			invalidate();
+			MyLog.d(getClass().getSimpleName(), "selected");
+		}
 
-        protected void updateSwitchingEffect() {
-            if (isSelected) {
-                switchToSelected();
-            } else {
-                switchToUnselected();
-            }
-        }
+		public void switchToUnselected() {
+			background.setSelected(false);
+			isSelected = false;
+			invalidate();
+			MyLog.d(getClass().getSimpleName(), "unselected");
+		}
 
-        public boolean isSelected() {
-            return isSelected;
-        }
-    }
+		protected void updateSwitchingEffect() {
+			if (isSelected) {
+				switchToSelected();
+			} else {
+				switchToUnselected();
+			}
+		}
+
+		public boolean isSelected() {
+			return isSelected;
+		}
+	}
 
 	@Override
 	public String getComponentName() {

@@ -38,7 +38,6 @@ public class MonacaApplication extends Application {
 	private static final String TAG = MonacaApplication.class.getSimpleName();
 	protected static List<MonacaPageActivity> pages = null;
 	protected static Map<String, MenuRepresentation> menuMap = null;
-	protected static MonacaApplication self = null;
 	private SpinnerDialog monacaSpinnerDialog;
     protected static InternalSettings settings = null;
 
@@ -62,7 +61,6 @@ public class MonacaApplication extends Application {
 	public void onCreate() {
 		MyLog.i(TAG, "onCreate()");
 		super.onCreate();
-		self = this;
 
 		registerReceiver(registeredReceiver, new IntentFilter(GCMIntentService.ACTION_GCM_REGISTERED));
 		createMenuMap();
@@ -150,10 +148,10 @@ public class MonacaApplication extends Application {
 		}
 	}
 
-	public static boolean allowAccess(String url) {
+	public boolean allowAccess(String url) {
 
 		if (url.startsWith("file://")) {
-			Context context = self.getApplicationContext();
+			Context context = this.getApplicationContext();
 
 			try {
 				url = new URI(url).normalize().toString();
@@ -215,12 +213,12 @@ public class MonacaApplication extends Application {
 	}
 	
 	/** Get Monaca's internal settings object */
-    public static InternalSettings getInternalSettings() {
+    public InternalSettings getInternalSettings() {
         if (settings == null) {
             try {
-                settings = new InternalSettings(self.getPackageManager().getApplicationInfo(self.getPackageName(), PackageManager.GET_META_DATA).metaData);
+                settings = new InternalSettings(this.getPackageManager().getApplicationInfo(this.getPackageName(), PackageManager.GET_META_DATA).metaData);
             } catch (Exception e) {
-                Log.d(self.getClass().getSimpleName(), "InternalSettings initialization fail", e);
+                Log.d(this.getClass().getSimpleName(), "InternalSettings initialization fail", e);
                 settings = new InternalSettings(new Bundle());
             }
             
@@ -233,7 +231,6 @@ public class MonacaApplication extends Application {
 		MyLog.i(TAG, "onTerminate()");
 		pages = null;
 		menuMap = null;
-		self = null;
 
 		super.onTerminate();
 	}
