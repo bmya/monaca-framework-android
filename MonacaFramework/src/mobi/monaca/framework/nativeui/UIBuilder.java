@@ -27,6 +27,8 @@ import org.json.JSONObject;
 
 import android.view.View;
 
+// TODO: remove this class. use PageComponent instead
+
 /** JSONをパースしてネイティブUIを構築するクラス */
 public class UIBuilder {
 

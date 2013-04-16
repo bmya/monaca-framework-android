@@ -5,10 +5,6 @@ import static mobi.monaca.framework.nativeui.UIUtil.createBitmapWithColorFilter;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
@@ -17,14 +13,10 @@ import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.view.MonacaButton;
-import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.util.MyLog;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -53,10 +45,15 @@ public class ButtonComponent extends ToolbarComponent {
 
 	public ButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException {
 		super(context, buttonJSON);
-		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
+		UIValidator.validateKey(context, getComponentName() + " style", style, getStyleValidKeys());
 		
 		buildEventer();
 		initView();
+	}
+	
+	// to be overriden by BackButton Component
+	protected String[] getStyleValidKeys(){
+		return STYLE_VALID_KEYS;
 	}
 
 	private void buildEventer() throws NativeUIException {

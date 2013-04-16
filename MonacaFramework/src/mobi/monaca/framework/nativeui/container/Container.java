@@ -4,7 +4,6 @@ import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
-import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONObject;
 

@@ -89,7 +89,7 @@ public class MonacaButton extends FrameLayout {
 		ButtonBackgroundDrawable background = new ButtonBackgroundDrawable(
                 context, backgroundColor);
 		
-        float opacity = UIValidator.parseAndValidateFloat(context, "Button style", "opacity", "1.0", style, "[0.0-1.0]");
+        float opacity = UIValidator.parseAndValidateFloat(context, "Button style", "opacity", "1.0", style, 0.0f, 1.0f);
 		background.setAlpha(buildOpacity(opacity));
         innerImageButton.setBackgroundDrawable(new ButtonDrawable(background));
 

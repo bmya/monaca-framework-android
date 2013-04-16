@@ -1,35 +1,33 @@
 package mobi.monaca.framework.nativeui.component;
 
+import static mobi.monaca.framework.nativeui.UIUtil.TAG;
+import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.UIValidator;
-import mobi.monaca.framework.nativeui.exception.ConversionException;
-import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.content.Context;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 public class SegmentComponent extends ToolbarComponent {
 
@@ -70,6 +68,9 @@ public class SegmentComponent extends ToolbarComponent {
 
 	protected void style() throws NativeUIException {
 		JSONArray texts = style.optJSONArray("texts");
+		if(texts == null){
+			throw new RequiredKeyNotFoundException(getComponentName() + " style", "texts");
+		}
 
 		backgroundColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "backgroundColor", "#ff0000", style);
 
@@ -94,7 +95,8 @@ public class SegmentComponent extends ToolbarComponent {
 		view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE);
 		view.setDisable(style.optBoolean("disable", false));
 
-		view.setActiveIndex(style.optInt("activeIndex", 0));
+		int activeIndex = UIValidator.parseAndValidateInt(uiContext, getComponentName() + " style", "activeIndex", "0", style, 0, texts.length() - 1);
+		view.setActiveIndex(activeIndex);
 		view.updateSegmentItemsWidth();
 	}
 
@@ -229,7 +231,7 @@ public class SegmentComponent extends ToolbarComponent {
 	}
 
 	@Override
-	public void updateStyle(JSONObject update) {
+	public void updateStyle(JSONObject update) throws NativeUIException {
 		updateJSONObject(style, update);
 		style();
 	}

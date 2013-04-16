@@ -54,20 +54,37 @@ public class UIValidator {
 		}
 	}
 	
-	public static float parseAndValidateFloat(Context context, String componentName, String keyName, String defaultValue, JSONObject componentJSON, String validRange) throws ValueNotInRangeException, ConversionException{
+	public static float parseAndValidateFloat(Context context, String componentName, String keyName, String defaultValue, JSONObject componentJSON, float min, float max) throws ValueNotInRangeException, ConversionException{
 		String floatString = defaultValue;
 		if(componentJSON.has(keyName)){
 			floatString = componentJSON.optString(keyName);
 		}
-        float opacity; 
+        float floatValue; 
         try {
-        	opacity = Float.parseFloat(floatString);
-        	if(opacity < 0 || opacity > 1.0){
-        		throw new ValueNotInRangeException(componentName, keyName, floatString, validRange);
+        	floatValue = Float.parseFloat(floatString);
+        	if(floatValue < min || floatValue > max){
+        		throw new ValueNotInRangeException(componentName, keyName, floatString, "[" + min + "-" + max + "]");
         	}
-        	return opacity;
+        	return floatValue;
         }catch (IllegalArgumentException e) {
         	throw new ConversionException(componentName, keyName, floatString, "Float");
+		}
+	}
+	
+	public static int parseAndValidateInt(Context context, String componentName, String keyName, String defaultValue, JSONObject componentJSON, int min, int max) throws ValueNotInRangeException, ConversionException{
+		String integerString = defaultValue;
+		if(componentJSON.has(keyName)){
+			integerString = componentJSON.optString(keyName);
+		}
+        int intValue; 
+        try {
+        	intValue = Integer.parseInt(integerString);
+        	if(intValue < min || intValue > max){
+        		throw new ValueNotInRangeException(componentName, keyName, integerString, "[" + min + "-" + max + "]");
+        	}
+        	return intValue;
+        }catch (IllegalArgumentException e) {
+        	throw new ConversionException(componentName, keyName, integerString, "Integer");
 		}
 	}
 }

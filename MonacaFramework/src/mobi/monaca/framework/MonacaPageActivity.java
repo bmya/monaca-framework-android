@@ -511,31 +511,41 @@ public class MonacaPageActivity extends DroidGap {
 	/** Load local ui file */
 	public void loadUiFile(String uri) {
 		MyLog.v(TAG, "loadUiFile()");
-		String uiString = null;
+		JSONObject uiJSON = getUIJSON(uri);
+		if(uiJSON != null){
+			try {
+				mPageComponent = new PageComponent(uiContext, uiJSON);
+			}catch (Exception e) {
+				e.printStackTrace();
+				LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
+				MyLog.sendBloadcastDebugLog(getContext(), logItem);
+				return;
+			}
+		}
+		
+		applyUiToView();
+	}
 
+
+
+	protected JSONObject getUIJSON(String uri) {
+		String uiJSONString = null;
 		try {
-			uiString = getUIFile(UrlUtil.getUIFileUrl(uri));
+			uiJSONString = getUIFile(UrlUtil.getUIFileUrl(uri));
 		} catch (IOException e1) {
 			MyLog.d(TAG, "UI file not found");
-			return;
+			return null;
 		}
 
 		JSONObject uiJSON;
 		try {
-			uiJSON = new JSONObject(uiString);
-			mPageComponent = new PageComponent(uiContext, uiJSON);
+			uiJSON = new JSONObject(uiJSONString);
+			return uiJSON;
 		} catch (JSONException e) {
 			e.printStackTrace();
 			UIUtil.reportJSONParseError(getApplicationContext(), e.getMessage());
-			return;
-		} catch (Exception e) {
-			e.printStackTrace();
-			LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
-			MyLog.sendBloadcastDebugLog(getContext(), logItem);
-			return;
+			return null;
 		}
-
-		applyUiToView();
 	}
 
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
@@ -701,7 +711,7 @@ public class MonacaPageActivity extends DroidGap {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
 
-						if (mPageComponent.getComponentIdMap() != null && mPageComponent.getComponentIdMap().containsKey(componentId)) {
+						if (mPageComponent != null && mPageComponent.getComponentIdMap() != null && mPageComponent.getComponentIdMap().containsKey(componentId)) {
 							Component component = mPageComponent.getComponentIdMap().get(componentId);
 							if (component != null) {
 								try {

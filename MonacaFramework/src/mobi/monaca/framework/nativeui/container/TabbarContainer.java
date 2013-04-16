@@ -1,28 +1,26 @@
 package mobi.monaca.framework.nativeui.container;
 
+import static mobi.monaca.framework.nativeui.UIUtil.TAG;
+import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
+import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
+
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
-import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
 import mobi.monaca.framework.nativeui.container.TabbarItem.TabbarItemView;
-import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.content.Context;
+
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -40,20 +38,22 @@ public class TabbarContainer extends Container {
 	protected Integer oldActiveIndex = null;
 	protected static final int mContainerViewID = 1002;
 
-	protected static String[] validKeys = {
+	protected static final String[] TAB_BAR_VALID_KEYS = {
 		"container",
 		"id",
 		"style",
 		"items"
 	};
+	protected static final String[] STYLE_VALID_KEYS = {"visibility", "opacity", "backgroundColor", "activeIndex"};
 
 	@Override
 	public String[] getValidKeys() {
-		return validKeys;
+		return TAB_BAR_VALID_KEYS;
 	}
 
-	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws RequiredKeyNotFoundException, KeyNotValidException, DuplicateIDException {
+	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws NativeUIException {
 		super(context, tabbarJSON);
+		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
 		this.view = new TabbarContainerView(context);
 		this.view.setId(mContainerViewID);
 		shadowView = new ContainerShadowView(context, false);
@@ -63,7 +63,7 @@ public class TabbarContainer extends Container {
 		style();
 	}
 
-	private void buildChildren() throws RequiredKeyNotFoundException, KeyNotValidException, DuplicateIDException {
+	private void buildChildren() throws NativeUIException {
 		JSONArray itemsJSON = componentJSON.optJSONArray("items");
 		if(itemsJSON != null){
 			for (int i = 0; i < itemsJSON.length(); i++) {
@@ -76,7 +76,7 @@ public class TabbarContainer extends Container {
 
 	}
 
-	public void updateStyle(JSONObject update) {
+	public void updateStyle(JSONObject update) throws NativeUIException {
 		oldActiveIndex = style.has("activeIndex") ? style.optInt("activeIndex", 0) : null;
 		updateJSONObject(style, update);
 		style();
@@ -93,22 +93,24 @@ public class TabbarContainer extends Container {
 	 * (default: 1.0) backgroundColor: #000000 [string] (default: #000000)
 	 * activeIndex: 0 [int] (default: 0)
 	 */
-	protected void style() {
+	protected void style() throws NativeUIException {
 		view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
 
-		ColorFilter filter = new PorterDuffColorFilter(buildColor(style.optString("backgroundColor", "#000000")), PorterDuff.Mode.SCREEN);
+		int backgroundColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "backgroundColor", "#000000", style);
+		ColorFilter filter = new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.SCREEN);
 		Bitmap bgBitmap = UIUtil.createBitmapWithColorFilter(view.getContentView().getBackground(), filter);
 
 		view.getContentView().setBackgroundResource(R.drawable.monaca_tabbar_bg);
 		view.getContentView().setBackgroundDrawable(new BitmapDrawable(uiContext.getResources(), bgBitmap));
-		double tabbarOpacity = style.optDouble("opacity", 1.0);
+		float tabbarOpacity = UIValidator.parseAndValidateFloat(uiContext, getComponentName() + " style", "opacity", "1.0", style, 0.0f, 1.0f);
 		view.getContentView().getBackground().setAlpha(buildOpacity(tabbarOpacity));
 
-		if (oldActiveIndex != null && style.optInt("activeIndex", 0) != oldActiveIndex) {
+		int activeIndex = UIValidator.parseAndValidateInt(uiContext, getComponentName() + " style", "activeIndex", "0", style, 0, view.getItemSize() - 1);
+		if (oldActiveIndex != null && activeIndex != oldActiveIndex) {
 			view.setActiveIndex(style.optInt("activeIndex", 0));
 		}
 
-		double shadowOpacity = style.optDouble("shadowOpacity", 0.3);
+		float shadowOpacity = UIValidator.parseAndValidateFloat(uiContext, getComponentName() + " style", "shadowOpacity", "0.3", style, 0.0f, 1.0f);
 		double relativeShadowOpacity = tabbarOpacity * shadowOpacity;
 		getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
 	}
@@ -122,7 +124,6 @@ public class TabbarContainer extends Container {
 		protected ArrayList<TabbarItem.TabbarItemView> items = new ArrayList<TabbarItem.TabbarItemView>();
 		protected TabbarItemView currentItemView = null;
 		protected LinearLayout content;
-		private ToolbarContainerViewListener mContainerSizeListener;
 
 		public TabbarContainerView(UIContext context) {
 			super(context);
@@ -180,6 +181,10 @@ public class TabbarContainer extends Container {
 				currentItemView.switchToSelected();
 			}
 		}
+		
+		public int getItemSize(){
+			return items.size();
+		}
 
 		@Override
 		public void onClick(View v) {
@@ -201,24 +206,6 @@ public class TabbarContainer extends Container {
 				currentItemView.switchToUnselected();
 				currentItemView = item;
 				item.switchToSelected();
-			}
-		}
-		
-		@Override
-		public void setVisibility(int visibility) {
-			if (getVisibility() != visibility) {
-				if (mContainerSizeListener != null) {
-					mContainerSizeListener.onVisibilityChanged(visibility);
-				}
-			}
-			super.setVisibility(visibility);
-		}
-		
-		@Override
-		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-			super.onSizeChanged(w, h, oldw, oldh);
-			if(mContainerSizeListener != null){
-				mContainerSizeListener.onSizeChanged(w, h, oldw, oldh);
 			}
 		}
 	}

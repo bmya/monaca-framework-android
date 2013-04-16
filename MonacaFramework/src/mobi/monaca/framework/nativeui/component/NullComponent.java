@@ -1,15 +1,11 @@
 package mobi.monaca.framework.nativeui.component;
 
-import java.util.Set;
-
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
-import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.FrameLayout;
 

@@ -5,11 +5,9 @@ import static mobi.monaca.framework.nativeui.UIUtil.dip2px;
 import java.util.List;
 
 import mobi.monaca.framework.nativeui.UIContext;
-import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
-import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
@@ -28,10 +26,8 @@ import android.widget.TextView;
 /**
  * This class represents toolbar view on native ui framework.
  */
-public class ToolbarContainerView extends LinearLayout implements ContainerViewInterface {
+public class ToolbarContainerView extends LinearLayout {
 
-	protected ToolbarContainerViewListener mContainerSizeListener;
-	private static final int CONTAINER_HEIGHT = 42;
 	protected LinearLayout left, center, right, titleWrapper, titleSubtitleWrapper, titleImageWrapper;
 	protected UIContext context;
 	protected FrameLayout content;
@@ -83,28 +79,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		return result;
 	}
 
-	@Override
-	public void setContainerSizeListener(ToolbarContainerViewListener mContainerSizeListener) {
-		this.mContainerSizeListener = mContainerSizeListener;
-	}
-
-	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-		if (mContainerSizeListener != null) {
-			mContainerSizeListener.onSizeChanged(w, h, oldw, oldh);
-		}
-	}
-
-	@Override
-	public void setVisibility(int visibility) {
-		if (getVisibility() != visibility) {
-			if (mContainerSizeListener != null) {
-				mContainerSizeListener.onVisibilityChanged(visibility);
-			}
-		}
-		super.setVisibility(visibility);
-	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public ToolbarContainerView(UIContext context, boolean isTop) {
@@ -339,16 +313,6 @@ public class ToolbarContainerView extends LinearLayout implements ContainerViewI
 		if (subtitleView != null) {
 			subtitleView.setTextSize(titleFontScaleFloat * mDefaultSubtitleFontSize);
 		}
-	}
-
-	public int getShadowHeight() {
-		return 0; // TODO: REMOVE
-		// return mShadowHeight;
-	}
-
-	@Override
-	public int getContainerViewHeight() {
-		return getMeasuredHeight();
 	}
 
 }

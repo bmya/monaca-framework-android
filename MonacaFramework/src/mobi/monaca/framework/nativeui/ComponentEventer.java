@@ -14,7 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 public class ComponentEventer extends Component{
     protected JSONObject event;
     protected UIContext context;
-    protected static final String[] VALID_KEYS = {"onTap"}; 
+    protected static final String[] VALID_KEYS = {"onTap", "onSearch"}; 
 
     public ComponentEventer(UIContext context, JSONObject event) throws NativeUIException {
     	super(context, event);

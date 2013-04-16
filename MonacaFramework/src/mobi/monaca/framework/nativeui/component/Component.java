@@ -9,7 +9,6 @@ import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
-import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;

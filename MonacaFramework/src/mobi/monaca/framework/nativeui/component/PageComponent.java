@@ -2,16 +2,10 @@ package mobi.monaca.framework.nativeui.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import mobi.monaca.framework.MonacaApplication;
-import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.ComponentEventer;
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
-import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIEventer;
 import mobi.monaca.framework.nativeui.UIGravity;
@@ -20,26 +14,17 @@ import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.container.TabbarContainer;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.exception.ConversionException;
-import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.InvalidValueException;
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.MenuNameNotDefinedInAppMenuFileException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.util.MyLog;
-import mobi.monaca.utils.TimeStamp;
-import mobi.monaca.utils.log.LogItem;
-import mobi.monaca.utils.log.LogItem.LogLevel;
-import mobi.monaca.utils.log.LogItem.Source;
 
-import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.integer;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Shader.TileMode;
@@ -69,7 +54,6 @@ public class PageComponent extends Component {
 	public String menuName;
 
 	protected static String[] validKeys = { "top", "bottom", "event", "style", "menu", "id" };
-
 	protected static String[] styleValidKeys = { "backgroundColor", "backgroundImage", "backgroundSize", "backgroundRepeat", "backgroundPosition",
 			"screenOrientation" };
 
@@ -122,7 +106,7 @@ public class PageComponent extends Component {
 
 		JSONObject bottomJSON = getComponentJSON().optJSONObject("bottom");
 		if (bottomJSON != null) {
-			String containerType = topJSON.optString("container");
+			String containerType = bottomJSON.optString("container");
 			if (!TextUtils.isEmpty(containerType)) {
 				if (containerType.equalsIgnoreCase("toolbar")) {
 					bottomComponent = new ToolbarContainer(uiContext, bottomJSON, false);

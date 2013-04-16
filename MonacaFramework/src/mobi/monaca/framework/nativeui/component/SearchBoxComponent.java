@@ -1,15 +1,14 @@
 package mobi.monaca.framework.nativeui.component;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import static mobi.monaca.framework.nativeui.UIUtil.TAG;
+import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
+import static mobi.monaca.framework.nativeui.UIUtil.dip2px;
+import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 import mobi.monaca.framework.nativeui.ComponentEventer;
-
 import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
-import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
@@ -33,7 +32,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
 
 public class SearchBoxComponent extends ToolbarComponent implements UIContext.OnRotateListener {
 
@@ -42,16 +40,18 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
 	protected Button clearButton;
 	protected ComponentEventer eventer;
 
-	protected static String[] validKeys = { "component", "style", "id", "event" };
+	protected static final String[] SEARCH_BOX_VALID_KEYS = { "component", "style", "id", "event" };
+	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "textColor", "placeholder", "focus" };
 
 	@Override
 	public String[] getValidKeys() {
-		return validKeys;
+		return SEARCH_BOX_VALID_KEYS;
 	}
 
 	public SearchBoxComponent(UIContext context, JSONObject searchBoxJSON) throws NativeUIException {
 		super(context, searchBoxJSON);
-
+		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
+		
 		buildEventer();
 		initView();
 		style();
@@ -83,7 +83,7 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
 		searchEditText.invalidate();
 	}
 
-	public void updateStyle(JSONObject update) {
+	public void updateStyle(JSONObject update) throws NativeUIException {
 		updateJSONObject(style, update);
 		style();
 	}
@@ -174,25 +174,29 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
 	 * style memo: value placeHolder visibility disable textColor opacity
 	 * backgroundColor focus
 	 */
-	protected void style() {
+	protected void style() throws NativeUIException {
 		searchEditText.setText(style.optString("value", ""));
 		searchEditText.setHint(style.optString("placeHolder", ""));
 		searchEditText.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE);
 		searchEditText.setEnabled(!style.optBoolean("disable", false));
 
-		searchEditText.setTextColor(buildColor(style.optString("textColor", "#000000")));
-		searchEditText.setTextColor(searchEditText.getTextColors().withAlpha(buildOpacity(style.optDouble("opacity", 1.0))));
+		int color = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "textColor", "#000000", style);
+		searchEditText.setTextColor(color);
+		float opacity = UIValidator.parseAndValidateFloat(uiContext, getComponentName() + " style", "opacity", "1.0", style, 0.0f, 1.0f);
+		int integerOpacity = buildOpacity(opacity);
+		searchEditText.setTextColor(searchEditText.getTextColors().withAlpha(integerOpacity));
 		searchEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX, uiContext.getFontSizeFromDip(Component.LABEL_TEXT_DIP));
 
 		searchEditText.setWidth(dip2px(uiContext, 65));
 
 		if (style.has("backgroundColor")) {
-			searchEditText.getBackground().setColorFilter(buildColor(style.optString("backgroundColor", "#ffffff")), Mode.MULTIPLY);
+			int backgroundColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "backgroundColor", "#ffffff", style);
+			searchEditText.getBackground().setColorFilter(backgroundColor, Mode.MULTIPLY);
 		}
 
-		searchEditText.getBackground().setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
-		clearButton.getBackground().setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
-		searchEditText.setHintTextColor(searchEditText.getHintTextColors().withAlpha(buildOpacity(style.optDouble("opacity", 1.0))));
+		searchEditText.getBackground().setAlpha(integerOpacity);
+		clearButton.getBackground().setAlpha(integerOpacity);
+		searchEditText.setHintTextColor(searchEditText.getHintTextColors().withAlpha(integerOpacity));
 		updateWidthForOrientation(uiContext.getUIOrientation());
 	}
 
