@@ -1107,7 +1107,13 @@ public class MonacaPageActivity extends DroidGap {
 			isCapableForTransition = false;
 			startActivity(intent);
 			if (params.needsToClearStack()) {
-			    finish();
+				/*intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) works similarly but shows blank screen in transit animation*/
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						finish();
+					}
+				}, 500);
 			}
 		}
 	}
