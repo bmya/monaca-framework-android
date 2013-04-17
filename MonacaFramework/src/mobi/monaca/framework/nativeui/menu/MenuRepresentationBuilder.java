@@ -83,7 +83,6 @@ public class MenuRepresentationBuilder {
 
     public Map<String, MenuRepresentation> buildFromAssets(
             Context context, String jsonFilePath) {
-    	MyLog.v(TAG, "buildFromAssets(). jsonFilePath:" + jsonFilePath);
         String jsonString = getStringFromAssets(context,
                 jsonFilePath);
 
@@ -91,7 +90,6 @@ public class MenuRepresentationBuilder {
         	 return build(context, new JSONObject());
         }
 
-        MyLog.v(TAG, "jsonString:" + jsonString);
         try {
             return build(context, new JSONObject(jsonString));
         } catch (JSONException e) {
@@ -107,7 +105,7 @@ public class MenuRepresentationBuilder {
         try {
         	stream = LocalFileBootloader.openAsset(context, assetFilePath);
         } catch (IOException e) {
-        	MyLog.d(TAG, "exception in getStringFromAssets");
+        	MyLog.e(TAG, "exception in getStringFromAssets");
             return "";
         }
         InputStreamReader reader = new InputStreamReader(stream);

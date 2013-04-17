@@ -89,10 +89,10 @@ public class UIContext extends ContextWrapper {
 	}
 
 	public void loadRelativePathWithoutUIFile(String relativePath) {
-		MyLog.v(TAG, "loadRelativePathWithoutUIFile. relativePath:" + relativePath);
+//		MyLog.v(TAG, "loadRelativePathWithoutUIFile. relativePath:" + relativePath);
 		String resolved = resolve(relativePath);
 		pageActivity.loadUri(resolved, true);
-		MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutOptions());
+//		MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutOptions());
 	}
 
 	public void changeCurrentUri(String uri) {

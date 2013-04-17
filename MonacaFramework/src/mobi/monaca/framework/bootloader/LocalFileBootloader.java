@@ -75,7 +75,7 @@ public class LocalFileBootloader {
         Map<String, String> hashMap = bootloaderPreferences.getFileHashMap();
 
         if (hashMap == null) {
-            MyLog.d(getClass().getSimpleName(), "all file hash validation: fail");
+            MyLog.w(getClass().getSimpleName(), "all file hash validation: fail");
             return false;
         }
 
@@ -87,7 +87,7 @@ public class LocalFileBootloader {
             try {
                 assetFileHash = Md5Util.getAssetFileHash(context, path);
             } catch (RuntimeException e) {
-                MyLog.d(getClass().getSimpleName(),
+                MyLog.w(getClass().getSimpleName(),
                         "all file hash validation: fail." + e.getMessage());
                 return false;
             }
@@ -96,7 +96,7 @@ public class LocalFileBootloader {
                     + assetHash + " = " + localFileHash);
 
             if (assetHash == null || localFileHash == null) {
-                MyLog.d(getClass().getSimpleName(),
+                MyLog.w(getClass().getSimpleName(),
                         "all file hash validation: fail");
                 return false;
             }
@@ -108,7 +108,7 @@ public class LocalFileBootloader {
                 return false;
             }
         }
-        MyLog.d(getClass().getSimpleName(), "all file hash validation: ok");
+        MyLog.i(getClass().getSimpleName(), "all file hash validation: ok");
         return true;
     }
 

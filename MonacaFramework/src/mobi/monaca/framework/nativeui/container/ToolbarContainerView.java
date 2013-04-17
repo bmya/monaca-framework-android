@@ -183,7 +183,7 @@ public class ToolbarContainerView extends LinearLayout {
 	}
 
 	public void setTitleSubtitle(String title, String subtitle, Bitmap titleImage) {
-		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:" + subtitle);
+//		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:" + subtitle);
 
 		if (titleImage != null) {
 			titleImageWrapper.setVisibility(View.VISIBLE);
@@ -236,7 +236,7 @@ public class ToolbarContainerView extends LinearLayout {
 	}
 
 	public void setCenterView(List<ToolbarComponent> list, boolean expandItemWidth) {
-		MyLog.v(TAG, "setCenterView, list:" + list + ", expandItemWidth:" + expandItemWidth);
+//		MyLog.v(TAG, "setCenterView, list:" + list + ", expandItemWidth:" + expandItemWidth);
 		center.removeAllViews();
 
 		if (expandItemWidth) {
@@ -257,7 +257,6 @@ public class ToolbarContainerView extends LinearLayout {
 			content.removeView(right);
 			// content.removeView(titleWrapper);
 			// content.removeView(titleSubtitleWrapper);
-			MyLog.v(TAG, "removed titleWrapper");
 		} else {
 			for (Component component : list) {
 				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -294,7 +293,6 @@ public class ToolbarContainerView extends LinearLayout {
 	}
 
 	public void setTitleFontScale(String titleFontScale) {
-		MyLog.v(TAG, "settitle font scale");
 		if (titleFontScale == "")
 			return;
 

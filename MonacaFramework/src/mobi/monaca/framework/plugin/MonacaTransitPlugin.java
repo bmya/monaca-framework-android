@@ -37,7 +37,7 @@ public class MonacaTransitPlugin extends Plugin {
     public PluginResult execute(String action, final JSONArray args,
             String callbackId) {
 
-    	MyLog.v(TAG, "action: " + action);
+//    	MyLog.v(TAG, "action: " + action);
         // push
         if (action.equals("push") || action.equals("slide") || action.equals("slideLeft")) {
             getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
@@ -106,9 +106,9 @@ public class MonacaTransitPlugin extends Plugin {
         return new PluginResult(Status.INVALID_ACTION);
     }
 	public void loadRelativePathAsync(String relativePath) {
-		MyLog.v(TAG, "loadRelativePathAsync. relativePath:" + relativePath);
+//		MyLog.v(TAG, "loadRelativePathAsync. relativePath:" + relativePath);
 		final String newUri = getMonacaPageActivity().getCurrentUriWithoutOptions() + "/../" + relativePath;
-		MyLog.v(TAG, "uri unresolved=" + newUri);
+//		MyLog.v(TAG, "uri unresolved=" + newUri);
 
 		getMonacaPageActivity().runOnUiThread(new Runnable() {
 			@Override
@@ -116,7 +116,7 @@ public class MonacaTransitPlugin extends Plugin {
 				if (newUri.startsWith("file://")) {
 					try {
 						getMonacaPageActivity().loadUri("file://" + new File(newUri.substring(7)).getCanonicalPath(), false);
-						MyLog.v(TAG, "uri resolved=" + getMonacaPageActivity().getCurrentUriWithoutOptions());
+//						MyLog.v(TAG, "uri resolved=" + getMonacaPageActivity().getCurrentUriWithoutOptions());
 					} catch (Exception e) {
 						e.printStackTrace();
 						getMonacaPageActivity().loadUri(getMonacaPageActivity().getCurrentUriWithoutOptions(), false);

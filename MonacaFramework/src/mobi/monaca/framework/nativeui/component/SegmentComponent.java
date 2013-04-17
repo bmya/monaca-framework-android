@@ -183,7 +183,7 @@ public class SegmentComponent extends ToolbarComponent {
 			if (android.os.Build.VERSION.SDK_INT >= 11) {
 				maxWidth = maxWidth - UIUtil.dip2px(getContext(), 15);
 			}
-			MyLog.e(TAG, "max width:" + maxWidth);
+//			MyLog.e(TAG, "max width:" + maxWidth);
 			for (SegmentItemView segment : items) {
 				LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) segment.getLayoutParams();
 				p.width = maxWidth;
@@ -295,14 +295,14 @@ public class SegmentComponent extends ToolbarComponent {
 			background.setSelected(true);
 			isSelected = true;
 			invalidate();
-			MyLog.d(getClass().getSimpleName(), "selected");
+//			MyLog.d(getClass().getSimpleName(), "selected");
 		}
 
 		public void switchToUnselected() {
 			background.setSelected(false);
 			isSelected = false;
 			invalidate();
-			MyLog.d(getClass().getSimpleName(), "unselected");
+//			MyLog.d(getClass().getSimpleName(), "unselected");
 		}
 
 		protected void updateSwitchingEffect() {

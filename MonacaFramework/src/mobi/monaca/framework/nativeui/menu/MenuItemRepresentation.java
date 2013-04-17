@@ -43,14 +43,13 @@ public class MenuItemRepresentation implements Serializable {
 		MenuItem menuItem = menu.add(title);
 
 		if (!iconImagePath.equals("")) {
-			MyLog.v(TAG, "iconImagePath:" + iconImagePath);
 			if (iconImagePath.startsWith("@")) {
 				try {
 					Field field = android.R.drawable.class.getField("ic_menu_" + iconImagePath.substring(1));
 					int id = (Integer) field.get(null);
 					menuItem.setIcon(context.getResources().getDrawable(id));
 				} catch (Exception e) {
-					MyLog.d(getClass().getSimpleName(), "can't locate system icon: android.R.drawable.ic_menu_" + iconImagePath.substring(1));
+					MyLog.e(getClass().getSimpleName(), "can't locate system icon: android.R.drawable.ic_menu_" + iconImagePath.substring(1));
 				}
 			} else {
 				try {
@@ -63,7 +62,7 @@ public class MenuItemRepresentation implements Serializable {
 					menuItem.setIcon(new BitmapDrawable(context.getResources(), BitmapFactory.decodeStream(stream)));
 					stream.close();
 				} catch (IOException e) {
-					MyLog.d(getClass().getSimpleName(), "cant open icon image: file:///android_asset/www/" + iconImagePath);
+					MyLog.e(getClass().getSimpleName(), "cant open icon image: file:///android_asset/www/" + iconImagePath);
 				}
 			}
 		}

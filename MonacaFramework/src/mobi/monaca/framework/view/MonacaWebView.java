@@ -58,21 +58,21 @@ public class MonacaWebView extends CordovaWebView {
 
 	@Override
 	public void goBack() {
-		MyLog.d(TAG, "called goBack");
+//		MyLog.d(TAG, "called goBack");
 		super.goBack();
 	}
 
 	@Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-		MyLog.d(TAG, "onKeyUp");
-		MyLog.d(TAG, "canGoBack is " + Boolean.toString(this.canGoBack()));
+//		MyLog.d(TAG, "onKeyUp");
+//		MyLog.d(TAG, "canGoBack is " + Boolean.toString(this.canGoBack()));
 
 		//to prevent from calling backHistory() by backbutton
 		// TODO find smarter way
 		notBackButton = !(this.canGoBack() && keyCode == KeyEvent.KEYCODE_BACK);
 
 		boolean supersReturn = super.onKeyUp(keyCode, event);
-		MyLog.d(TAG, "onKeyUp value is " + Boolean.toString(supersReturn));
+//		MyLog.d(TAG, "onKeyUp value is " + Boolean.toString(supersReturn));
 
 		notBackButton = true;
 		return supersReturn;
@@ -89,7 +89,7 @@ public class MonacaWebView extends CordovaWebView {
 
 	@Override
 	public boolean backHistory() {
-		MyLog.d(TAG, "backHistory()");
+//		MyLog.d(TAG, "backHistory()");
 		//to prevent from calling backHistory() by backbutton
 		// TODO find smarter way
 		if (notBackButton) {

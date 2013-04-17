@@ -87,33 +87,28 @@ public class UIUtil {
     }
 
     public static void reportJSONParseError(Context context, String msg) {
-    	MyLog.e(TAG, "JSONParseError: " + msg);
     	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:JSONParseError:" + msg, "", 0);
     	MyLog.sendBloadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidJSONStructure(Context context, String msg) {
-    	MyLog.e(TAG, "InvalidJSONStructure: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidJSONStructure:" + msg, "", 0);
     	MyLog.sendBloadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidComponent(Context context, String msg) {
-    	MyLog.e(TAG, "InvalidComponent: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidComponent:" + msg, "", 0);
      	MyLog.sendBloadcastDebugLog(context, logItem);
   
     }
 
     public static void reportInvalidContainer(Context context, String msg) {
-    	MyLog.e(TAG, "InvalidContainer: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidContainer:" + msg, "", 0);
      	MyLog.sendBloadcastDebugLog(context, logItem);
   
     }
 
     public static void reportUndefinedProperty(Context context, String msg) {
-    	MyLog.e(TAG, "UndefinedProperty: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:UndefinedProperty:" + msg, "", 0);
      	MyLog.sendBloadcastDebugLog(context, logItem);
     }

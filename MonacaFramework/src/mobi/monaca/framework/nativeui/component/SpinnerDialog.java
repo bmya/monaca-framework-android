@@ -186,7 +186,6 @@ public class SpinnerDialog extends Dialog {
 	}
 	
 	public void updateTitleText(String title){
-		MyLog.v(TAG, "updating title to:" + title);
 		mTitleView.setText(title);
 	}
 

@@ -169,7 +169,7 @@ public class MonacaPageActivity extends DroidGap {
 		// WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN); in DroidGap
 		// class
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-		MyLog.v(TAG, "MonacaApplication.getPages().size():" + MonacaApplication.getPages().size());
+//		MyLog.v(TAG, "MonacaApplication.getPages().size():" + MonacaApplication.getPages().size());
 
 		// currentMonacaUri is set in prepare()
 		if (MonacaApplication.getPages().size() == 1) {
@@ -338,7 +338,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Load background drawable from transition params and device orientation. */
 	protected void loadBackground(Configuration config) {
-		MyLog.v(TAG, "loadBackground().");
 		if (transitionParams != null && transitionParams.hasBackgroundImage()) {
 			String path = null;
 			String preferedPath = "www/" + UIContext.getPreferredPath(transitionParams.backgroundImagePath);
@@ -348,7 +347,7 @@ public class MonacaPageActivity extends DroidGap {
 				path = "www/" + transitionParams.backgroundImagePath;
 			}
 
-			MyLog.v(TAG, "loadBackground(). path:" + path);
+//			MyLog.v(TAG, "loadBackground(). path:" + path);
 
 			try {
 
@@ -428,9 +427,8 @@ public class MonacaPageActivity extends DroidGap {
     		try {
     		    method = webView.getClass().getMethod("setLayerType", new Class[]{ int.class, Paint.class });
     		    method.invoke(webView, new Object[]{ View.LAYER_TYPE_SOFTWARE, null });
-        		MyLog.v(TAG, "webview.setLayerType() is done.");
     		} catch (Exception e) {
-        		MyLog.v(TAG, "webview.setLayerType() is fail.");
+        		MyLog.e(TAG, "webview.setLayerType() is fail.");
             }
 		}
 		
@@ -442,18 +440,14 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Setup background drawable for app View and root view. */
 	public void setupBackground(Drawable background) {
-		MyLog.v(TAG, "setupBackground()");
 		appView.setBackgroundColor(0x00000000);
 		if (background != null) {
-			MyLog.v(TAG, "background != null");
 			if (appView != null) {
-				MyLog.v(TAG, "appview and background not null -> set to appview");
 				appView.setBackgroundDrawable(background);
 			}
 
 			if (root != null) {
 				root.setBackgroundDrawable(background);
-				MyLog.v(TAG, "set background to root");
 
 				if (root.getParent() == null) {
 					setContentView(root);
@@ -461,7 +455,6 @@ public class MonacaPageActivity extends DroidGap {
 			}
 		} else {
 			if (appView != null) {
-				MyLog.v(TAG, "setDefaultBackground");
 				// Default background
 				appView.setBackgroundResource(color.white);
 			}
@@ -499,8 +492,8 @@ public class MonacaPageActivity extends DroidGap {
 
 		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
 
-		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
-		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
+//		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
+//		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
 	}
 
 	public JSONObject getInfoForJavaScript() {
@@ -510,7 +503,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Load local ui file */
 	public void loadUiFile(String uri) {
-		MyLog.v(TAG, "loadUiFile()");
 		JSONObject uiJSON = getUIJSON(uri);
 		if(uiJSON != null){
 			try {
@@ -576,7 +568,6 @@ public class MonacaPageActivity extends DroidGap {
 
 
 	protected void applyUiToView() {
-		MyLog.d(TAG, "applyUiToView()");
 
 		if(mPageComponent == null){
 			return;
@@ -709,7 +700,7 @@ public class MonacaPageActivity extends DroidGap {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				MyLog.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() start");
+//				MyLog.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() start");
 				for (UpdateStyleQuery query : queries) {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
@@ -722,7 +713,6 @@ public class MonacaPageActivity extends DroidGap {
 								} catch (NativeUIException e) {
 									e.printStackTrace();
 								}
-								MyLog.d(MonacaPageActivity.class.getSimpleName(), "updated => id: " + componentId + ", style: " + query.style.toString());
 							} else {
 								Log.e(MonacaPageActivity.class.getSimpleName(), "update fail => id: " + componentId + ", style: " + query.style.toString());
 							}
@@ -738,7 +728,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		MyLog.i(TAG, "onWindowFocusChanged()");
 		super.onWindowFocusChanged(hasFocus);
 		if (hasFocus) {
 			BenchmarkTimer.mark("visible");
@@ -934,8 +923,8 @@ public class MonacaPageActivity extends DroidGap {
 			appView.loadDataWithBaseURL(getCurrentUriWithoutOptions(), mCurrentHtml, "text/html", "UTF-8", this.getCurrentUriWithoutOptions());
 
 		} catch (IOException e) {
-			MyLog.d(TAG, "Maybe Not MonacaURI : " + e.getMessage());
-			MyLog.d(TAG, "load as nomal url:" + currentUriWithoutQuery);
+			MyLog.w(TAG, "Maybe Not MonacaURI : " + e.getMessage());
+			MyLog.w(TAG, "load as nomal url:" + currentUriWithoutQuery);
 			if (uri.startsWith("file://")) {
 				show404Page(uri);
 				return;
@@ -1089,7 +1078,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	public void goHomeAsync(JSONObject options) {
 		final String homeUrl = getHomeUrl(options);
-		MyLog.v(TAG, "homeurl:" + homeUrl);
 
 		handler.post(new Runnable() {
 			@Override

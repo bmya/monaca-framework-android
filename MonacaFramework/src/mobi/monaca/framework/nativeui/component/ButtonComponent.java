@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui.component;
 
-import static mobi.monaca.framework.nativeui.UIUtil.TAG;
 import static mobi.monaca.framework.nativeui.UIUtil.createBitmapWithColorFilter;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
@@ -15,7 +14,6 @@ import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.view.MonacaButton;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
-import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -139,7 +137,6 @@ public class ButtonComponent extends ToolbarComponent {
 	}
 
 	protected void styleImageButton() throws NativeUIIOException {
-		MyLog.e(TAG, "style image button");
 		imageButton.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
 		imageButton.setBackgroundColor(0);
 		imageButton.setEnabled(!style.optBoolean("disable", false));
@@ -225,7 +222,6 @@ public class ButtonComponent extends ToolbarComponent {
 					int resolvedWidth = resolveSize(width, widthMeasureSpec);
 					int resolvedHeight = resolveSize(height, heightMeasureSpec);
 
-					MyLog.v(TAG, "bitmapW:" + width + ", bitmapH:" + height + ", resolvedW:" + resolvedWidth + ", resolvedH:" + resolvedHeight);
 					setMeasuredDimension(resolvedWidth, resolvedHeight);
 				} else {
 					super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -238,7 +234,6 @@ public class ButtonComponent extends ToolbarComponent {
 
 		@Override
 		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-			MyLog.w(TAG, "onSizeChanged. w:" + w + ", h:" + h + ", oldw:" + oldw + ", oldh:" + oldh);
 			try {
 				resizeImage();
 			} catch (NativeUIIOException e) {

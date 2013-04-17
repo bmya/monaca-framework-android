@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui.container;
 
-import static mobi.monaca.framework.nativeui.UIUtil.TAG;
 import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
@@ -15,7 +14,6 @@ import mobi.monaca.framework.nativeui.container.TabbarItem.TabbarItemView;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -199,7 +197,6 @@ public class TabbarContainer extends Container {
 				try {
 					style.put("activeIndex", newActiveIndex);
 				} catch (JSONException e) {
-					MyLog.d(TAG, "unexpected exception has occurred");
 					e.printStackTrace();
 				}
 			}

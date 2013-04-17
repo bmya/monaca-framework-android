@@ -123,7 +123,6 @@ public class MonacaApplication extends Application {
 			monacaSpinnerDialog.dismiss();
 			
 			monacaSpinnerDialog = null;
-			MyLog.v(TAG, "dismissMonacaSpinnerDialog");
 		}
 	}
 	
@@ -131,13 +130,11 @@ public class MonacaApplication extends Application {
 	public void hideMonacaSpinnerDialog(){
 		if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
 			monacaSpinnerDialog.hide();
-			MyLog.v(TAG, "Hide MonacaSpinnerDialog()");
 		}
 	}
 	
 	public void showMonacaSpinnerDialogIfAny(){
 		if (monacaSpinnerDialog != null) {
-			MyLog.v(TAG, "Show Hidden MonacaSpinnerDialog()");
 			monacaSpinnerDialog.show();
 		}
 	}
@@ -200,7 +197,6 @@ public class MonacaApplication extends Application {
 
 	/** Get either MenuRepresentation or null from menu name. */
 	public static MenuRepresentation findMenuRepresentation(String name) {
-		MyLog.v(TAG, "findMenuRepresentation. name:" + name + ", menuMap:" + menuMap);
 		if (menuMap != null) {
 			return menuMap.containsKey(name) ? menuMap.get(name) : null;
 		}
