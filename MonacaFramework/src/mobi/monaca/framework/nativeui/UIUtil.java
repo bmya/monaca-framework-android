@@ -1,8 +1,10 @@
 package mobi.monaca.framework.nativeui;
 
+import java.security.InvalidParameterException;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.TimeStamp;
 import mobi.monaca.utils.log.LogItem;
@@ -16,6 +18,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -39,7 +42,7 @@ public class UIUtil {
     static protected SparseIntArray computedFontSizeCache = new SparseIntArray();
 
     /** Build color integer from color string and opacity value. */
-    public static int buildColor(String colorString, double opacity) {
+    public static int buildColor(String colorString, double opacity) throws IllegalArgumentException{
         int baseColor = 0;
 
         if (opacity > 1.0) {
@@ -48,8 +51,8 @@ public class UIUtil {
 
         if (colorPattern.matcher(colorString).matches()) {
             baseColor = Integer.parseInt(colorString.substring(1, 7), 16);
-        } else if (colorString.length() == 0) {
-            baseColor = 0xcccccc;
+        } else {
+            throw new IllegalArgumentException("Cannot convert " + colorString + " to Color");
         }
 
         long opacityLong = (Math.round((opacity / 1.0) * 0xff) & 0xff) << 24;
@@ -57,7 +60,7 @@ public class UIUtil {
         return (int) (baseColor + opacityLong);
     }
 
-    public static int buildColor(String color) {
+    public static int buildColor(String color) throws IllegalArgumentException{
         return UIUtil.buildColor(color, 1.0);
     }
 
@@ -280,4 +283,5 @@ public class UIUtil {
 
         return (int) resultTextSize;
     }
+    
 }

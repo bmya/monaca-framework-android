@@ -1,5 +1,6 @@
 package mobi.monaca.framework.test;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.view.MonacaWebView;
 import android.content.Intent;
@@ -16,6 +17,8 @@ public class MonacaWebViewTest extends ActivityUnitTestCase<MonacaPageActivity> 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		MonacaApplication application = new MonacaApplication();
+		setApplication(application);
 		startActivity(new Intent(), null, null);
 		activity = getActivity();
 		target = new MonacaWebView(activity);

@@ -121,11 +121,14 @@ public class DefaultStyleJSON {
 		JSONObject style = new JSONObject();
 		try {
 			style.put("text", "");
-			style.put("opacity", 1.0);
 			style.put("backgroundColor", "#000000");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		return style;
+	}
+	public static JSONObject page() {
+		JSONObject style = new JSONObject();
 		return style;
 	}
 }

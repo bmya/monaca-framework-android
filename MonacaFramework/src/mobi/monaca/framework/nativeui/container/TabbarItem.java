@@ -1,18 +1,31 @@
 package mobi.monaca.framework.nativeui.container;
 
+import static mobi.monaca.framework.nativeui.UIUtil.TAG;
+import static mobi.monaca.framework.nativeui.UIUtil.dip2px;
+import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
+
+import java.io.IOException;
+
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
+import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -20,201 +33,207 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
 
-public class TabbarItem implements Component {
+public class TabbarItem extends Component {
 
-    protected Drawable drawable;
-    protected TabbarItemView view;
-    protected JSONObject style;
-    protected UIContext context;
-    protected String link;
-    protected Handler handler;
+	protected Drawable drawable;
+	protected TabbarItemView view;
+	protected String link;
+	protected Handler handler;
 
-    public TabbarItem(UIContext context, String link, JSONObject style) {
-    	MyLog.v(TAG, "TabbarItem constructor. link:" + link  + ", style:" + style);
-        this.view = new TabbarItemView(context);
-        this.style = style != null ? style : new JSONObject();
-        this.link = link;
-        this.context = context;
-        this.handler = new Handler();
+	protected static final String[] TABBAR_ITEM_VALID_KYES = { "component", "style", "link", "id" };
+	protected static final String[] STYLE_VALID_KYES = { "text", "backgroundColor", "image", "badgeText" };
 
-        style();
-    }
+	@Override
+	public String[] getValidKeys() {
+		return TABBAR_ITEM_VALID_KYES;
+	}
 
-    public TabbarItemView getView() {
-        return view;
-    }
+	public TabbarItem(UIContext context, JSONObject tabbarItemJSON) throws NativeUIException, JSONException {
+		super(context, tabbarItemJSON);
+		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KYES);
+		this.view = new TabbarItemView(context);
+		this.link = tabbarItemJSON.optString("link");
+		this.handler = new Handler();
 
-    @Override
-    public JSONObject getStyle() {
-        return style;
-    }
+		style();
+	}
 
-    @Override
-    public void updateStyle(JSONObject update) {
-        updateJSONObject(style, update);
-        style();
-    }
+	public TabbarItemView getView() {
+		return view;
+	}
 
-    /*
-     * text: テキスト [string] (default: "") image: 画像への相対パス [string] (default: "")
-     * badgeText: バッジのテキスト [string] (default: "")
-     */
-    protected void style() {
-        view.setText(style.optString("text"));
-        view.setBadgeText(style.optString("badgeText"));
+	@Override
+	public void updateStyle(JSONObject update) throws NativeUIIOException {
+		updateJSONObject(style, update);
+		style();
+	}
 
-        String imagePath = style.optString("image");
-		if (imagePath.length() > 0) {
-        	MyLog.v(TAG, "we have image icon for Tabbar!");
-            Bitmap bitmap = context.readScaledBitmap(imagePath);
-            if (bitmap != null) {
-                view.setIconBitmap(bitmap);
-            }
-        }
-    }
+	/*
+	 * text: テキスト [string] (default: "") image: 画像への相対パス [string] (default: "")
+	 * badgeText: バッジのテキスト [string] (default: "")
+	 */
+	protected void style() throws NativeUIIOException {
+		view.setText(style.optString("text"));
+		view.setBadgeText(style.optString("badgeText"));
 
-    public class TabbarItemView extends LinearLayout {
+		Bitmap bitmap = readImage("image");
+		if(bitmap != null){
+			view.setIconBitmap(bitmap);
+		}
+	}
+	
+	private Bitmap readImage(String imageKeyName) throws NativeUIIOException {
+		String imagePath = style.optString(imageKeyName);
+		if (!TextUtils.isEmpty(imagePath)) {
+			try {
+				Bitmap bitmap = uiContext.readScaledBitmap(imagePath);
+				return bitmap;
+			} catch (IOException e) {
+				NativeUIIOException exception = new NativeUIIOException(getComponentName() + " style", imageKeyName, imagePath, e.getMessage());
+				throw exception;
+			}
+		}
+		return null;
+	}
 
-        protected TextView textView;
-        protected boolean isSelected = true;
-        protected TextView badgeTextView;
-        protected ImageView imageView;
+	public class TabbarItemView extends LinearLayout {
 
-        public TabbarItemView(UIContext context) {
-            super(context);
+		protected TextView textView;
+		protected boolean isSelected = true;
+		protected TextView badgeTextView;
+		protected ImageView imageView;
 
-            setOrientation(LinearLayout.VERTICAL);
+		public TabbarItemView(UIContext context) {
+			super(context);
 
-            FrameLayout layout = new FrameLayout(context);
+			setOrientation(LinearLayout.VERTICAL);
 
-            setBackgroundResource(R.drawable.monaca_selected_tab_bg);
+			FrameLayout layout = new FrameLayout(context);
 
-            textView = new TextView(context);
-            textView.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
-            textView.setTextColor(0xffffffff);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                    context.getFontSizeFromDip(Component.TAB_TEXT_DIP));
-            textView.setShadowLayer(1f, 0f, -1f, 0xcc000000);
+			setBackgroundResource(R.drawable.monaca_selected_tab_bg);
 
-            imageView = new ImageView(context);
-            imageView.setPadding(UIUtil.dip2px(context, 16), 0,
-                    UIUtil.dip2px(context, 16), 0);
-            imageView.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_IN);
+			textView = new TextView(context);
+			textView.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
+			textView.setTextColor(0xffffffff);
+			textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getFontSizeFromDip(Component.TAB_TEXT_DIP));
+			textView.setShadowLayer(1f, 0f, -1f, 0xcc000000);
 
-            badgeTextView = new TextView(context);
-            badgeTextView.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
-            badgeTextView.setVisibility(View.GONE);
-            badgeTextView.setBackgroundColor(0xff990000);
-            badgeTextView.setTextColor(0xffffffff);
-            badgeTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX,
-                    context.getFontSizeFromDip(Component.TAB_BADGE_TEXT_DIP));
-            badgeTextView.setShadowLayer(1.0f, 0f, 1f, 0x99000000);
-            badgeTextView.setTypeface(Typeface.DEFAULT_BOLD);
-            badgeTextView.setBackgroundDrawable(context.getResources()
-                    .getDrawable(R.drawable.monaca_tab_badge));
+			imageView = new ImageView(context);
+			imageView.setPadding(UIUtil.dip2px(context, 16), 0, UIUtil.dip2px(context, 16), 0);
+			imageView.setColorFilter(0xffffffff, PorterDuff.Mode.SRC_IN);
 
-            layout.addView(imageView, new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT));
+			badgeTextView = new TextView(context);
+			badgeTextView.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
+			badgeTextView.setVisibility(View.GONE);
+			badgeTextView.setBackgroundColor(0xff990000);
+			badgeTextView.setTextColor(0xffffffff);
+			badgeTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getFontSizeFromDip(Component.TAB_BADGE_TEXT_DIP));
+			badgeTextView.setShadowLayer(1.0f, 0f, 1f, 0x99000000);
+			badgeTextView.setTypeface(Typeface.DEFAULT_BOLD);
+			badgeTextView.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.monaca_tab_badge));
 
-            layout.addView(badgeTextView, new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.RIGHT));
+			layout.addView(imageView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
 
-            setGravity(Gravity.CENTER);
+			layout.addView(badgeTextView, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+					Gravity.RIGHT));
 
-            addView(layout, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+			setGravity(Gravity.CENTER);
 
-            addView(textView, new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+			addView(layout, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
-            switchToUnselected();
-        }
+			addView(textView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
-        public void setIconBitmap(Bitmap bitmap) {
-            bitmap = UIUtil.resizeBitmap(bitmap, dip2px(context, 28));
-            Drawable icon = new BitmapDrawable(context.getResources(), bitmap);
-            icon.setColorFilter(isSelected() ? 0xffffffff : 0x99ffffff,
-                    PorterDuff.Mode.SRC_IN);
-            imageView.setImageDrawable(icon);
-        }
+			switchToUnselected();
+		}
 
-        @Override
-        protected void finalize() throws Throwable {
-            super.finalize();
-            imageView.setImageDrawable(null);
-        }
+		public void setIconBitmap(Bitmap bitmap) {
+			bitmap = UIUtil.resizeBitmap(bitmap, dip2px(uiContext, 28));
+			Drawable icon = new BitmapDrawable(uiContext.getResources(), bitmap);
+			icon.setColorFilter(isSelected() ? 0xffffffff : 0x99ffffff, PorterDuff.Mode.SRC_IN);
+			imageView.setImageDrawable(icon);
+		}
 
-        public void setBadgeText(String text) {
-            badgeTextView.setText(text);
+		@Override
+		protected void finalize() throws Throwable {
+			super.finalize();
+			imageView.setImageDrawable(null);
+		}
 
-            if (text.length() == 0) {
-                badgeTextView.setVisibility(View.GONE);
-            } else {
-                badgeTextView.setVisibility(View.VISIBLE);
-            }
-        }
+		public void setBadgeText(String text) {
+			badgeTextView.setText(text);
 
-        public void setText(String text) {
-            textView.setText(text);
-        }
+			if (text.length() == 0) {
+				badgeTextView.setVisibility(View.GONE);
+			} else {
+				badgeTextView.setVisibility(View.VISIBLE);
+			}
+		}
 
-        public void setTextColor(int color) {
-            textView.setTextColor(color);
-        }
+		public void setText(String text) {
+			textView.setText(text);
+		}
 
-        public void initializeSelected() {
-            if (!isSelected) {
-                getBackground().setAlpha(0x33);
+		public void setTextColor(int color) {
+			textView.setTextColor(color);
+		}
 
-                textView.setTextColor(0xffffffff);
-                isSelected = true;
+		public void initializeSelected() {
+			if (!isSelected) {
+				getBackground().setAlpha(0x33);
 
-                context.changeCurrentUri(link);
-            }
-            imageView.setAlpha(0xff);
-            invalidate();
-        }
+				textView.setTextColor(0xffffffff);
+				isSelected = true;
 
+				uiContext.changeCurrentUri(link);
+			}
+			imageView.setAlpha(0xff);
+			invalidate();
+		}
 
-        public void switchToSelected() {
-        	MyLog.v(TAG, "switchToSelected() link:" + link);
-            if (!isSelected) {
-                getBackground().setAlpha(0x33);
+		public void switchToSelected() {
+			MyLog.v(TAG, "switchToSelected() link:" + link);
+			if (!isSelected) {
+				getBackground().setAlpha(0x33);
 
-                textView.setTextColor(0xffffffff);
-                isSelected = true;
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        context.loadRelativePathWithoutUIFile(link);
-                    }
-                });
-            }
-            imageView.setAlpha(0xff);
-            invalidate();
-        }
+				textView.setTextColor(0xffffffff);
+				isSelected = true;
+				handler.post(new Runnable() {
+					@Override
+					public void run() {
+						uiContext.loadRelativePathWithoutUIFile(link);
+					}
+				});
+			}
+			imageView.setAlpha(0xff);
+			invalidate();
+		}
 
-        public void switchToUnselected() {
-            if (isSelected) {
-                getBackground().setAlpha(0);
+		public void switchToUnselected() {
+			if (isSelected) {
+				getBackground().setAlpha(0);
 
-                textView.setTextColor(0x99ffffff);
-                isSelected = false;
-            }
+				textView.setTextColor(0x99ffffff);
+				isSelected = false;
+			}
 
-            imageView.setAlpha(0x66);
-            invalidate();
-        }
+			imageView.setAlpha(0x66);
+			invalidate();
+		}
 
-        public boolean isSelected() {
-            return isSelected;
-        }
-    }
+		public boolean isSelected() {
+			return isSelected;
+		}
+	}
+
+	@Override
+	public String getComponentName() {
+		return TabbarItem.class.getSimpleName();
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.tabbarItem();
+	}
 
 }

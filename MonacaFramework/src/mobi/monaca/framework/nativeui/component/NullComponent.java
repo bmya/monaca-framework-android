@@ -1,29 +1,45 @@
 package mobi.monaca.framework.nativeui.component;
 
+import mobi.monaca.framework.nativeui.UIContext;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.FrameLayout;
 
-public class NullComponent implements ToolbarComponent {
+public class NullComponent extends ToolbarComponent {
 
-    protected View view;
+	protected View view;
 
-    public NullComponent(Context context) {
-        view = new FrameLayout(context);
-        view.setVisibility(View.GONE);
-    }
+	public NullComponent(UIContext context) throws KeyNotValidException, DuplicateIDException, JSONException {
+		super(context, new JSONObject());
+		view = new FrameLayout(context);
+		view.setVisibility(View.GONE);
+	}
 
-    public View getView() {
-        return view;
-    }
+	public View getView() {
+		return view;
+	}
 
-    public void updateStyle(JSONObject style) {
-    }
+	public void updateStyle(JSONObject style) {
+	}
 
-    public JSONObject getStyle() {
-        return new JSONObject();
-    }
+	@Override
+	public String[] getValidKeys() {
+		return null;
+	}
+
+	@Override
+	public String getComponentName() {
+		return "NULL";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return null;
+	}
 
 }

@@ -3,11 +3,19 @@ package mobi.monaca.framework.test;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
 
 public class MonacaPageActivityLyfeCycleTest extends ActivityUnitTestCase<MonacaPageActivity> {
 	public MonacaPageActivityLyfeCycleTest() {
 		super(MonacaPageActivity.class);
+	}
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		MonacaApplication application = new MonacaApplication();
+		setApplication(application);
 	}
 
 	public void testNormalLyfeCycle() {
