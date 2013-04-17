@@ -14,7 +14,7 @@ public class NativeUIIOException extends NativeUIException{
 
 	@Override
 	public String getMessage() {
-		return componentName + "'s " + keyName + ": " + keyValue + " read failed. " + platformErrorMessage;
+		return componentName + "'s " + keyName + ": " + keyValue + " read failed";
 	}
 
 }

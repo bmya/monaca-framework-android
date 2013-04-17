@@ -16,6 +16,6 @@ public class KeyNotValidException extends NativeUIException {
 
 	@Override
 	public String getMessage() {
-		return componentName + " '" + userSpecifiedKey + "' is not a valid key. Did you mean one of this? " + Arrays.toString(validKeys);
+		return componentName + " '" + userSpecifiedKey + "' is not a valid key. Did you mean one of these " + Arrays.toString(validKeys) + " ?";
 	}
 }

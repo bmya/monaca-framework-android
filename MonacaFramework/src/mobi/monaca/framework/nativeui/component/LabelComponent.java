@@ -8,6 +8,7 @@ import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.TypedValue;
@@ -21,7 +22,7 @@ public class LabelComponent extends ToolbarComponent {
 	protected static final String[] LABEL_VALID_KEYS = { "style", "component", "id", };
 	protected static final String[] STYLE_VALID_KEYS = { "opacity", "textColor", "text" };
 
-	public LabelComponent(UIContext context, JSONObject labelJSON) throws NativeUIException {
+	public LabelComponent(UIContext context, JSONObject labelJSON) throws NativeUIException, JSONException {
 		super(context, labelJSON);
 		this.view = new TextView(context);
 		this.view.setGravity(Gravity.CENTER_VERTICAL);

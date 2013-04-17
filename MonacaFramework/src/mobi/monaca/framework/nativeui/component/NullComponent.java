@@ -4,6 +4,7 @@ import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.view.View;
@@ -13,7 +14,7 @@ public class NullComponent extends ToolbarComponent {
 
 	protected View view;
 
-	public NullComponent(UIContext context) throws KeyNotValidException, DuplicateIDException {
+	public NullComponent(UIContext context) throws KeyNotValidException, DuplicateIDException, JSONException {
 		super(context, new JSONObject());
 		view = new FrameLayout(context);
 		view.setVisibility(View.GONE);

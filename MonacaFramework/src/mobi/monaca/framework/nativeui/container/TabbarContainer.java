@@ -51,7 +51,7 @@ public class TabbarContainer extends Container {
 		return TAB_BAR_VALID_KEYS;
 	}
 
-	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws NativeUIException {
+	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws NativeUIException, JSONException {
 		super(context, tabbarJSON);
 		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
 		this.view = new TabbarContainerView(context);
@@ -63,7 +63,7 @@ public class TabbarContainer extends Container {
 		style();
 	}
 
-	private void buildChildren() throws NativeUIException {
+	private void buildChildren() throws NativeUIException, JSONException {
 		JSONArray itemsJSON = componentJSON.optJSONArray("items");
 		if(itemsJSON != null){
 			for (int i = 0; i < itemsJSON.length(); i++) {
@@ -85,7 +85,9 @@ public class TabbarContainer extends Container {
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		view.getContentView().setBackgroundDrawable(null);
+		if(view != null && view.getContentView() != null){
+			view.getContentView().setBackgroundDrawable(null);
+		}
 	}
 
 	/*

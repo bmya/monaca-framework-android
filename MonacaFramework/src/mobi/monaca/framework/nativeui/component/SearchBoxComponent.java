@@ -41,14 +41,14 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
 	protected ComponentEventer eventer;
 
 	protected static final String[] SEARCH_BOX_VALID_KEYS = { "component", "style", "id", "event" };
-	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "textColor", "placeholder", "focus" };
+	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "textColor", "placeholder", "focus", "value" };
 
 	@Override
 	public String[] getValidKeys() {
 		return SEARCH_BOX_VALID_KEYS;
 	}
 
-	public SearchBoxComponent(UIContext context, JSONObject searchBoxJSON) throws NativeUIException {
+	public SearchBoxComponent(UIContext context, JSONObject searchBoxJSON) throws NativeUIException, JSONException {
 		super(context, searchBoxJSON);
 		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
 		
@@ -65,7 +65,7 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
 		context.addOnRotateListener(this);
 	}
 
-	private void buildEventer() throws NativeUIException {
+	private void buildEventer() throws NativeUIException, JSONException {
 		this.eventer = new ComponentEventer(uiContext, getComponentJSON().optJSONObject("event"));
 	}
 

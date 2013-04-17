@@ -12,7 +12,7 @@ import org.json.JSONObject;
 public class BackButtonComponent extends ButtonComponent {
 	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "image", "innerImage", "text", "forceVisibility" };
 	
-	public BackButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException {
+	public BackButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException, JSONException {
 		super(context, buttonJSON);
 		try {
 			style.put("visibility", style.optBoolean("forceVisibility", false));

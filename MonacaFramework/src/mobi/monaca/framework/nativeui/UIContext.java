@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.InternalSettings;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
+import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
@@ -40,6 +43,7 @@ public class UIContext extends ContextWrapper {
 	protected SparseIntArray computedFontSizeCache = new SparseIntArray();
 	protected ArrayList<OnRotateListener> onRotateListeners = new ArrayList<OnRotateListener>();
 	protected InternalSettings settings;
+	protected Map<String, Component> mComponentIDsMap = new HashMap<String, Component>();
 
 	public UIContext(String uiFilePath, MonacaPageActivity pageActivity) {
 		super(pageActivity);
@@ -50,6 +54,10 @@ public class UIContext extends ContextWrapper {
 		pageActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		MonacaApplication app = (MonacaApplication) pageActivity.getApplication();
 		this.settings = app.getInternalSettings();
+	}
+	
+	public Map<String, Component> getComponentIDsMap() {
+		return mComponentIDsMap;
 	}
 
 	public InternalSettings getSettings() {

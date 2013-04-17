@@ -3,35 +3,32 @@ package mobi.monaca.framework.nativeui;
 import mobi.monaca.framework.nativeui.component.Component;
 import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
-import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.view.View;
 
-public class UIEventer extends Component{
-    protected JSONObject event;
-    protected static final String[] validKeys = {
-	"onTapBackButton",
-	"onTap"
-    };
+public class UIEventer extends Component {
+	protected JSONObject event;
+	protected static final String[] validKeys = { "onTapBackButton", "onTap" };
 
-    public UIEventer(UIContext context, JSONObject event) throws KeyNotValidException, DuplicateIDException {
-	super(context, event);
-        this.event = event;
-    }
+	public UIEventer(UIContext context, JSONObject event) throws KeyNotValidException, DuplicateIDException, JSONException {
+		super(context, event);
+		this.event = event;
+	}
 
-    public boolean hasOnTapBackButtonAction() {
-        return !event.optString("onTapBackButton", "").equals("");
-    }
+	public boolean hasOnTapBackButtonAction() {
+		return !event.optString("onTapBackButton", "").equals("");
+	}
 
-    public void onTapBackButton() {
-        String code = event.optString("onTapBackButton", "");
+	public void onTapBackButton() {
+		String code = event.optString("onTapBackButton", "");
 
-        if (!code.equals("")) {
-            uiContext.react("javascript:" + code);
-        }
-    }
+		if (!code.equals("")) {
+			uiContext.react("javascript:" + code);
+		}
+	}
 
 	@Override
 	public String getComponentName() {

@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui.component;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -21,23 +20,27 @@ public abstract class Component {
 	protected UIContext uiContext;
 	protected JSONObject componentJSON;
 	protected JSONObject style;
-	private static Map<String, Component> COMPONENT_MAPS = new HashMap<String, Component>();
 
-	public Component(UIContext uiContext, JSONObject componentJSON) throws KeyNotValidException, DuplicateIDException {
+	public Component(UIContext uiContext, JSONObject componentJSON) throws KeyNotValidException, DuplicateIDException, JSONException {
 		this.uiContext = uiContext;
 		this.componentJSON = componentJSON;
+		addIDtoComponentIDsMap();
+		mixStyleWithDefault();
+		validate();
+	}
+
+	protected void addIDtoComponentIDsMap() throws DuplicateIDException {
+		Map<String, Component> componentIDsMap = uiContext.getComponentIDsMap();
 		String id = getComponentJSON().optString("id");
 		if (!TextUtils.isEmpty(id)) {
-			if (!COMPONENT_MAPS.containsKey(id)) {
-				COMPONENT_MAPS.put(id, this);
+			if (!componentIDsMap.containsKey(id)) {
+				componentIDsMap.put(id, this);
 			} else {
-				String components[] = { COMPONENT_MAPS.get(id).getComponentName(), getComponentName() };
+				String components[] = { componentIDsMap.get(id).getComponentName(), getComponentName() };
 				DuplicateIDException exception = new DuplicateIDException(id, components);
 				throw exception;
 			}
 		}
-		mixStyleWithDefault();
-		validate();
 	}
 
 	public abstract String getComponentName();
@@ -54,20 +57,13 @@ public abstract class Component {
 		return componentJSON;
 	}
 
-	public Map<String, Component> getComponentIdMap() {
-		return COMPONENT_MAPS;
-	}
-
 	public JSONObject getStyle() {
 		return style;
 	}
 
-	private void mixStyleWithDefault() {
+	private void mixStyleWithDefault() throws JSONException {
 		this.style = getComponentJSON().optJSONObject("style");
 		style = style != null ? style : new JSONObject();
-
-		JSONObject androidStyle = getComponentJSON().optJSONObject("androidStyle");
-		androidStyle = androidStyle != null ? androidStyle : new JSONObject();
 
 		JSONObject mixed = getDefaultStyle();
 
@@ -81,13 +77,12 @@ public abstract class Component {
 			}
 		}
 
-		keys = androidStyle.keys();
-		while (keys.hasNext()) {
-			String key = keys.next();
-			try {
+		JSONObject androidStyle = getComponentJSON().optJSONObject("androidStyle");
+		if (androidStyle != null) {
+			keys = androidStyle.keys();
+			while (keys.hasNext()) {
+				String key = keys.next();
 				mixed.put(key, androidStyle.get(key));
-			} catch (JSONException e) {
-				throw new RuntimeException(e);
 			}
 		}
 

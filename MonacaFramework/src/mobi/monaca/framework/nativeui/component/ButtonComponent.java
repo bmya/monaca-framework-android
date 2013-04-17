@@ -17,6 +17,7 @@ import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.util.MyLog;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -43,7 +44,7 @@ public class ButtonComponent extends ToolbarComponent {
 	protected static final String[] BUTTON_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event" };
 	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "image", "innerImage", "text" };
 
-	public ButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException {
+	public ButtonComponent(UIContext context, JSONObject buttonJSON) throws NativeUIException, JSONException {
 		super(context, buttonJSON);
 		UIValidator.validateKey(context, getComponentName() + " style", style, getStyleValidKeys());
 		
@@ -56,7 +57,7 @@ public class ButtonComponent extends ToolbarComponent {
 		return STYLE_VALID_KEYS;
 	}
 
-	private void buildEventer() throws NativeUIException {
+	private void buildEventer() throws NativeUIException, JSONException {
 		this.eventer = new ComponentEventer(uiContext, getComponentJSON().optJSONObject("event"));
 	}
 

@@ -28,6 +28,7 @@ import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.nativeui.exception.ValueNotInRangeException;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
@@ -55,7 +56,7 @@ public class ToolbarContainer extends Container {
 	protected static String[] validComponents = { "backButton", "button", "searchBox", "label", "segment" };
 
 	public ToolbarContainer(UIContext context, JSONObject toolbarJSON, boolean isTop) throws KeyNotValidException, DuplicateIDException, NativeUIIOException,
-			NativeUIException {
+			NativeUIException, JSONException {
 		super(context, toolbarJSON);
 		UIValidator.validateKey(context, "Toolbar's style", style, styleValidKeys);
 
@@ -66,7 +67,7 @@ public class ToolbarContainer extends Container {
 		style();
 	}
 
-	private void buildChildren() throws NativeUIException {
+	private void buildChildren() throws NativeUIException, JSONException {
 		JSONArray left = getComponentJSON().optJSONArray("left");
 		if (left != null) {
 			ArrayList<ToolbarComponent> leftComponents = buildComponents("left", left);
@@ -90,7 +91,7 @@ public class ToolbarContainer extends Container {
 		}
 	}
 
-	private ArrayList<ToolbarComponent> buildComponents(String position, JSONArray componentsJSONArray) throws NativeUIException {
+	private ArrayList<ToolbarComponent> buildComponents(String position, JSONArray componentsJSONArray) throws NativeUIException, JSONException {
 		ArrayList<ToolbarComponent> leftComponents = new ArrayList<ToolbarComponent>();
 		ToolbarComponent component;
 		JSONObject componentJSON;
@@ -102,7 +103,7 @@ public class ToolbarContainer extends Container {
 		return leftComponents;
 	}
 
-	private ToolbarComponent buildComponent(String positioin, JSONObject childJSON) throws NativeUIException{
+	private ToolbarComponent buildComponent(String positioin, JSONObject childJSON) throws NativeUIException, JSONException{
 		String componentType = childJSON.optString("component");
 		if(componentType == null){
 			throw new RequiredKeyNotFoundException(getComponentName() + positioin, "component");

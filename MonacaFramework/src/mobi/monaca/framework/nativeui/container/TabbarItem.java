@@ -16,6 +16,7 @@ import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.util.MyLog;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
@@ -48,7 +49,7 @@ public class TabbarItem extends Component {
 		return TABBAR_ITEM_VALID_KYES;
 	}
 
-	public TabbarItem(UIContext context, JSONObject tabbarItemJSON) throws NativeUIException {
+	public TabbarItem(UIContext context, JSONObject tabbarItemJSON) throws NativeUIException, JSONException {
 		super(context, tabbarItemJSON);
 		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KYES);
 		this.view = new TabbarItemView(context);

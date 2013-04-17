@@ -689,8 +689,8 @@ public class MonacaPageActivity extends DroidGap {
 
 	/** Retrieve a style of Native UI Framework component. */
 	public JSONObject getStyle(String componentId) {
-		if (mPageComponent.getComponentIdMap().containsKey(componentId)) {
-			Component component = mPageComponent.getComponentIdMap().get(componentId);
+		if (mPageComponent.getComponentIDsMap().containsKey(componentId)) {
+			Component component = mPageComponent.getComponentIDsMap().get(componentId);
 			return component.getStyle();
 		}
 
@@ -714,8 +714,8 @@ public class MonacaPageActivity extends DroidGap {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
 
-						if (mPageComponent != null && mPageComponent.getComponentIdMap() != null && mPageComponent.getComponentIdMap().containsKey(componentId)) {
-							Component component = mPageComponent.getComponentIdMap().get(componentId);
+						if (mPageComponent != null && mPageComponent.getComponentIDsMap() != null && mPageComponent.getComponentIDsMap().containsKey(componentId)) {
+							Component component = mPageComponent.getComponentIDsMap().get(componentId);
 							if (component != null) {
 								try {
 									component.updateStyle(query.style);
@@ -865,7 +865,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		if (mPageComponent != null) {
-			mPageComponent.getComponentIdMap().clear();
+			mPageComponent.getComponentIDsMap().clear();
 			mPageComponent = null;
 		}
 		appView.setBackgroundDrawable(null);
@@ -998,17 +998,12 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		MyLog.d(TAG, "debug - onKeyDown");
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-
 			if (mPageComponent != null && mPageComponent.eventer != null && mPageComponent.eventer.hasOnTapBackButtonAction()) {
-				MyLog.d(TAG, "debug - Run backButtonEventer.onTapBackButtonAction()");
 				mPageComponent.eventer.onTapBackButton();
 			} else if (mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null) {
-				MyLog.d(TAG, "debug - Run backButtonEventer.onTap()");
 				PageComponent.BACK_BUTTON_EVENTER.onTap();
 			} else {
-				MyLog.d(TAG, "debug - Run popPage()");
 				popPage();
 			}
 			return true;

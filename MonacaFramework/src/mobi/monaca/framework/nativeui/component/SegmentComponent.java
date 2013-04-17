@@ -37,23 +37,23 @@ public class SegmentComponent extends ToolbarComponent {
 	protected int pressedBackgroundColor;
 
 	protected static final String[] SEGMENT_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event", };
-	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disalbe", "opacity", "backgroundColor", "activeTextColor", "textColor", "texts", "activeIndex" };
+	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "texts", "activeIndex" };
 
 	@Override
 	public String[] getValidKeys() {
 		return SEGMENT_VALID_KEYS;
 	}
 
-	public SegmentComponent(UIContext context, JSONObject segmentJSON) throws NativeUIException {
+	public SegmentComponent(UIContext context, JSONObject segmentJSON) throws NativeUIException, JSONException {
 		super(context, segmentJSON);
 		this.view = new SegmentComponentView(context);
 
-		UIValidator.validateKey(context, getComponentName() + " style", segmentJSON, STYLE_VALID_KEYS);
+		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
 		buildEventer();
 		style();
 	}
 
-	private void buildEventer() throws NativeUIException {
+	private void buildEventer() throws NativeUIException, JSONException {
 		this.eventer = new ComponentEventer(uiContext, getComponentJSON().optJSONObject("event"));
 	}
 

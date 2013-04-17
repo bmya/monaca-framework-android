@@ -2,6 +2,7 @@ package mobi.monaca.framework.nativeui.component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.nativeui.ComponentEventer;
@@ -14,6 +15,7 @@ import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.container.TabbarContainer;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.exception.ConversionException;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
 import mobi.monaca.framework.nativeui.exception.InvalidValueException;
 import mobi.monaca.framework.nativeui.exception.MenuNameNotDefinedInAppMenuFileException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
@@ -23,6 +25,7 @@ import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
@@ -44,7 +47,6 @@ import android.view.View;
 public class PageComponent extends Component {
 
 	private static final String TAG = PageComponent.class.getSimpleName();
-	private UIContext uiContext;
 	private LayerDrawable mLayeredBackgroundDrawable;
 	private PageOrientation mScreenOrientation;
 	protected Component topComponent;
@@ -62,9 +64,8 @@ public class PageComponent extends Component {
 		return validKeys;
 	}
 
-	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws NativeUIException {
+	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws NativeUIException, JSONException {
 		super(uiContext, pageJSON);
-		this.uiContext = uiContext;
 		UIValidator.validateKey(uiContext, "Page's style", style, styleValidKeys);
 
 		JSONObject event = getComponentJSON().optJSONObject("event");
@@ -80,14 +81,23 @@ public class PageComponent extends Component {
 			}
 		}
 		style();
-
 		buildChildren();
+	}
+
+	public Map<String, Component> getComponentIDsMap(){
+		return uiContext.getComponentIDsMap();
+	}
+	
+	protected void addIDtoComponentIDsMap() throws DuplicateIDException {
+		// this is the top component -> a new of object of this page should clear old ids of previous
+		uiContext.getComponentIDsMap().clear();
+		super.addIDtoComponentIDsMap();
 	}
 
 	private static final String[] TOP_CONTAINER_VALID_VALUES = { "toolbar" };
 	private static final String[] BOTTOM_CONTAINER_VALID_VALUES = { "toolbar, tabbar" };
 
-	private void buildChildren() throws NativeUIException   {
+	private void buildChildren() throws NativeUIException, JSONException   {
 		JSONObject topJSON = getComponentJSON().optJSONObject("top");
 		if (topJSON != null) {
 			String containerType = topJSON.optString("container");
