@@ -578,6 +578,9 @@ public class MonacaPageActivity extends DroidGap {
 	protected void applyUiToView() {
 		MyLog.d(TAG, "applyUiToView()");
 
+		if(mPageComponent == null){
+			return;
+		}
 		setupBackground(mPageComponent.getBackgroundDrawable());
 		applyScreenOrientation(mPageComponent.getScreenOrientation());
 
