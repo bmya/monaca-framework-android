@@ -51,7 +51,7 @@ public class ToolbarContainer extends Container {
 	protected static String[] toolbarValidKeys = { "container", "style", "iosStyle", "androidStyle", "id", "left", "center", "right" };
 
 	protected static String[] styleValidKeys = { "visibility", "disable", "opacity", "shadowOpacity", "backgroundColor", "title", "subtitle", "titleColor", "subtitleColor",
-			"titleFontScale", "subtitleFontScale", "iosBarStyle", };
+			"titleFontScale", "subtitleFontScale", "titleImage", "iosBarStyle", };
 
 	protected static String[] validComponents = { "backButton", "button", "searchBox", "label", "segment" };
 
