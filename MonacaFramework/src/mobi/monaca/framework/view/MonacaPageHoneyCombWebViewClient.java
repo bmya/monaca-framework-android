@@ -28,7 +28,8 @@ public class MonacaPageHoneyCombWebViewClient extends MonacaPageGingerbreadWebVi
 
     @TargetApi(11)
 	public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-        if (!MonacaApplication.allowAccess(url)) {
+    	MonacaApplication app = (MonacaApplication) monacaPage.getApplication();
+        if (!app.allowAccess(url)) {
         	MyLog.w(TAG, "Not allowing access to url:" + url);
         	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "Not allowing access to " + url, "", 0);
         	MyLog.sendBloadcastDebugLog(monacaPage.getApplicationContext(), logItem);

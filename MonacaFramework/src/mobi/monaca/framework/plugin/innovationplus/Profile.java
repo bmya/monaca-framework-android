@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-//TODO not tested
 public class Profile extends CordovaPluginExecutor{
 	public Profile(CordovaInterface cordova) {
 		super(cordova);
@@ -21,10 +20,10 @@ public class Profile extends CordovaPluginExecutor{
 
 	@Override
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-		final String authKey = AuthKeyPreferenceUtil.getAuthKey(context);
+		final String authKey = KeyPreferenceUtil.getAuthKey(context);
 
 		if (authKey.equals("")) {
-			callbackContext.error(InnovationPlusPlugin.ERROR_NO_AUTH_KEY);// TODO not commentouted in product
+			callbackContext.error(InnovationPlusPlugin.ERROR_NO_AUTH_KEY);
 			return true;
 		}
 
@@ -52,6 +51,7 @@ public class Profile extends CordovaPluginExecutor{
 	private void retrieveQueryResource(JSONArray executeArg, String authKey, final CallbackContext callbackContext) {
 		IPPProfileClient client = new IPPProfileClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		String[] fields = Util.jsonArrayToStringArray(executeArg.optJSONArray(0));
 		if (fields != null) {
 			client.query(new Fields().setFields(fields), new IPPQueryCallback<IPPProfile[]>() {
@@ -96,6 +96,7 @@ public class Profile extends CordovaPluginExecutor{
 	private void retrieveResource(JSONArray executeArg, String authKey, final CallbackContext callbackContext) {
 		IPPProfileClient client = new IPPProfileClient(context);
 		client.setAuthKey(authKey);
+		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		String[] fields = Util.jsonArrayToStringArray(executeArg.optJSONArray(0));
 		//if ("".equals("")) return;
 		if (fields != null) {

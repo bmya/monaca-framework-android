@@ -1,0 +1,12 @@
+{
+	"top": {
+		"container": "toolbar",
+		"id": "id1",
+		"right": [
+            {
+                "component": "button",
+                "id": "id1"
+            }
+        ]
+	}
+}

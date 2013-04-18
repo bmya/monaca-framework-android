@@ -1,19 +1,24 @@
 package mobi.monaca.framework.nativeui.container;
 
-import java.util.ArrayList;
-import java.util.List;
+import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
+import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
+import java.util.ArrayList;
+
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
-import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.UIValidator;
+import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
 import mobi.monaca.framework.nativeui.container.TabbarItem.TabbarItemView;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.util.MyLog;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.content.Context;
+
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -24,29 +29,52 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-public class TabbarContainer implements Component {
+public class TabbarContainer extends Container {
 
 	protected TabbarContainerView view;
-	protected Context context;
-	protected JSONObject style;
-	protected List<TabbarItem> items;
+	private ContainerShadowView shadowView;
 	protected Integer oldActiveIndex = null;
+	protected static final int mContainerViewID = 1002;
 
-	public TabbarContainer(UIContext context, List<TabbarItem> items, JSONObject style) {
-		MyLog.v(TAG, "TabbarContainer constructor. items:" + items + ", style:" + style);
-		this.context = context;
-		this.style = style == null ? new JSONObject() : style;
+	protected static final String[] TAB_BAR_VALID_KEYS = {
+		"container",
+		"id",
+		"style",
+		"items"
+	};
+	protected static final String[] STYLE_VALID_KEYS = {"visibility", "opacity", "backgroundColor", "activeIndex"};
+
+	@Override
+	public String[] getValidKeys() {
+		return TAB_BAR_VALID_KEYS;
+	}
+
+	public TabbarContainer(UIContext context, JSONObject tabbarJSON) throws NativeUIException, JSONException {
+		super(context, tabbarJSON);
+		UIValidator.validateKey(context, getComponentName() + " style", style, STYLE_VALID_KEYS);
 		this.view = new TabbarContainerView(context);
-		this.items = items;
+		this.view.setId(mContainerViewID);
+		shadowView = new ContainerShadowView(context, false);
 
-		for (TabbarItem item : items) {
-			view.addTabbarItemView(item.getView());
-		}
+		buildChildren();
 
 		style();
 	}
 
-	public void updateStyle(JSONObject update) {
+	private void buildChildren() throws NativeUIException, JSONException {
+		JSONArray itemsJSON = componentJSON.optJSONArray("items");
+		if(itemsJSON != null){
+			for (int i = 0; i < itemsJSON.length(); i++) {
+				TabbarItem tabbarItem = new TabbarItem(uiContext, itemsJSON.optJSONObject(i));
+				view.addTabbarItemView(tabbarItem.getView());
+			}
+		}else{
+			throw new RequiredKeyNotFoundException(getComponentName(), "items");
+		}
+
+	}
+
+	public void updateStyle(JSONObject update) throws NativeUIException {
 		oldActiveIndex = style.has("activeIndex") ? style.optInt("activeIndex", 0) : null;
 		updateJSONObject(style, update);
 		style();
@@ -55,7 +83,9 @@ public class TabbarContainer implements Component {
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		view.getContentView().setBackgroundDrawable(null);
+		if(view != null && view.getContentView() != null){
+			view.getContentView().setBackgroundDrawable(null);
+		}
 	}
 
 	/*
@@ -63,40 +93,37 @@ public class TabbarContainer implements Component {
 	 * (default: 1.0) backgroundColor: #000000 [string] (default: #000000)
 	 * activeIndex: 0 [int] (default: 0)
 	 */
-	protected void style() {
+	protected void style() throws NativeUIException {
 		view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
 
-		ColorFilter filter = new PorterDuffColorFilter(buildColor(style.optString("backgroundColor", "#000000")), PorterDuff.Mode.SCREEN);
+		int backgroundColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "backgroundColor", "#000000", style);
+		ColorFilter filter = new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.SCREEN);
 		Bitmap bgBitmap = UIUtil.createBitmapWithColorFilter(view.getContentView().getBackground(), filter);
 
 		view.getContentView().setBackgroundResource(R.drawable.monaca_tabbar_bg);
-		view.getContentView().setBackgroundDrawable(new BitmapDrawable(context.getResources(), bgBitmap));
-		view.getContentView().getBackground().setAlpha(buildOpacity(style.optDouble("opacity")));
+		view.getContentView().setBackgroundDrawable(new BitmapDrawable(uiContext.getResources(), bgBitmap));
+		float tabbarOpacity = UIValidator.parseAndValidateFloat(uiContext, getComponentName() + " style", "opacity", "1.0", style, 0.0f, 1.0f);
+		view.getContentView().getBackground().setAlpha(buildOpacity(tabbarOpacity));
 
-		if (oldActiveIndex != null && style.optInt("activeIndex", 0) != oldActiveIndex) {
+		int activeIndex = UIValidator.parseAndValidateInt(uiContext, getComponentName() + " style", "activeIndex", "0", style, 0, view.getItemSize() - 1);
+		if (oldActiveIndex != null && activeIndex != oldActiveIndex) {
 			view.setActiveIndex(style.optInt("activeIndex", 0));
 		}
 
-		double shadowOpacity = style.optDouble("shadowOpacity", 0.5);
-		view.getShadowView().getBackground().setAlpha(buildOpacity(shadowOpacity));
-	}
-
-	public JSONObject getStyle() {
-		return style;
+		float shadowOpacity = UIValidator.parseAndValidateFloat(uiContext, getComponentName() + " style", "shadowOpacity", "0.3", style, 0.0f, 1.0f);
+		double relativeShadowOpacity = tabbarOpacity * shadowOpacity;
+		getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
 	}
 
 	public View getView() {
 		return view;
 	}
 
-	public class TabbarContainerView extends LinearLayout implements View.OnClickListener, ContainerViewInterface {
+	public class TabbarContainerView extends LinearLayout implements View.OnClickListener {
 
 		protected ArrayList<TabbarItem.TabbarItemView> items = new ArrayList<TabbarItem.TabbarItemView>();
 		protected TabbarItemView currentItemView = null;
 		protected LinearLayout content;
-		private int mShadowHeight;
-		private View shadowView;
-		private ToolbarContainerViewListener mContainerSizeListener;
 
 		public TabbarContainerView(UIContext context) {
 			super(context);
@@ -108,18 +135,9 @@ public class TabbarContainer implements Component {
 			content.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
 			content.setBackgroundResource(R.drawable.monaca_tabbar_bg);
 
-			shadowView = new View(getContext());
-			shadowView.setBackgroundResource(R.drawable.shadow_bg_reverse);
-			mShadowHeight = UIUtil.dip2px(getContext(), 3);
-			addView(shadowView, LinearLayout.LayoutParams.MATCH_PARENT, mShadowHeight);
-
 			int borderWidth = context.getSettings().disableUIContainerBorder ? 0 : 1;
             addView(createBorderView(), new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, borderWidth));
 			addView(content, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-		}
-
-		public View getShadowView() {
-			return shadowView;
 		}
 
 		public View getContentView() {
@@ -127,7 +145,7 @@ public class TabbarContainer implements Component {
 		}
 
 		protected View createBorderView() {
-			View v = new FrameLayout(context);
+			View v = new FrameLayout(uiContext);
 			v.setBackgroundColor(0xff000000);
 			return v;
 		}
@@ -163,6 +181,10 @@ public class TabbarContainer implements Component {
 				currentItemView.switchToSelected();
 			}
 		}
+		
+		public int getItemSize(){
+			return items.size();
+		}
 
 		@Override
 		public void onClick(View v) {
@@ -175,7 +197,6 @@ public class TabbarContainer implements Component {
 				try {
 					style.put("activeIndex", newActiveIndex);
 				} catch (JSONException e) {
-					MyLog.d(TAG, "unexpected exception has occurred");
 					e.printStackTrace();
 				}
 			}
@@ -186,39 +207,25 @@ public class TabbarContainer implements Component {
 				item.switchToSelected();
 			}
 		}
-		
+	}
 
-		@Override
-		public int getShadowHeight() {
-			return mShadowHeight;
-		}
+	public boolean isTransparent() {
+		double opacity = style.optDouble("opacity", 1.0);
+		return opacity <= 0.999;
+	}
 
-		@Override
-		public void setContainerSizeListener(ToolbarContainerViewListener mContainerSizeListener) {
-			this.mContainerSizeListener = mContainerSizeListener;
-		}
-		
-		@Override
-		public void setVisibility(int visibility) {
-			if (getVisibility() != visibility) {
-				if (mContainerSizeListener != null) {
-					mContainerSizeListener.onVisibilityChanged(visibility);
-				}
-			}
-			super.setVisibility(visibility);
-		}
-		
-		@Override
-		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-			super.onSizeChanged(w, h, oldw, oldh);
-			if(mContainerSizeListener != null){
-				mContainerSizeListener.onSizeChanged(w, h, oldw, oldh);
-			}
-		}
+	@Override
+	public View getShadowView() {
+		return shadowView;
+	}
 
-		@Override
-		public int getContainerViewHeight() {
-			return getMeasuredHeight();
-		}
+	@Override
+	public String getComponentName() {
+		return "TabBar";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.tabbar();
 	}
 }

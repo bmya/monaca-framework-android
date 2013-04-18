@@ -27,7 +27,7 @@ public class MonacaChromeClient extends CordovaChromeClient {
 
 	@Override
 	public boolean onJsPrompt(WebView webView, String url, String message, String defaultValue, JsPromptResult jsPromtResult) {
-		MyLog.v(MonacaPageActivity.TAG, "onJsPromt:arg1:" + url + ", arg2:" + message + ", arg3:" + defaultValue);
+//		MyLog.v(MonacaPageActivity.TAG, "onJsPromt:arg1:" + url + ", arg2:" + message + ", arg3:" + defaultValue);
 		if (url.equalsIgnoreCase("uri")) {
 			// MyLog.v(TAG, "url null-> return true");
 			return true;

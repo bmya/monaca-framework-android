@@ -4,174 +4,306 @@ import static mobi.monaca.framework.nativeui.UIUtil.buildColor;
 import static mobi.monaca.framework.nativeui.UIUtil.buildOpacity;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
-import mobi.monaca.framework.nativeui.NonScaleBitmapDrawable;
+import mobi.monaca.framework.nativeui.DefaultStyleJSON;
 import mobi.monaca.framework.nativeui.UIContext;
-import mobi.monaca.framework.nativeui.UIUtil;
-import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.UIValidator;
+import mobi.monaca.framework.nativeui.component.BackButtonComponent;
+import mobi.monaca.framework.nativeui.component.ButtonComponent;
+import mobi.monaca.framework.nativeui.component.LabelComponent;
+import mobi.monaca.framework.nativeui.component.SearchBoxComponent;
+import mobi.monaca.framework.nativeui.component.SegmentComponent;
 import mobi.monaca.framework.nativeui.component.ToolbarBackgroundDrawable;
 import mobi.monaca.framework.nativeui.component.ToolbarComponent;
-import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.framework.nativeui.component.view.ContainerShadowView;
+import mobi.monaca.framework.nativeui.exception.ConversionException;
+import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
+import mobi.monaca.framework.nativeui.exception.InvalidValueException;
+import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
+import mobi.monaca.framework.nativeui.exception.NativeUIException;
+import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
+import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
+import mobi.monaca.framework.nativeui.exception.ValueNotInRangeException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
-import static mobi.monaca.framework.nativeui.UIUtil.*;
-import android.content.Context;
+
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 
-public class ToolbarContainer implements Component {
-    protected UIContext context;
-    protected ToolbarContainerView view;
-    protected ToolbarComponent left, center, right;
-    protected JSONObject style;
-    protected AlphaAnimation animation = null;
+public class ToolbarContainer extends Container {
+	protected ToolbarContainerView view;
+	protected ToolbarComponent left, center, right;
+	protected AlphaAnimation animation = null;
+	private ContainerShadowView shadowView;
+	protected static final int mContainerViewID = 1001;
 
-    public ToolbarContainer(UIContext context, List<ToolbarComponent> left,
-            List<ToolbarComponent> center, List<ToolbarComponent> right,
-            JSONObject style, boolean isTop) {
-        view = new ToolbarContainerView(context, isTop);
-        this.style = style != null ? style : new JSONObject();
-        this.context = context;
+	protected static String[] toolbarValidKeys = { "container", "style", "iosStyle", "androidStyle", "id", "left", "center", "right" };
 
-        view.setLeftView(left);
-        view.setRightView(right);
-        view.setCenterView(center, left.size() == 0 && right.size() == 0);
+	protected static String[] styleValidKeys = { "visibility", "disable", "opacity", "shadowOpacity", "backgroundColor", "title", "subtitle", "titleColor", "subtitleColor",
+			"titleFontScale", "subtitleFontScale", "iosBarStyle", };
 
-        style();
-    }
+	protected static String[] validComponents = { "backButton", "button", "searchBox", "label", "segment" };
 
-    public void updateStyle(JSONObject update) {
-        updateJSONObject(style, update);
-        style();
-    }
+	public ToolbarContainer(UIContext context, JSONObject toolbarJSON, boolean isTop) throws KeyNotValidException, DuplicateIDException, NativeUIIOException,
+			NativeUIException, JSONException {
+		super(context, toolbarJSON);
+		UIValidator.validateKey(context, "Toolbar's style", style, styleValidKeys);
 
-    public JSONObject getStyle() {
-        return style;
-    }
+		view = new ToolbarContainerView(context, isTop);
+		view.setId(mContainerViewID);
+		shadowView = new ContainerShadowView(context, isTop);
+		buildChildren();
+		style();
+	}
 
-    public ToolbarContainer(UIContext context, JSONObject style, boolean isTop) {
-        this(context, new ArrayList<ToolbarComponent>(),
-                new ArrayList<ToolbarComponent>(),
-                new ArrayList<ToolbarComponent>(), style, isTop);
-    }
+	private void buildChildren() throws NativeUIException, JSONException {
+		JSONArray left = getComponentJSON().optJSONArray("left");
+		if (left != null) {
+			ArrayList<ToolbarComponent> leftComponents = buildComponents("left", left);
+			view.setLeftView(leftComponents);
+		}
+		JSONArray right = getComponentJSON().optJSONArray("right");
+		if (right != null) {
+			ArrayList<ToolbarComponent> rightComponents = buildComponents("right", right);
+			view.setRightView(rightComponents);
+		}
 
-    public View getView() {
-        return view;
-    }
+		JSONArray center = getComponentJSON().optJSONArray("center");
+		if (center != null) {
+			ArrayList<ToolbarComponent> centerComponents = buildComponents("center", center);
+			boolean shouldExpandItemWidth = false;
+			if ((left == null && right == null) || (left == null && right.length() == 0) || (left.length() == 0 && right == null)
+					|| (left.length() == 0 && right.length() == 0)) {
+				shouldExpandItemWidth = true;
+			}
+			view.setCenterView(centerComponents, shouldExpandItemWidth);
+		}
+	}
 
-    /**
-     * visibility: [bool] (default: true) opacity: 0.0-1.0 [float] (default:
-     * 1.0) backgroundColor: #000000 [string] (default: undefined) position :
-     * "fixed" | "scroll" (default: "fixed") => androidだと無理ぽい title : [string]
-     * (default : "") (このスタイルが指定された場合、center属性は無視される)
-     * titleImage : [string] (default : "") このスタイルが指定された時、center属性は無視)
-     */
-    protected void style() {
-        double toolbarOpacity = style.optDouble("opacity", 1.0);
-		if (isTransparent(toolbarOpacity) && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE
-                : View.INVISIBLE)) {
-            if (animation != null) {
-//                animation.cancel();  //TODO only available in Android 4.0
-            }
+	private ArrayList<ToolbarComponent> buildComponents(String position, JSONArray componentsJSONArray) throws NativeUIException, JSONException {
+		ArrayList<ToolbarComponent> leftComponents = new ArrayList<ToolbarComponent>();
+		ToolbarComponent component;
+		JSONObject componentJSON;
+		for (int i = 0; i < componentsJSONArray.length(); i++) {
+			componentJSON = componentsJSONArray.optJSONObject(i);
+			component = buildComponent(position, componentJSON);
+			leftComponents.add(component);
+		}
+		return leftComponents;
+	}
 
-            animation = style.optBoolean("visibility", true) ? new AlphaAnimation(
-                    0f, 1.0f) : new AlphaAnimation(1.0f, 0f);
+	private ToolbarComponent buildComponent(String positioin, JSONObject childJSON) throws NativeUIException, JSONException{
+		String componentType = childJSON.optString("component");
+		if(componentType == null){
+			throw new RequiredKeyNotFoundException(getComponentName() + positioin, "component");
+		}
+		if (componentType.equals("backButton")) {
+			return new BackButtonComponent(uiContext, childJSON);
+		} else if (componentType.equals("button")) {
+			return new ButtonComponent(uiContext, childJSON);
+		} else if (componentType.equals("searchBox")) {
+			return new SearchBoxComponent(uiContext, childJSON);
+		} else if (componentType.equals("label")) {
+			return new LabelComponent(uiContext, childJSON);
+		} else if (componentType.equals("segment")) {
+			return new SegmentComponent(uiContext, childJSON);
+		} else {
+			InvalidValueException exception = new InvalidValueException("Toolbar", "component", componentType, validComponents);
+			throw exception;
+		}
+	}
 
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
+	public void updateStyle(JSONObject update) throws NativeUIException {
+		updateJSONObject(style, update);
+		style();
+	}
 
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
+	public View getView() {
+		return view;
+	}
 
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
-                            : View.INVISIBLE);
-                    ToolbarContainer.this.animation = null;
-                }
-            });
-            animation.setInterpolator(new LinearInterpolator());
-            animation.setDuration(200);
+	/**
+	 * visibility: [bool] (default: true) opacity: 0.0-1.0 [float] (default:
+	 * 1.0) backgroundColor: #000000 [string] (default: undefined) position :
+	 * "fixed" | "scroll" (default: "fixed") => androidだと無理ぽい title : [string]
+	 * (default : "") (このスタイルが指定された場合、center属性は無視される) titleImage : [string]
+	 * (default : "") このスタイルが指定された時、center属性は無視)
+	 * 
+	 * @throws NativeUIException
+	 */
+	protected void style() throws NativeUIException {
+		String toolbarOpacityString = "1.0";
+		float toolbarOpacity = 1.0f;
+		if(style.has("opacity")){
+			toolbarOpacityString = style.optString("opacity");
+		}
+		try{
+			toolbarOpacity = Float.parseFloat(toolbarOpacityString);
+			if(toolbarOpacity < 0.0 || toolbarOpacity > 1.0 ){
+				throw new ValueNotInRangeException(getComponentName() + "style", "opacity", toolbarOpacityString, "[0.0-1.0]");
+			}
+		}catch(NumberFormatException e){
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "opacity", toolbarOpacityString, "Float");
+			throw conversionException;
+		}
+		
+		if (isTransparent() && view.getVisibility() != (style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE)) {
+			if (animation != null) {
+				// animation.cancel(); //TODO only available in Android 4.0
+			}
 
-            // cause GC to prevent "stop the world" on animation.
-            System.gc();
+			animation = style.optBoolean("visibility", true) ? new AlphaAnimation(0f, 1.0f) : new AlphaAnimation(1.0f, 0f);
+			animation.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+				}
 
-            view.startAnimation(animation);
-        } else {
-            view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
-        }
-        
-        /*
-        view.setTitleSubtitle(style.optString("title"),
-                style.optString("subtitle"));
-                */
-        
-        // titleColor
-        view.setTitleColor(style.optString("titleColor", "#ffffff"));
-        
-        // subtitleColor
-        view.setSubtitleColor(style.optString("subtitleColor", "#ffffff"));
-        
-        // titleFontScale
-        view.setTitleFontScale(style.optString("titleFontScale", ""));
-        
-        // subtitleFontScale
-        view.setSubitleFontScale(style.optString("subtitleFontScale", ""));
-        
-        String titleImagePath = style.optString("titleImage", "");
-        view.setTitleSubtitle(
-                style.optString("title"),
-                style.optString("subtitle"),
-                titleImagePath.equals("") ? null : context.readScaledBitmap(titleImagePath));
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+				}
 
-        ColorFilter filter = new PorterDuffColorFilter(
-                buildColor(style.optString("backgroundColor", "#000000")),
-                PorterDuff.Mode.SCREEN);
-        
-        Drawable toolbarBackground = new ToolbarBackgroundDrawable(context);
-        toolbarBackground.setColorFilter(filter);
-        toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE);
+					ToolbarContainer.this.animation = null;
+				}
+			});
+			animation.setInterpolator(new LinearInterpolator());
+			animation.setDuration(200);
 
-        view.getContentView().setBackgroundDrawable(toolbarBackground);
+			// cause GC to prevent "stop the world" on animation.
+			System.gc();
 
-        double shadowOpacity = style.optDouble("shadowOpacity", 0.3);
-        double relativeShadowOpacity = toolbarOpacity * shadowOpacity;
-        MyLog.v(TAG, "shadowOpacity:" + shadowOpacity + ", relativeShadowOpacity:" + relativeShadowOpacity);
-        view.getShadowView().getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
-        
-        view.setBackgroundDrawable(null);
-        view.setBackgroundColor(0);
-        
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                view.requestFocus();
-            }
-        });
-    }
+			view.startAnimation(animation);
+		} else {
+			view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
+		}
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        view.getContentView().setBackgroundDrawable(null);
-    }
-    
-    static public boolean isTransparent(double opacity) {
-        return opacity <= 0.999;
-    }
+		// titleColor
+		String titleColorString = style.optString("titleColor", "#ffffff");
+		try {
+			view.setTitleColor(titleColorString);
+		} catch (IllegalArgumentException e) {
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "titleColor", titleColorString, "Color");
+			throw conversionException;
+		}
+
+		// subtitleColor
+		String subtitleColorString = style.optString("subtitleColor", "#ffffff");
+		try {
+			view.setSubtitleColor(subtitleColorString);
+		} catch (IllegalArgumentException e) {
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "subtitleColor", subtitleColorString, "Color");
+			throw conversionException;
+		}
+		
+		// titleFontScale
+		String titleFontScaleString = style.optString("titleFontScale", "");
+		try{
+			view.setTitleFontScale(titleFontScaleString);
+		}catch(NumberFormatException e){
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "titleFontScale", titleFontScaleString, "Float");
+			throw conversionException;
+		}
+
+		// subtitleFontScale
+		String subtitleFontScaleString = style.optString("subtitleFontScale", "");
+		try{
+			view.setSubitleFontScale(subtitleFontScaleString);
+		}catch(NumberFormatException e){
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "subtitleFontScale", subtitleFontScaleString, "Float");
+			throw conversionException;
+		}
+
+		String titleImagePath = style.optString("titleImage", "");
+		Bitmap titleImage;
+		try {
+			titleImage = titleImagePath.equals("") ? null : uiContext.readScaledBitmap(titleImagePath);
+			view.setTitleSubtitle(style.optString("title"), style.optString("subtitle"), titleImage);
+		} catch (IOException e) {
+			NativeUIIOException exception = new NativeUIIOException(getComponentName() + " style", "titleImage", titleImagePath, e.getMessage());
+			throw exception;
+		}
+
+		String backgroundColorString = style.optString("backgroundColor", "#000000");
+		try {
+			ColorFilter filter = new PorterDuffColorFilter(buildColor(backgroundColorString), PorterDuff.Mode.SCREEN);
+			Drawable toolbarBackground = new ToolbarBackgroundDrawable(uiContext);
+			toolbarBackground.setColorFilter(filter);
+			toolbarBackground.setAlpha(buildOpacity(style.optDouble("opacity", 1.0)));
+			view.getContentView().setBackgroundDrawable(toolbarBackground);
+		} catch (IllegalArgumentException e) {
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "backgroundColor", backgroundColorString, "Color");
+			throw conversionException;
+		}
+
+		String shadowOpacityString = "0.3";
+		if(style.has("shadowOpacity")){
+			shadowOpacityString = style.optString("shadowOpacity");
+		}
+		try{
+			double shadowOpacity = Float.parseFloat(shadowOpacityString);
+			if(shadowOpacity < 0.0 || shadowOpacity > 1.0){
+				throw new ValueNotInRangeException(getComponentName() + " style", "shadowOpacity", shadowOpacityString, "[0.0-1.0]");
+			}
+			double relativeShadowOpacity = toolbarOpacity * shadowOpacity;
+			shadowView.getBackground().setAlpha(buildOpacity(relativeShadowOpacity));
+		}catch(NumberFormatException e){
+			ConversionException conversionException = new ConversionException(getComponentName() + " style", "shadowOpacity", shadowOpacityString, "Float");
+			throw conversionException;
+		}
+
+		view.setBackgroundDrawable(null);
+		view.setBackgroundColor(0);
+
+		view.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				view.requestFocus();
+			}
+		});
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		super.finalize();
+		if (view != null && view.getContentView() != null) {
+			view.getContentView().setBackgroundDrawable(null);
+		}
+	}
+
+	public boolean isTransparent() {
+		double opacity = style.optDouble("opacity", 1.0);
+		return opacity <= 0.999;
+	}
+
+	public View getShadowView() {
+		return shadowView;
+	}
+
+	@Override
+	public String getComponentName() {
+		return "Toolbar";
+	}
+
+	@Override
+	public JSONObject getDefaultStyle() {
+		return DefaultStyleJSON.toolbar();
+	}
+
+	@Override
+	public String[] getValidKeys() {
+		return toolbarValidKeys;
+	}
 }
