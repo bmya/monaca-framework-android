@@ -28,12 +28,15 @@ public class AppJsonSetting {
 	//splash
 	protected int splashColor;
 	protected boolean autoHide;
-	//
+
+	//security
+	protected boolean disableCookie;
 
 	public AppJsonSetting(JSONObject appJson) {
 		this.appJson = appJson;
 		parseSplash();
 		parsePush();
+		parseSecurity();
 	}
 
 	protected void parseSplash() {
@@ -76,6 +79,17 @@ public class AppJsonSetting {
 		}
 	}
 
+	protected void parseSecurity() {
+		JSONObject security;
+		try {
+			security = appJson.getJSONObject("security");
+		} catch (JSONException e) {
+			security = new JSONObject();
+		}
+
+		disableCookie = security.optBoolean("disableCookie", false);
+	}
+
 	/**
 	 * set flag to send BroadcastDebugLog. used for validation
 	 * @param sendsBroadcast
@@ -99,6 +113,10 @@ public class AppJsonSetting {
 
 	public int getSplashBackgroundColor() {
 		return splashColor;
+	}
+
+	public boolean getDisableCookie() {
+		return disableCookie;
 	}
 
 }

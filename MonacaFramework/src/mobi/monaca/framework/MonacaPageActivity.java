@@ -28,7 +28,6 @@ import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.transition.BackgroundDrawable;
 import mobi.monaca.framework.transition.ClosePageIntent;
 import mobi.monaca.framework.transition.TransitionParams;
-import mobi.monaca.framework.transition.TransitionParams.TransitionAnimationType;
 import mobi.monaca.framework.util.AssetUriUtil;
 import mobi.monaca.framework.util.BenchmarkTimer;
 import mobi.monaca.framework.util.InputStreamLoader;
@@ -407,9 +406,6 @@ public class MonacaPageActivity extends DroidGap {
         		MyLog.e(TAG, "webview.setLayerType() is fail.");
             }
 		}
-
-	//	JSONObject security = mApp.getAppJson().getJSONObject("security")
-
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);

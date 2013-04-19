@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,9 +30,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 /** This class manage the application's global state and variable. */
 public class MonacaApplication extends Application {
@@ -58,9 +62,14 @@ public class MonacaApplication extends Application {
 		super.onConfigurationChanged(newConfig);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 	@Override
 	public void onCreate() {
 		MyLog.i(TAG, "onCreate()");
+		if (Build.VERSION.SDK_INT  >= 12) {
+			CookieManager.setAcceptFileSchemeCookies(true);
+		}
+		CookieSyncManager.createInstance(this);
 		super.onCreate();
 
 		registerReceiver(registeredReceiver, new IntentFilter(GCMIntentService.ACTION_GCM_REGISTERED));
@@ -86,6 +95,8 @@ public class MonacaApplication extends Application {
 		}
 
 		appJsonSetting = new AppJsonSetting(appJson);
+
+		CookieManager.getInstance().setAcceptCookie(!appJsonSetting.getDisableCookie());
 	}
 
 	public AppJsonSetting getAppJsonSetting() {
