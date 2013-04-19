@@ -625,9 +625,7 @@ public class MonacaPageActivity extends DroidGap {
 			webViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
 		}
 
-		if(bottomComponentContainer != null && bottomComponentContainer.isTransparent()){
-			webViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		}else{
+		if(bottomComponentContainer != null){
 			webViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
 		}
 		container.addView(appView, 0,  webViewParams);
