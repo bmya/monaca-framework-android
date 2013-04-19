@@ -50,7 +50,7 @@ public class MyLog {
 	}
 
 	// send debuglog to debbuger and server
-	public static void sendBloadcastDebugLog(Context context, LogItem logItem) {
+	public static void sendBroadcastDebugLog(Context context, LogItem logItem) {
 		MyLog.v("MyLog", "sendBloadcastDebugLog. message:" + logItem.getMessage());
 		Intent broadcastIntent = new Intent("log_message_action");
 		broadcastIntent.putExtra("message", logItem.getMessage());
@@ -60,7 +60,7 @@ public class MyLog {
 		broadcastIntent.putExtra("logLevel", logItem.getLogLevel().toString());
 		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
 	}
-	
+
 //	public static void sendBloadcastDebugLog(Context context, String broadcastMessage, String logLevel, LogSource source, String url, int lineNumber) {
 //		MyLog.v("MyLog", "sendBloadcastDebugLog. message:" + broadcastMessage);
 //		Intent broadcastIntent = new Intent("log_message_action");
@@ -71,7 +71,7 @@ public class MyLog {
 //		broadcastIntent.putExtra("logLevel", logLevel);
 //		LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(broadcastIntent);
 //	}
-	
+
 	public static void sendBloadcastPongLog(Context context) {
 		MyLog.i("MyLog", "sendBloadcastPongLog");
 		Intent broadcastIntent = new Intent("log_message_action");

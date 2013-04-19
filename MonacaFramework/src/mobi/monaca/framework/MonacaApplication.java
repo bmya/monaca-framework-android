@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,9 +30,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 /** This class manage the application's global state and variable. */
 public class MonacaApplication extends Application {
@@ -41,7 +45,8 @@ public class MonacaApplication extends Application {
 	private SpinnerDialog monacaSpinnerDialog;
     protected static InternalSettings settings = null;
 
-	protected JSONObject appJson;
+
+    protected AppJsonSetting appJsonSetting;
 
 	private BroadcastReceiver registeredReceiver = new BroadcastReceiver() {
 		@Override
@@ -57,22 +62,27 @@ public class MonacaApplication extends Application {
 		super.onConfigurationChanged(newConfig);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 	@Override
 	public void onCreate() {
 		MyLog.i(TAG, "onCreate()");
+		if (Build.VERSION.SDK_INT  >= 12) {
+			CookieManager.setAcceptFileSchemeCookies(true);
+		}
+		CookieSyncManager.createInstance(this);
 		super.onCreate();
 
 		registerReceiver(registeredReceiver, new IntentFilter(GCMIntentService.ACTION_GCM_REGISTERED));
 		createMenuMap();
 	}
 
-	protected void loadAppJson() {
+	protected void loadAppJsonSetting() {
+		JSONObject appJson = null;
 		try {
 			InputStream stream = getResources().getAssets().open("app.json");
 			byte[] buffer = new byte[stream.available()];
 			stream.read(buffer);
 			appJson = new JSONObject(new String(buffer, "UTF-8"));
-			return;
 		} catch (IOException e) {
 			MyLog.e(TAG, e.getMessage());
 		} catch (JSONException e) {
@@ -80,14 +90,20 @@ public class MonacaApplication extends Application {
 		} catch (IllegalArgumentException e) {
 			MyLog.e(TAG, e.getMessage());
 		}
-		appJson = new JSONObject();
+		if (appJson == null) {
+			appJson = new JSONObject();
+		}
+
+		appJsonSetting = new AppJsonSetting(appJson);
+
+		CookieManager.getInstance().setAcceptCookie(!appJsonSetting.getDisableCookie());
 	}
 
-	public JSONObject getAppJson() {
-		if (appJson == null) {
-			loadAppJson();
-		}
-		return appJson;
+	public AppJsonSetting getAppJsonSetting() {
+		//if (appJsonSetting == null) {
+		//	loadAppJsonSetting();
+		//}
+		return appJsonSetting;
 	}
 
 	protected void createMenuMap() {
@@ -232,17 +248,7 @@ public class MonacaApplication extends Application {
 	}
 
 	public String getPushProjectId() {
-		String pushProjectId = "";
-		if (getAppJson().has("pushNotification")) {
-			try {
-				JSONObject pathNotification = appJson.getJSONObject("pushNotification");
-				pushProjectId = pathNotification.getString("pushProjectId");
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return pushProjectId;
+		return appJsonSetting.getPushProjectId();
 	}
 
 	public void sendGCMRegisterIdToAppAPI(String regId) {
