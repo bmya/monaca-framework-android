@@ -88,42 +88,42 @@ public class UIUtil {
 
     public static void reportJSONParseError(Context context, String msg) {
     	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:JSONParseError:" + msg, "", 0);
-    	MyLog.sendBloadcastDebugLog(context, logItem);
+    	MyLog.sendBroadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidJSONStructure(Context context, String msg) {
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidJSONStructure:" + msg, "", 0);
-    	MyLog.sendBloadcastDebugLog(context, logItem);
+    	MyLog.sendBroadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidComponent(Context context, String msg) {
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidComponent:" + msg, "", 0);
-     	MyLog.sendBloadcastDebugLog(context, logItem);
+     	MyLog.sendBroadcastDebugLog(context, logItem);
   
     }
 
     public static void reportInvalidContainer(Context context, String msg) {
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidContainer:" + msg, "", 0);
-     	MyLog.sendBloadcastDebugLog(context, logItem);
+     	MyLog.sendBroadcastDebugLog(context, logItem);
   
     }
 
     public static void reportUndefinedProperty(Context context, String msg) {
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:UndefinedProperty:" + msg, "", 0);
-     	MyLog.sendBloadcastDebugLog(context, logItem);
+     	MyLog.sendBroadcastDebugLog(context, logItem);
     }
 
     public static void reportInvalidStyleProperty(Context context, String msg) {
     	MyLog.e(TAG, "InvalidStyleProperty: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidStyleProperty:" + msg, "", 0);
-     	MyLog.sendBloadcastDebugLog(context, logItem);
+     	MyLog.sendBroadcastDebugLog(context, logItem);
   
     }
 
     public static void reportIgnoredStyleProperty(Context context, String msg) {
     	MyLog.e(TAG, "IgnoredStyleProperty: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:IgnoredStyleProperty:" + msg, "", 0);
-     	MyLog.sendBloadcastDebugLog(context, logItem);
+     	MyLog.sendBroadcastDebugLog(context, logItem);
   
     }
 

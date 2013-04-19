@@ -41,7 +41,8 @@ public class MonacaApplication extends Application {
 	private SpinnerDialog monacaSpinnerDialog;
     protected static InternalSettings settings = null;
 
-	protected JSONObject appJson;
+
+    protected AppJsonSetting appJsonSetting;
 
 	private BroadcastReceiver registeredReceiver = new BroadcastReceiver() {
 		@Override
@@ -66,13 +67,13 @@ public class MonacaApplication extends Application {
 		createMenuMap();
 	}
 
-	protected void loadAppJson() {
+	protected void loadAppJsonSetting() {
+		JSONObject appJson = null;
 		try {
 			InputStream stream = getResources().getAssets().open("app.json");
 			byte[] buffer = new byte[stream.available()];
 			stream.read(buffer);
 			appJson = new JSONObject(new String(buffer, "UTF-8"));
-			return;
 		} catch (IOException e) {
 			MyLog.e(TAG, e.getMessage());
 		} catch (JSONException e) {
@@ -80,14 +81,18 @@ public class MonacaApplication extends Application {
 		} catch (IllegalArgumentException e) {
 			MyLog.e(TAG, e.getMessage());
 		}
-		appJson = new JSONObject();
+		if (appJson == null) {
+			appJson = new JSONObject();
+		}
+
+		appJsonSetting = new AppJsonSetting(appJson);
 	}
 
-	public JSONObject getAppJson() {
-		if (appJson == null) {
-			loadAppJson();
-		}
-		return appJson;
+	public AppJsonSetting getAppJsonSetting() {
+		//if (appJsonSetting == null) {
+		//	loadAppJsonSetting();
+		//}
+		return appJsonSetting;
 	}
 
 	protected void createMenuMap() {
@@ -232,17 +237,7 @@ public class MonacaApplication extends Application {
 	}
 
 	public String getPushProjectId() {
-		String pushProjectId = "";
-		if (getAppJson().has("pushNotification")) {
-			try {
-				JSONObject pathNotification = appJson.getJSONObject("pushNotification");
-				pushProjectId = pathNotification.getString("pushProjectId");
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return pushProjectId;
+		return appJsonSetting.getPushProjectId();
 	}
 
 	public void sendGCMRegisterIdToAppAPI(String regId) {

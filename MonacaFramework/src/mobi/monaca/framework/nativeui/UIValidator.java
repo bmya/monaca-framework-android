@@ -41,7 +41,7 @@ public class UIValidator {
 	public static void reportException(Context context, NativeUIException e){
 		e.printStackTrace();
 		LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
-		MyLog.sendBloadcastDebugLog(context, logItem);
+		MyLog.sendBroadcastDebugLog(context, logItem);
 	}
 	
 	public static int parseAndValidateColor(Context context, String componentName, String keyName, String defaultValue, JSONObject componentJSON) throws ConversionException{

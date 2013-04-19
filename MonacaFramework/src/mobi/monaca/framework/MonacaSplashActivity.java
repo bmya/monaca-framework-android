@@ -25,7 +25,6 @@ import com.google.android.gcm.GCMRegistrar;
 public class MonacaSplashActivity extends Activity {
 	private static final String TAG = MonacaSplashActivity.class.getSimpleName();
     protected static final String SPLASH_IMAGE_PATH = "android/splash_default.png";
-    public static final String SHOWS_SPLASH_KEY = "showSplashAtFirst";
 
     /**
      * modify "false" to "true" this if want to use LocalFileBootloader
@@ -34,14 +33,15 @@ public class MonacaSplashActivity extends Activity {
 	protected static final boolean usesLocalFileBootloader = (false && LocalFileBootloader.needToUseLocalFileBootloader());
 
 	protected ImageView splashView;
-	protected JSONObject appJson;
 
 	protected Handler handler;
 	protected Runnable pageLauncher;
+	protected MonacaApplication app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        app = (MonacaApplication)getApplication();
         loadAppJson();
         registerGCM();
 
@@ -57,7 +57,7 @@ public class MonacaSplashActivity extends Activity {
     				splashView.setScaleType(ScaleType.FIT_CENTER);
     				InputStream stream = getSplashFileStream();
     				splashView.setImageBitmap(BitmapFactory.decodeStream(stream));
-    				splashView.setBackgroundColor(getBackgroundColor());
+    				splashView.setBackgroundColor(app.getAppJsonSetting().getSplashBackgroundColor());
     				try {
     					stream.close();
     				} catch (Exception e) {
@@ -97,12 +97,12 @@ public class MonacaSplashActivity extends Activity {
     }
 
     protected void loadAppJson() {
-    	this.appJson = ((MonacaApplication)getApplication()).getAppJson();
+    	app.loadAppJsonSetting();
     }
 
     protected void registerGCM() {
 		try {
-			String senderId = appJson.getJSONObject("pushNotification").getJSONObject("android").getString("senderId");
+			String senderId = app.getAppJsonSetting().getSenderId();
 			// GCM registration process
 			GCMRegistrar.checkDevice(this);
 			GCMRegistrar.checkManifest(this);
@@ -136,40 +136,15 @@ public class MonacaSplashActivity extends Activity {
 
     protected void goNextActivityWithoutSplash() {
         Intent intent = createActivityIntent();
-        try {
-			intent.putExtra(SHOWS_SPLASH_KEY, !appJson.getJSONObject("splash").getJSONObject("android").getBoolean("autoHide"));
-		} catch (JSONException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
+        intent.putExtra("launchedWithoutSplash", true);
         startActivity(intent);
         finish();
     }
 
-    protected int getBackgroundColor() {
-		try {
-			String backgroundColorString = appJson.getJSONObject("splash").getJSONObject("android").getString("background");
-			if(!backgroundColorString.startsWith("#")){
-				backgroundColorString = "#" + backgroundColorString;
-			}
-			int backbroundColor = Color.parseColor(backgroundColorString);
-			return backbroundColor;
-		} catch (JSONException e) {
-			MyLog.e(TAG, e.getMessage());
-		}catch (IllegalArgumentException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
-		return Color.TRANSPARENT;
-	}
-
     protected boolean hasSplashScreenExists() {
-    	try {
-    		MyLog.d(TAG, "autoHide is :" + Boolean.toString(appJson.getJSONObject("splash").getJSONObject("android").getBoolean("autoHide")));
-    		if (!appJson.getJSONObject("splash").getJSONObject("android").getBoolean("autoHide")) {
-    			return false;
-    		}
-    	} catch (JSONException e) {
-		}
-
+    	if (app.getAppJsonSetting().getAutoHide() == false) {
+    		return false;
+    	}
         try {
             InputStream stream = getResources().getAssets().open(
                     SPLASH_IMAGE_PATH);
