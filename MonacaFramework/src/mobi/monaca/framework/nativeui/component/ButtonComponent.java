@@ -56,11 +56,7 @@ public class ButtonComponent extends ToolbarComponent {
 	}
 
 	private void buildEventer() throws NativeUIException, JSONException {
-		JSONObject eventJSON = getComponentJSON().optJSONObject("event");
-		if(eventJSON == null){
-			eventJSON = new JSONObject();
-		}
-		this.eventer = new ComponentEventer(uiContext, eventJSON);
+		this.eventer = new ComponentEventer(uiContext, getComponentJSON().optJSONObject("event"));
 	}
 
 	public ComponentEventer getUIEventer() {
