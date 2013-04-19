@@ -23,7 +23,6 @@ import mobi.monaca.framework.nativeui.component.PageOrientation;
 import mobi.monaca.framework.nativeui.container.Container;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
-import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.transition.BackgroundDrawable;
@@ -59,6 +58,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -542,6 +544,8 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
 		if(pageOrientation == null){
+			MyLog.v(TAG, "null -> apply from manifest");
+			applyScreenOrientationFromManifest();
 			return;
 		}
 		
@@ -560,16 +564,43 @@ public class MonacaPageActivity extends DroidGap {
 
 		case INHERIT:
 			// no override. Do nothing.
+			MyLog.v(TAG, "inherit -> apply from manifest");
+			applyScreenOrientationFromManifest();
 			break;
 		default:
 			break;
 		}
+	}
+	
+	protected void applyScreenOrientationFromManifest(){
+		try {
+			PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
+			int screenOrientation = getScreenOrientationOfMonacaPageActivity(packageInfo);
+			setRequestedOrientation(screenOrientation);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private int getScreenOrientationOfMonacaPageActivity(PackageInfo packageInfo) {
+		ActivityInfo[] activies = packageInfo.activities;
+		for (int i = 0; i < activies.length; i++) {
+			ActivityInfo activityInfo = activies[i];
+			if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
+				MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
+				return activityInfo.screenOrientation;
+			}
+		}
+		// not found -> use sensor
+		return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 	}
 
 
 	protected void applyUiToView() {
 
 		if(mPageComponent == null){
+			applyScreenOrientationFromManifest();
 			return;
 		}
 		setupBackground(mPageComponent.getBackgroundDrawable());
@@ -913,6 +944,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		if (!withoutUIFile) {
+			mPageComponent = null;
 			loadUiFile(getCurrentUriWithoutOptions());
 		}
 
