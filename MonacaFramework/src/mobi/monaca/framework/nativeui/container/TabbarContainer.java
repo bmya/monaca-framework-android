@@ -37,10 +37,8 @@ public class TabbarContainer extends Container {
 	protected static final int mContainerViewID = 1002;
 
 	protected static final String[] TAB_BAR_VALID_KEYS = {
-		"container",
-		"id",
-		"style",
-		"items"
+		"container","id","style",
+		"iosStyle", "androidStyle", "items"
 	};
 	protected static final String[] STYLE_VALID_KEYS = {"visibility", "opacity", "backgroundColor", "activeIndex"};
 

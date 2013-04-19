@@ -55,7 +55,7 @@ public class PageComponent extends Component {
 	public UIEventer eventer;
 	public String menuName;
 
-	protected static String[] validKeys = { "top", "bottom", "event", "style", "menu", "id" };
+	protected static String[] validKeys = { "top", "bottom", "event", "style", "iosStyle", "androidStyle", "menu", "id" };
 	protected static String[] styleValidKeys = { "backgroundColor", "backgroundImage", "backgroundSize", "backgroundRepeat", "backgroundPosition",
 			"screenOrientation" };
 
