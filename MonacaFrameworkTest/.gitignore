@@ -2,3 +2,4 @@ gen
 bin
 junit-results
 coverage
+node_modules
