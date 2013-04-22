@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -43,7 +44,7 @@ public class ToolbarContainerView extends LinearLayout {
 	protected final static int TITLE_ID = 0;
 	protected final static int SUBTITLE_ID = 1;
 	private static final String TAG = ToolbarContainerView.class.getSimpleName();
-	private static final int CONTENT_VIEW_ID = 10000;
+	private static int mContentViewId = 10000;
 
 	protected View createBorderView() {
 		View v = new FrameLayout(context);
@@ -92,7 +93,8 @@ public class ToolbarContainerView extends LinearLayout {
 		setFocusableInTouchMode(true);
 
 		content = new FrameLayout(context);
-		content.setId(CONTENT_VIEW_ID);
+		mContentViewId++; // if we have toolbar on both top and bottom -> prevent same view id
+		this.setId(mContentViewId);
 
 		int borderWidth = context.getSettings().disableUIContainerBorder ? 0 : 1;
 

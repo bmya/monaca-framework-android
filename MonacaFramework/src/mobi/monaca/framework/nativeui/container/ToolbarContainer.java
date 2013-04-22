@@ -46,7 +46,6 @@ public class ToolbarContainer extends Container {
 	protected ToolbarComponent left, center, right;
 	protected AlphaAnimation animation = null;
 	private ContainerShadowView shadowView;
-	protected static final int mContainerViewID = 1001;
 
 	protected static String[] toolbarValidKeys = { "container", "style", "iosStyle", "androidStyle", "id", "left", "center", "right" };
 
@@ -61,7 +60,6 @@ public class ToolbarContainer extends Container {
 		UIValidator.validateKey(context, "Toolbar's style", style, styleValidKeys);
 
 		view = new ToolbarContainerView(context, isTop);
-		view.setId(mContainerViewID);
 		shadowView = new ContainerShadowView(context, isTop);
 		buildChildren();
 		style();
