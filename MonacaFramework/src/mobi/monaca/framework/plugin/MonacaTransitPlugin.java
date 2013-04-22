@@ -37,12 +37,28 @@ public class MonacaTransitPlugin extends Plugin {
     public PluginResult execute(String action, final JSONArray args,
             String callbackId) {
 
-//    	MyLog.v(TAG, "action: " + action);
+//    	MyLog.v(TAG, "action: " + action + ", args:" + args);
         // push
-        if (action.equals("push") || action.equals("slide") || action.equals("slideLeft")) {
+    	if (action.equals("slide") || action.equals("slideLeft")) {
             getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                     TransitionParams.from(args.optJSONObject(1), "slideLeft"));
             return new PluginResult(PluginResult.Status.OK);
+        }
+    	
+        if (action.equals("push")) {
+        	JSONObject options = args.optJSONObject(1);
+        	if(options != null && options.has("animation")){
+        		boolean animation = options.optBoolean("animation");
+        		if(animation == false){
+        			getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
+                            TransitionParams.from(args.optJSONObject(1), "none"));
+                    return new PluginResult(PluginResult.Status.OK);
+        		}
+        	}else{
+        		getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
+                        TransitionParams.from(args.optJSONObject(1), "slideLeft"));
+                return new PluginResult(PluginResult.Status.OK);
+        	}
         }
         
         if (action.equals("slideRight")) {
