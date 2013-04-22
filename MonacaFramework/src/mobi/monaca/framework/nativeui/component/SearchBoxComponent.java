@@ -40,7 +40,7 @@ public class SearchBoxComponent extends ToolbarComponent implements UIContext.On
 	protected Button clearButton;
 	protected ComponentEventer eventer;
 
-	protected static final String[] SEARCH_BOX_VALID_KEYS = { "component", "style", "id", "event" };
+	protected static final String[] SEARCH_BOX_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event" };
 	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "textColor", "placeholder", "focus", "value" };
 
 	@Override

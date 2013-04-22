@@ -23,7 +23,6 @@ import mobi.monaca.framework.nativeui.component.PageOrientation;
 import mobi.monaca.framework.nativeui.container.Container;
 import mobi.monaca.framework.nativeui.container.ToolbarContainer;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
-import mobi.monaca.framework.nativeui.exception.NativeUIIOException;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
 import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.transition.BackgroundDrawable;
@@ -59,10 +58,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -104,8 +105,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected int pageIndex = 0;
 
-	protected JSONObject appJson;
-
 	protected Dialog monacaSplashDialog;
 
 	private boolean isOnDestroyMonacaCalled = false;
@@ -116,8 +115,8 @@ public class MonacaPageActivity extends DroidGap {
 			if (pageIndex >= level) {
 				finish();
 			}
-			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutOptions());
-			MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
+			//MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutOptions());
+			//MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
 		}
 	};
 
@@ -143,19 +142,19 @@ public class MonacaPageActivity extends DroidGap {
 	protected String mCurrentHtml;
 	private ScreenReceiver mScreenReceiver;
 	protected GCMPushDataset pushData;
-	private MonacaApplication mApp;
+	protected MonacaApplication mApp;
 	private PageComponent mPageComponent;
 
 	@Override
 	public void onCreate(Bundle savedInstance) {
+		mApp = (MonacaApplication) getApplication();
 		registerReceiver(pushReceiver, new IntentFilter(MonacaNotificationActivity.ACTION_RECEIVED_PUSH));
+
 		prepare();
 
 		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 		}
-
-		mApp = (MonacaApplication) getApplication();
 
 		// initialize receiver
 		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
@@ -213,28 +212,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	}
 
-	protected int getSplashBackgroundColor() {
-		try {
-			InputStream stream = getResources().getAssets().open("app.json");
-			byte[] buffer = new byte[stream.available()];
-			stream.read(buffer);
-			JSONObject appJson = new JSONObject(new String(buffer, "UTF-8"));
-			String backgroundColorString = appJson.getJSONObject("splash").getJSONObject("android").getString("background");
-			if (!backgroundColorString.startsWith("#")) {
-				backgroundColorString = "#" + backgroundColorString;
-			}
-			int backbroundColor = Color.parseColor(backgroundColorString);
-			return backbroundColor;
-		} catch (JSONException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (IllegalArgumentException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (IOException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
-		return Color.TRANSPARENT;
-	}
-
 	public void showMonacaSplash() {
 		final MonacaPageActivity activity = this;
 
@@ -248,7 +225,7 @@ public class MonacaPageActivity extends DroidGap {
 				FrameLayout root = new FrameLayout(activity.getActivity());
 				root.setMinimumHeight(display.getHeight());
 				root.setMinimumWidth(display.getWidth());
-				root.setBackgroundColor(activity.getSplashBackgroundColor());
+				root.setBackgroundColor(mApp.getAppJsonSetting().getSplashBackgroundColor());
 				root.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 0.0F));
 
 				try {
@@ -301,10 +278,6 @@ public class MonacaPageActivity extends DroidGap {
 	protected void prepare() {
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
-			if (bundle.getBoolean(MonacaSplashActivity.SHOWS_SPLASH_KEY, false)) {
-				showMonacaSplash();
-				getIntent().getExtras().remove(MonacaSplashActivity.SHOWS_SPLASH_KEY);
-			}
 			Serializable s = bundle.getSerializable(GCMPushDataset.KEY);
 			if (s != null) {
 				pushData = (GCMPushDataset)s;
@@ -315,6 +288,11 @@ public class MonacaPageActivity extends DroidGap {
 
 		MonacaApplication.addPage(this);
 		pageIndex = MonacaApplication.getPages().size() - 1;
+
+		if (pageIndex == 0 && mApp.getAppJsonSetting().getAutoHide() == false) {
+			showMonacaSplash(); //TODO test
+		}
+
 		registerReceiver(closePageReceiver, ClosePageIntent.createIntentFilter());
 		uiContext = new UIContext(getCurrentUriWithoutOptions(), this);
 
@@ -421,7 +399,7 @@ public class MonacaPageActivity extends DroidGap {
 		if (VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
-		
+
 		if (uiContext.getSettings().forceDisableWebviewGPU) {
     		Method method;
     		try {
@@ -431,7 +409,6 @@ public class MonacaPageActivity extends DroidGap {
         		MyLog.e(TAG, "webview.setLayerType() is fail.");
             }
 		}
-		
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
@@ -510,7 +487,7 @@ public class MonacaPageActivity extends DroidGap {
 			}catch (Exception e) {
 				e.printStackTrace();
 				LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
-				MyLog.sendBloadcastDebugLog(getContext(), logItem);
+				MyLog.sendBroadcastDebugLog(getContext(), logItem);
 				return;
 			}
 		}
@@ -542,6 +519,8 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected void applyScreenOrientation(PageOrientation pageOrientation){
 		if(pageOrientation == null){
+			MyLog.v(TAG, "null -> apply from manifest");
+			applyScreenOrientationFromManifest();
 			return;
 		}
 		
@@ -560,16 +539,43 @@ public class MonacaPageActivity extends DroidGap {
 
 		case INHERIT:
 			// no override. Do nothing.
+			MyLog.v(TAG, "inherit -> apply from manifest");
+			applyScreenOrientationFromManifest();
 			break;
 		default:
 			break;
 		}
+	}
+	
+	protected void applyScreenOrientationFromManifest(){
+		try {
+			PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
+			int screenOrientation = getScreenOrientationOfMonacaPageActivity(packageInfo);
+			setRequestedOrientation(screenOrientation);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	private int getScreenOrientationOfMonacaPageActivity(PackageInfo packageInfo) {
+		ActivityInfo[] activies = packageInfo.activities;
+		for (int i = 0; i < activies.length; i++) {
+			ActivityInfo activityInfo = activies[i];
+			if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
+				MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
+				return activityInfo.screenOrientation;
+			}
+		}
+		// not found -> use sensor
+		return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 	}
 
 
 	protected void applyUiToView() {
 
 		if(mPageComponent == null){
+			applyScreenOrientationFromManifest();
 			return;
 		}
 		setupBackground(mPageComponent.getBackgroundDrawable());
@@ -625,9 +631,7 @@ public class MonacaPageActivity extends DroidGap {
 			webViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
 		}
 
-		if(bottomComponentContainer != null && bottomComponentContainer.isTransparent()){
-			webViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		}else{
+		if(bottomComponentContainer != null){
 			webViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
 		}
 		container.addView(appView, 0,  webViewParams);
@@ -915,6 +919,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		if (!withoutUIFile) {
+			mPageComponent = null;
 			loadUiFile(getCurrentUriWithoutOptions());
 		}
 

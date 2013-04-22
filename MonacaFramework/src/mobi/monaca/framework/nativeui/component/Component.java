@@ -23,6 +23,9 @@ public abstract class Component {
 
 	public Component(UIContext uiContext, JSONObject componentJSON) throws KeyNotValidException, DuplicateIDException, JSONException {
 		this.uiContext = uiContext;
+		if(componentJSON == null){
+			componentJSON = new JSONObject();
+		}
 		this.componentJSON = componentJSON;
 		addIDtoComponentIDsMap();
 		mixStyleWithDefault();

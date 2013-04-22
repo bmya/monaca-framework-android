@@ -32,7 +32,7 @@ public class MonacaPageHoneyCombWebViewClient extends MonacaPageGingerbreadWebVi
         if (!app.allowAccess(url)) {
         	MyLog.w(TAG, "Not allowing access to url:" + url);
         	LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "Not allowing access to " + url, "", 0);
-        	MyLog.sendBloadcastDebugLog(monacaPage.getApplicationContext(), logItem);
+        	MyLog.sendBroadcastDebugLog(monacaPage.getApplicationContext(), logItem);
             WebResourceResponse response = new WebResourceResponse(
                 "text/html", "UTF-8",
                 new ByteArrayInputStream("<font color='#999'>not allowed</font>".getBytes())

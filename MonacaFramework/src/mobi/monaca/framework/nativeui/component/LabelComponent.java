@@ -19,7 +19,7 @@ import android.widget.TextView;
 public class LabelComponent extends ToolbarComponent {
 
 	protected TextView view;
-	protected static final String[] LABEL_VALID_KEYS = { "style", "component", "id", };
+	protected static final String[] LABEL_VALID_KEYS = { "style","iosStyle", "androidStyle", "component", "id", };
 	protected static final String[] STYLE_VALID_KEYS = { "opacity", "textColor", "text" };
 
 	public LabelComponent(UIContext context, JSONObject labelJSON) throws NativeUIException, JSONException {

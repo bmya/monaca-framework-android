@@ -48,14 +48,14 @@ public class PageComponent extends Component {
 
 	private static final String TAG = PageComponent.class.getSimpleName();
 	private LayerDrawable mLayeredBackgroundDrawable;
-	private PageOrientation mScreenOrientation;
+	private PageOrientation mScreenOrientation = PageOrientation.INHERIT;
 	protected Component topComponent;
 	protected Component bottomComponent;
 	public static ComponentEventer BACK_BUTTON_EVENTER;
 	public UIEventer eventer;
 	public String menuName;
 
-	protected static String[] validKeys = { "top", "bottom", "event", "style", "menu", "id" };
+	protected static String[] validKeys = { "top", "bottom", "event", "style", "iosStyle", "androidStyle", "menu", "id" };
 	protected static String[] styleValidKeys = { "backgroundColor", "backgroundImage", "backgroundSize", "backgroundRepeat", "backgroundPosition",
 			"screenOrientation" };
 
@@ -155,13 +155,13 @@ public class PageComponent extends Component {
 	}
 
 	@Override
-	public void updateStyle(JSONObject update) {
+	public void updateStyle(JSONObject update) throws InvalidValueException {
 		UIUtil.updateJSONObject(style, update);
 		style();
 		uiContext.getPageActivity().setupBackground(mLayeredBackgroundDrawable);
 	}
 
-	private void style() {
+	private void style() throws InvalidValueException {
 		ArrayList<Drawable> layerList = new ArrayList<Drawable>();
 		processScreenOrientation();
 		processPageStyleBackgroundColor(style, layerList);
@@ -172,18 +172,43 @@ public class PageComponent extends Component {
 		mLayeredBackgroundDrawable = new LayerDrawable(layerList.toArray(layers));
 	}
 
-	// TODO: support mutiple values ex. "landscape, portrait"
-	private void processScreenOrientation() {
+	/*
+	 * "screenOrientation": "landscape,portrait"
+	 * "screenOrientation": "landscape"
+	 * "screenOrientation": "portrait"
+	 */
+	
+	private static final String[] SCREEN_ORIENTATION_VALID_VALUES = {"portrait", "landscape", "inherit", "portrait, landscape"};
+	private void processScreenOrientation() throws InvalidValueException {
 		String screenOrientationString = style.optString("screenOrientation").trim();
-		if (screenOrientationString.equalsIgnoreCase("portrait")) {
-			mScreenOrientation = PageOrientation.PORTRAIT;
-		} else if (screenOrientationString.equalsIgnoreCase("landscape")) {
-			mScreenOrientation = PageOrientation.LANDSCAPE;
-		} else if (screenOrientationString.equalsIgnoreCase("inherit")) {
-			mScreenOrientation = PageOrientation.SENSOR;
-		} else {
-			// TODO raise error
+		if(TextUtils.isEmpty(screenOrientationString)){
+			return;
 		}
+		
+		if(screenOrientationString.contains(",")){
+			// multiple values
+			if(screenOrientationString.contains("portrait") && screenOrientationString.contains("landscape")){
+				mScreenOrientation = PageOrientation.SENSOR;
+			}else{
+				raiseScreenOrietationInvalidValueException(screenOrientationString);
+			}
+		}else{
+			// single value
+			if (screenOrientationString.equalsIgnoreCase("portrait")) {
+				mScreenOrientation = PageOrientation.PORTRAIT;
+			} else if (screenOrientationString.equalsIgnoreCase("landscape")) {
+				mScreenOrientation = PageOrientation.LANDSCAPE;
+			} else if (screenOrientationString.equalsIgnoreCase("inherit")) {
+				mScreenOrientation = PageOrientation.INHERIT;
+			} else {
+				raiseScreenOrietationInvalidValueException(screenOrientationString);
+			}
+		}
+	}
+
+	private void raiseScreenOrietationInvalidValueException(String screenOrientationString) throws InvalidValueException {
+		InvalidValueException invalidValueException = new InvalidValueException(getComponentName() + " style", "screenOrientation", screenOrientationString, SCREEN_ORIENTATION_VALID_VALUES);
+		throw invalidValueException;
 	}
 
 	private static final String[] validBackgroundRepeatValues = { "repeat-x", "repeat-y", "repeat" };
