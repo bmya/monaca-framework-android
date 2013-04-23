@@ -30,6 +30,7 @@ public class NativeComponentTest extends ActivityUnitTestCase<MonacaPageActivity
 	protected void setUp() throws Exception {
 		super.setUp();
 		MonacaApplication application = new MonacaApplication();
+		application.loadAppJsonSetting();
 		setApplication(application);
 		startActivity(new Intent(getInstrumentation().getTargetContext(), MonacaPageActivity.class), null, null);
 		mUIContext = getActivity().getUiContext();

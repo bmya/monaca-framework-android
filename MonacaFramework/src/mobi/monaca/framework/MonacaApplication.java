@@ -76,7 +76,7 @@ public class MonacaApplication extends Application {
 		createMenuMap();
 	}
 
-	protected void loadAppJsonSetting() {
+	public void loadAppJsonSetting() {
 		JSONObject appJson = null;
 		try {
 			InputStream stream = getResources().getAssets().open("app.json");

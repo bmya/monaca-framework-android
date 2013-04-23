@@ -15,6 +15,7 @@ public class MonacaPageActivityLyfeCycleTest extends ActivityUnitTestCase<Monaca
 	protected void setUp() throws Exception {
 		super.setUp();
 		MonacaApplication application = new MonacaApplication();
+		application.loadAppJsonSetting();
 		setApplication(application);
 	}
 
