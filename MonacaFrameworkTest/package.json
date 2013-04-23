@@ -1,0 +1,20 @@
+{
+  "name": "medic",
+  "version": "0.2.3",
+  "description": "continuous integration setup for Apache Cordova",
+  "author": "Fil Maj <maj.fil@gmail.com> (http://filmaj.ca)",
+  "main": "dashboard.js",
+  "scripts": {
+    "start": "node dashboard.js"
+  },
+  "dependencies": {
+    "shelljs": "0.1.2",
+    "ncallbacks": "1.0.0"    
+  },
+  "devDependencies": {  
+  },
+  "subdomain": "cordova.medic",
+  "engines": {
+    "node": ">=0.8.x"
+  }
+}

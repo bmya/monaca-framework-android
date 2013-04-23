@@ -289,7 +289,12 @@ public class MonacaPageActivity extends DroidGap {
 		MonacaApplication.addPage(this);
 		pageIndex = MonacaApplication.getPages().size() - 1;
 
-		if (pageIndex == 0 && mApp.getAppJsonSetting().getAutoHide() == false) {
+		AppJsonSetting appJsonSetting = mApp.getAppJsonSetting();
+		boolean autoHide = false;
+		if(appJsonSetting != null){
+			autoHide = appJsonSetting.getAutoHide();
+		}
+		if (pageIndex == 0 && autoHide == false) {
 			showMonacaSplash(); //TODO test
 		}
 
@@ -467,10 +472,21 @@ public class MonacaPageActivity extends DroidGap {
 			transitionParams = TransitionParams.createDefaultParams(this.getRequestedOrientation());
 		}
 
-		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
+		String startPage = intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
+		if(shouldExtractAssets()){
+			startPage = "file://" + LocalFileBootloader.getFullPath(getContext(), "www/index.html");
+		}
+		
+		setCurrentUri(startPage);
 
 //		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
 //		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
+	}
+
+
+
+	protected boolean shouldExtractAssets() {
+		return mApp.getAppJsonSetting().shouldExtractAssets();
 	}
 
 	public JSONObject getInfoForJavaScript() {

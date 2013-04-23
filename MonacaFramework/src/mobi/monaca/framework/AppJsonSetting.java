@@ -119,4 +119,15 @@ public class AppJsonSetting {
 		return disableCookie;
 	}
 
+	public boolean shouldExtractAssets(){
+		JSONObject loaderObject;
+		try {
+			loaderObject = appJson.getJSONObject("loader");
+			JSONObject androidObject = loaderObject.getJSONObject("android");
+			boolean shouldExtract = androidObject.getBoolean("extractAssets");
+			return shouldExtract;
+		} catch (JSONException e) {
+			return false;
+		}
+	}
 }
