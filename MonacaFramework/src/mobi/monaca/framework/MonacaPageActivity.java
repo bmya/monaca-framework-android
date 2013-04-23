@@ -472,7 +472,12 @@ public class MonacaPageActivity extends DroidGap {
 			transitionParams = TransitionParams.createDefaultParams(this.getRequestedOrientation());
 		}
 
-		setCurrentUri(intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html");
+		String startPage = intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
+		if(mApp.getAppJsonSetting().shouldExtractAssets()){
+			startPage = "file://" + LocalFileBootloader.getFullPath(getContext(), "www/index.html");
+		}
+		
+		setCurrentUri(startPage);
 
 //		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
 //		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());

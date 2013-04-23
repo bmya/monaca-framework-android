@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.MyAsyncTask;
 import android.app.AlertDialog;
@@ -35,6 +36,7 @@ public class LocalFileBootloader {
     protected Runnable success, fail;
     protected String dataDirPath;
     protected BootloaderPreferences bootloaderPreferences;
+    public static boolean mShouldExtractAssets;
 
     protected LocalFileBootloader(Context context, Runnable success,
             Runnable fail) {
@@ -161,24 +163,28 @@ public class LocalFileBootloader {
     public static InputStream openAsset(Context context, String path) throws IOException {
     //	Log.d(TAG, "getInputStream : " + path);
         String newPath = path.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
-
+        if(mShouldExtractAssets){
+        	return loadFileUsingBootloader(context, path);
+        }
     	if (needToUseLocalFileBootloader()) {
-        //	MyLog.d(TAG, "need to use LocalFileBootloader(), getInputStream, newRelativePath :" + newPath);
-
-    		File localAssetFile = new File(newPath.startsWith("file:///data/") ? newPath.substring(8) : context.getApplicationInfo().dataDir + "/" + newPath);
-
-        //	MyLog.d(TAG, "localAssetFile :" + localAssetFile);
-    		if (localAssetFile.exists()) {
-    		//	MyLog.d(TAG, "getInputStream,  loading localFile succeed");
-    			return new FileInputStream(localAssetFile);
-    		} else {
-    		//	MyLog.d(TAG, "getInputStream,  loading localFile failed, get from assets");
-    			return context.getAssets().open(newPath);
-    		}
+    		return loadFileUsingBootloader(context, newPath);
     	} else {
-    	//	MyLog.d(TAG, "no need to use LocalFileBootloader");
     		return context.getAssets().open(newPath);
     	}
+    }
+
+	private static InputStream loadFileUsingBootloader(Context context, String newPath) throws FileNotFoundException, IOException {
+		String filePath = newPath.startsWith("file:///data/") ? newPath.substring(8) : context.getApplicationInfo().dataDir + "/" + newPath;
+		File localAssetFile = new File(filePath);
+		if (localAssetFile.exists()) {
+			return new FileInputStream(localAssetFile);
+		} else {
+			return context.getAssets().open(newPath);
+		}
+	}
+    
+    public static String getFullPath(Context context, String path){
+    	return context.getApplicationInfo().dataDir + "/" + path;
     }
 
 	protected void aggregateAssetsFileList(String prefix,

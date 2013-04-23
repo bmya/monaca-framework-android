@@ -83,17 +83,34 @@ public class MonacaSplashActivity extends Activity {
     		}
     	};
 
-    	if (!usesLocalFileBootloader) {
-    		pageActivityLauncher.run();
-    	} else {
-    		LocalFileBootloader.setup(this, pageActivityLauncher, new Runnable() {
-    			@Override
-    			public void run() {
-    				Toast.makeText(MonacaSplashActivity.this, "Application launch fail...", Toast.LENGTH_LONG).show();
-    				finish();
-    			}
-    		});
+    	if(shouldExtractAsset()){
+    		MyLog.v(TAG, "should extract asset!!!!");
+    		setupLocalFileBootLoaderAndRunProject(pageActivityLauncher);
+    	}else{
+    		if (!usesLocalFileBootloader) {
+        		pageActivityLauncher.run();
+        		LocalFileBootloader.mShouldExtractAssets = false;
+        	} else {
+        		setupLocalFileBootLoaderAndRunProject(pageActivityLauncher);
+        	}
     	}
+    	
+    }
+
+	private void setupLocalFileBootLoaderAndRunProject(Runnable pageActivityLauncher) {
+		LocalFileBootloader.mShouldExtractAssets = true;
+		LocalFileBootloader.setup(this, pageActivityLauncher, new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(MonacaSplashActivity.this, "Application launch fail...", Toast.LENGTH_LONG).show();
+				finish();
+			}
+		});
+	}
+    
+    // same as shouldUseLocalFileBootloader but has higher priority
+    protected boolean shouldExtractAsset(){
+    	return app.getAppJsonSetting().shouldExtractAssets();
     }
 
     protected void loadAppJson() {
