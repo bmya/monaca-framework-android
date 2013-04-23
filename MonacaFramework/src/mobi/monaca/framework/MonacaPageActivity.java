@@ -289,7 +289,12 @@ public class MonacaPageActivity extends DroidGap {
 		MonacaApplication.addPage(this);
 		pageIndex = MonacaApplication.getPages().size() - 1;
 
-		if (pageIndex == 0 && mApp.getAppJsonSetting().getAutoHide() == false) {
+		AppJsonSetting appJsonSetting = mApp.getAppJsonSetting();
+		boolean autoHide = false;
+		if(appJsonSetting != null){
+			autoHide = appJsonSetting.getAutoHide();
+		}
+		if (pageIndex == 0 && autoHide == false) {
 			showMonacaSplash(); //TODO test
 		}
 
