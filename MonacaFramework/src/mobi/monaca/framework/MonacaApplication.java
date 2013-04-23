@@ -89,6 +89,8 @@ public class MonacaApplication extends Application {
 			MyLog.e(TAG, e.getMessage());
 		} catch (IllegalArgumentException e) {
 			MyLog.e(TAG, e.getMessage());
+		}catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 		if (appJson == null) {
 			appJson = new JSONObject();

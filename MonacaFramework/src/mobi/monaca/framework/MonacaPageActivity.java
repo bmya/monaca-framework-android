@@ -576,11 +576,13 @@ public class MonacaPageActivity extends DroidGap {
 
 	private int getScreenOrientationOfMonacaPageActivity(PackageInfo packageInfo) {
 		ActivityInfo[] activies = packageInfo.activities;
-		for (int i = 0; i < activies.length; i++) {
-			ActivityInfo activityInfo = activies[i];
-			if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
-				MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
-				return activityInfo.screenOrientation;
+		if(activies != null){
+			for (int i = 0; i < activies.length; i++) {
+				ActivityInfo activityInfo = activies[i];
+				if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
+					MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
+					return activityInfo.screenOrientation;
+				}
 			}
 		}
 		// not found -> use sensor
