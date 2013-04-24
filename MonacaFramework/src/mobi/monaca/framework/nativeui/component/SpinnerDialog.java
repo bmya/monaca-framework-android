@@ -77,7 +77,7 @@ public class SpinnerDialog extends Dialog {
 			spinnerBackgroundColor = "#000000";
 		}
 		
-		float backgroundOpacity = (float) args.optDouble(4, 0.3f);
+		float backgroundOpacity = (float) args.optDouble(4, 0.8f);
 		if(backgroundOpacity < 0.0 || backgroundOpacity > 1.0){
 			throw new SpinnerDialogException("Spinner backgroundOpacity value must be in the range 0.0-1.0, you provided: " + backgroundOpacity);
 		}
@@ -151,9 +151,9 @@ public class SpinnerDialog extends Dialog {
 		float titleFontSize = titleFontScale * defaultFontSize;
 		mTitleView.setTextSize(titleFontSize);
 
-		String titleColor = args.optString(6, "#000000");
+		String titleColor = args.optString(6, "#FFFFFF");
 		if(titleColor.equalsIgnoreCase("null")){
-			titleColor = "#000000";
+			titleColor = "#FFFFFF";
 		}
 		
 		try{

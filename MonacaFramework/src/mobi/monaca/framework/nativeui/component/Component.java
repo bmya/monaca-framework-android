@@ -108,6 +108,6 @@ public abstract class Component {
 	public static final int SUBTITLE_TEXT_DIP = 12;
 	public static final int TITLE_TEXT_DIP = 18;
 	public static final int TAB_BADGE_TEXT_DIP = 9;
-	public static final int SPINNER_TEXT_DIP = 20;
+	public static final int SPINNER_TEXT_DIP = 10;
 
 }
