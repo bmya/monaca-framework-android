@@ -138,7 +138,7 @@ public abstract class GCMRegistrationIdSenderTask extends MyAsyncTask<Void, Void
 
 			List<NameValuePair> list = new ArrayList<NameValuePair>();
 			list.add(new BasicNameValuePair("platform", "android"));
-			list.add(new BasicNameValuePair("deviceId", MonacaDevice.getDeviceId()));
+			list.add(new BasicNameValuePair("deviceId", MonacaDevice.getDeviceId(context)));
 			list.add(new BasicNameValuePair("isCustom", isCustom));
 			list.add(new BasicNameValuePair("version",  Integer.toString(versionCode)));
 			list.add(new BasicNameValuePair("registrationId", regId));
