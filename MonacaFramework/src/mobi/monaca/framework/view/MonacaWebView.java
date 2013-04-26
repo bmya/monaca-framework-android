@@ -2,6 +2,7 @@ package mobi.monaca.framework.view;
 
 import java.io.IOException;
 
+import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.util.MyLog;
 
 import org.apache.cordova.CordovaWebView;
@@ -9,7 +10,6 @@ import org.apache.cordova.api.LOG;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
@@ -25,28 +25,34 @@ public class MonacaWebView extends CordovaWebView {
 	public static final String INITIALIZATION_DESCRIPTION = "The connection to the server was unsuccessful.";
 	public static final int INITIALIZATION_ERROR_CODE = -6;
 
-	protected Context context;
+	protected MonacaPageActivity page;
 	private boolean notBackButton = true;
 
+	@Deprecated
 	public MonacaWebView(Context context, AttributeSet attrs, int defStyle,
 			boolean privateBrowsing) {
 		super(context, attrs, defStyle, privateBrowsing);
-		this.context = context;
+		this.page = (MonacaPageActivity)context;
 		init();
 	}
+
+	@Deprecated
 	public MonacaWebView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.context = context;
+		this.page = (MonacaPageActivity)context;
 		init();
 	}
+
+	@Deprecated
 	public MonacaWebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.context = context;
+		this.page = (MonacaPageActivity)context;
 		init();
 	}
-	public MonacaWebView(Context context) {
-		super(context);
-		this.context = context;
+
+	public MonacaWebView(MonacaPageActivity page) {
+		super(page);
+		this.page = page;
 		init();
 	}
 
@@ -64,18 +70,17 @@ public class MonacaWebView extends CordovaWebView {
 
 	@Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-//		MyLog.d(TAG, "onKeyUp");
-//		MyLog.d(TAG, "canGoBack is " + Boolean.toString(this.canGoBack()));
-
-		//to prevent from calling backHistory() by backbutton
-		// TODO find smarter way
-		notBackButton = !(this.canGoBack() && keyCode == KeyEvent.KEYCODE_BACK);
-
-		boolean supersReturn = super.onKeyUp(keyCode, event);
-//		MyLog.d(TAG, "onKeyUp value is " + Boolean.toString(supersReturn));
-
-		notBackButton = true;
-		return supersReturn;
+		if (keyCode == KeyEvent.KEYCODE_BACK && (page.hasBackButtonEventer() || page.hasOnTapBackButtonAction())) {
+			// if monaca has backbutton handler, do not call cordova backbutton event
+			return true;
+		} else {
+			//to prevent from calling backHistory() by backbutton
+			// TODO find smarter way
+			notBackButton = !(this.canGoBack() && keyCode == KeyEvent.KEYCODE_BACK);
+			boolean supersReturn = super.onKeyUp(keyCode, event);
+			notBackButton = true;
+			return supersReturn;
+		}
 	}
 
 	@Override
@@ -103,8 +108,9 @@ public class MonacaWebView extends CordovaWebView {
 
 	@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+		MyLog.d(TAG, "onKeyDown");
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			// MonacaPageActivity uses BACK_BUTTON
+		//	 MonacaPageActivity uses BACK_BUTTON
 			return false;
 		} else {
 			return super.onKeyDown(keyCode, event);
@@ -116,7 +122,7 @@ public class MonacaWebView extends CordovaWebView {
         XmlResourceParser parser = null;
 
 		try {
-			am = context.createPackageContext(context.getPackageName(), 0).getAssets();
+			am = page.createPackageContext(page.getPackageName(), 0).getAssets();
 			parser = am.openXmlResourceParser("AndroidManifest.xml");
 		} catch (NameNotFoundException e) {
 			MyLog.e(TAG, e.getMessage());
@@ -172,7 +178,7 @@ public class MonacaWebView extends CordovaWebView {
 
 				                    // Save preferences in Intent
 				                    try {
-				                    	((Activity)context).getIntent().putExtra(name, value);
+				                    	page.getIntent().putExtra(name, value);
 				                    } catch (Exception e) {
 
 				                    }

@@ -1017,16 +1017,35 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (mPageComponent != null && mPageComponent.eventer != null && mPageComponent.eventer.hasOnTapBackButtonAction()) {
+			if (hasOnTapBackButtonAction()) {
 				mPageComponent.eventer.onTapBackButton();
-			} else if (mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null) {
+			} else if (hasBackButtonEventer()) {
 				PageComponent.BACK_BUTTON_EVENTER.onTap();
+			} else if (appView.isBackButtonBound()){
+				return super.onKeyDown(keyCode, event);
 			} else {
 				popPage();
 			}
 			return true;
+		} else {
+			return super.onKeyDown(keyCode, event);
 		}
-		return false;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && (hasBackButtonEventer() || hasOnTapBackButtonAction())) {
+			return true;
+		} else {
+			return super.onKeyUp(keyCode, event);
+		}
+	}
+	public boolean hasBackButtonEventer() {
+		return mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null;
+	}
+
+	public boolean hasOnTapBackButtonAction() {
+		return mPageComponent != null && mPageComponent.eventer != null && mPageComponent.eventer.hasOnTapBackButtonAction();
 	}
 
 	public void pushPageAsync(String relativePath, final TransitionParams params) {
