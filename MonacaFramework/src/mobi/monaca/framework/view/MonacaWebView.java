@@ -26,33 +26,35 @@ public class MonacaWebView extends CordovaWebView {
 	public static final int INITIALIZATION_ERROR_CODE = -6;
 
 	protected MonacaPageActivity page;
+	protected Context context;
 	private boolean notBackButton = true;
 
 	@Deprecated
 	public MonacaWebView(Context context, AttributeSet attrs, int defStyle,
 			boolean privateBrowsing) {
 		super(context, attrs, defStyle, privateBrowsing);
-		this.page = (MonacaPageActivity)context;
+		this.context = context;
 		init();
 	}
 
 	@Deprecated
 	public MonacaWebView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		this.page = (MonacaPageActivity)context;
+		this.context = context;
 		init();
 	}
 
 	@Deprecated
 	public MonacaWebView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		this.page = (MonacaPageActivity)context;
+		this.context = context;
 		init();
 	}
 
 	public MonacaWebView(MonacaPageActivity page) {
 		super(page);
 		this.page = page;
+		this.context = page.getContext();
 		init();
 	}
 
@@ -70,7 +72,8 @@ public class MonacaWebView extends CordovaWebView {
 
 	@Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && (page.hasBackButtonEventer() || page.hasOnTapBackButtonAction())) {
+		if (page != null &&
+				(keyCode == KeyEvent.KEYCODE_BACK && (page.hasBackButtonEventer() || page.hasOnTapBackButtonAction()))) {
 			// if monaca has backbutton handler, do not call cordova backbutton event
 			return true;
 		} else {
@@ -122,7 +125,7 @@ public class MonacaWebView extends CordovaWebView {
         XmlResourceParser parser = null;
 
 		try {
-			am = page.createPackageContext(page.getPackageName(), 0).getAssets();
+			am = context.createPackageContext(context.getPackageName(), 0).getAssets();
 			parser = am.openXmlResourceParser("AndroidManifest.xml");
 		} catch (NameNotFoundException e) {
 			MyLog.e(TAG, e.getMessage());

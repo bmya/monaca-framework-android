@@ -27,10 +27,10 @@ public class MonacaSplashActivity extends Activity {
     protected static final String SPLASH_IMAGE_PATH = "android/splash_default.png";
 
     /**
-     * modify "false" to "true" this if want to use LocalFileBootloader
+     * modify this if want to use LocalFileBootloader
      **/
     @SuppressWarnings("unused")
-	protected static final boolean usesLocalFileBootloader = (false && LocalFileBootloader.needToUseLocalFileBootloader());
+	public static boolean usesLocalFileBootloader = (true && LocalFileBootloader.needToUseLocalFileBootloader());
 
 	protected ImageView splashView;
 
