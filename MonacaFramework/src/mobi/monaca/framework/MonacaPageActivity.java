@@ -473,7 +473,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		String startPage = intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
-		if (shouldExtractAssets()) {
+		if (shouldLoadExtractedIndex()) {
 			startPage = "file://" + LocalFileBootloader.getFullPath(getContext(), "www/index.html");
 		}
 
@@ -485,8 +485,8 @@ public class MonacaPageActivity extends DroidGap {
 
 
 
-	protected boolean shouldExtractAssets() {
-		return mApp.getAppJsonSetting().shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader;
+	protected boolean shouldLoadExtractedIndex() {
+		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader);
 	}
 
 	public JSONObject getInfoForJavaScript() {
