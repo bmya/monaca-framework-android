@@ -104,7 +104,7 @@ public class MonacaApplication extends Application {
 
 		if (!disableCookie) {
 			CookieSyncManager.getInstance().startSync();
-			String assetUrl = "file:///android_asset/www/";
+			String assetUrl = appJsonSetting.shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader ? "file:///data/" : "file:///android_asset/www/";
 			//MyLog.d(TAG, projectUrl);
 			CookieManager.getInstance().setCookie(assetUrl, "MONACA_CLOUD_DEVICE_ID=" + MonacaDevice.getDeviceId(this));
 			CookieSyncManager.getInstance().sync();
