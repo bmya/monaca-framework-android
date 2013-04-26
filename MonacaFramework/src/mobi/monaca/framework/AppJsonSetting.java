@@ -1,5 +1,8 @@
 package mobi.monaca.framework;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.TimeStamp;
 import mobi.monaca.utils.log.LogItem;
@@ -32,11 +35,29 @@ public class AppJsonSetting {
 	//security
 	protected boolean disableCookie;
 
+	//monaca cloud
+	protected URI monacaCloudUri;
+
 	public AppJsonSetting(JSONObject appJson) {
 		this.appJson = appJson;
 		parseSplash();
 		parsePush();
 		parseSecurity();
+		parseMonacaCloud();
+	}
+
+	protected void parseMonacaCloud() {
+		JSONObject monacaCloud;
+		try {
+			monacaCloud =  appJson.getJSONObject("monacaCloud");
+		} catch (JSONException e) {
+			monacaCloud = new JSONObject();
+		}
+
+		try {
+			this.monacaCloudUri = new URI(monacaCloud.optString("endPoint", ""));
+		} catch (URISyntaxException e) {
+		}
 	}
 
 	protected void parseSplash() {
@@ -86,7 +107,6 @@ public class AppJsonSetting {
 		} catch (JSONException e) {
 			security = new JSONObject();
 		}
-
 		disableCookie = security.optBoolean("disableCookie", false);
 	}
 
@@ -98,6 +118,14 @@ public class AppJsonSetting {
 	public void sendsBroadcastDebugLog(boolean sendsBroadcast, Context context) {
 		this.sendsBroadcast = sendsBroadcast;
 		this.context = context;
+	}
+
+	public String getMonacaCloudDomain() {
+		return monacaCloudUri.getHost() != null ? monacaCloudUri.getHost() : "";
+	}
+
+	public String getMonacaCloudPath() {
+		return monacaCloudUri.getPath();
 	}
 
 	public boolean getAutoHide() {

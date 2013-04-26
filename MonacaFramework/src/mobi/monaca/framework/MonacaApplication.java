@@ -15,6 +15,7 @@ import mobi.monaca.framework.psedo.GCMIntentService;
 import mobi.monaca.framework.task.GCMRegistrationIdSenderTask;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.MonacaConst;
+import mobi.monaca.utils.MonacaDevice;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -98,7 +99,25 @@ public class MonacaApplication extends Application {
 
 		appJsonSetting = new AppJsonSetting(appJson);
 
-		CookieManager.getInstance().setAcceptCookie(!appJsonSetting.getDisableCookie());
+		boolean disableCookie = appJsonSetting.getDisableCookie();
+		CookieManager.getInstance().setAcceptCookie(!disableCookie);
+
+		if (!disableCookie) {
+			CookieSyncManager.getInstance().startSync();
+			String assetUrl = "file:///android_asset/www/";
+			//MyLog.d(TAG, projectUrl);
+			CookieManager.getInstance().setCookie(assetUrl, "MONACA_CLOUD_DEVICE_ID=" + MonacaDevice.getDeviceId(this));
+			CookieSyncManager.getInstance().sync();
+
+			CookieManager.getInstance().setCookie(assetUrl, "Domain=" + appJsonSetting.getMonacaCloudDomain());
+			CookieSyncManager.getInstance().sync();
+
+			CookieManager.getInstance().setCookie(assetUrl, "path=" + appJsonSetting.getMonacaCloudPath());
+			CookieSyncManager.getInstance().sync();
+
+			CookieManager.getInstance().setCookie(assetUrl, "secure");
+			CookieSyncManager.getInstance().sync();
+		}
 	}
 
 	public AppJsonSetting getAppJsonSetting() {
