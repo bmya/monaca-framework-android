@@ -262,7 +262,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MyLog.e(TAG, "onPrepareOptionMenu()");
 		if (mPageComponent != null) {
 			menu.clear();
 			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(mPageComponent.menuName);
@@ -754,8 +753,17 @@ public class MonacaPageActivity extends DroidGap {
 		if (hasFocus) {
 			BenchmarkTimer.mark("visible");
 			BenchmarkTimer.finish();
-			// Debug.stopMethodTracing();
+			requestJStoProcessMessages();
 		}
+	}
+	
+	/*
+	 * current Native2JS bridge use window.online event to signal to js side to process message.
+	 * there is a bug that when resumed from other page activity, the online/offline event is not triggered
+	 * it will trigger if there is more than one js statment in the queue -> we queue a dummy console.log
+	 */
+	private void requestJStoProcessMessages(){
+		appView.sendJavascript("console.log(' ')");
 	}
 
 	public void onPageFinished(View view, String url) {
