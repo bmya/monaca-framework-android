@@ -38,13 +38,13 @@
         <activity android:name="mobi.monaca.framework.MonacaPageActivity"
                   android:label="MonacaPageActivity"
                   android:screenOrientation="sensor"
-                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"
+                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
 
          <activity
             android:name="mobi.monaca.framework.MonacaNotificationActivity"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale">
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode">
         </activity>
 
         <!-- <meta-data android:name="disable_monaca_template_engine" android:value="true" />-->
