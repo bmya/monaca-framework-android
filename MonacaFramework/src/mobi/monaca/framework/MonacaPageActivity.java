@@ -1184,7 +1184,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		uiContext.fireOnRotateListeners(newConfig.orientation);
 
-		appView.clearView();
+//		appView.clearView(); commented out cos it cause the webview to show nothing
 		appView.invalidate();
 
 		Display display = getWindowManager().getDefaultDisplay();
