@@ -121,9 +121,9 @@ public class MonacaApplication extends Application {
 	}
 
 	public AppJsonSetting getAppJsonSetting() {
-		//if (appJsonSetting == null) {
-		//	loadAppJsonSetting();
-		//}
+		if (appJsonSetting == null) {
+			loadAppJsonSetting();
+		}
 		return appJsonSetting;
 	}
 
