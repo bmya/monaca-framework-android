@@ -53,7 +53,7 @@ public class MonacaTransitPlugin extends Plugin {
 
         // modal
         if (action.equals("modal")) {
-            getMonacaPageActivity().pushPageAsync(args.optString(0),
+            getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                     TransitionParams.from(args.optJSONObject(1), "modal"));
             return new PluginResult(PluginResult.Status.OK);
         }
