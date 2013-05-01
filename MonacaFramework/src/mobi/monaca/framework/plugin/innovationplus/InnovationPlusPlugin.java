@@ -17,7 +17,7 @@ public class InnovationPlusPlugin extends CordovaPlugin {
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		//MyLog.d("ipp","execute");
-		String[] originalAction = action.split("\\.");
+		String[] originalAction = action.split("\\_");
 		//MyLog.d("ipp", "action len is " + originalAction.length);
 		if (originalAction.length != 2) {
 			return false;
