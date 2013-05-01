@@ -763,7 +763,7 @@ public class MonacaPageActivity extends DroidGap {
 	 * it will trigger if there is more than one js statment in the queue -> we queue a dummy console.log
 	 */
 	private void requestJStoProcessMessages(){
-		appView.sendJavascript("console.log(' ')");
+		appView.sendJavascript("void(0);");
 	}
 
 	public void onPageFinished(View view, String url) {
@@ -773,7 +773,7 @@ public class MonacaPageActivity extends DroidGap {
 		// }
 
 		// for android4's strange bug.
-		sendJavascript("console.log(' ');");
+		requestJStoProcessMessages();
 
 		// check if this is 404 page
 		String errorUrl = getIntent().getStringExtra("error_url");
