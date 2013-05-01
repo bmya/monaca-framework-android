@@ -68,7 +68,6 @@ public class DefaultStyleJSON {
 			style.put("opacity", 1.0);
 			style.put("activeTextColor", "#0000FF");
 			style.put("backgroundColor", "#000000");
-			style.put("texts", new JSONArray());
 			style.put("textColor", "#FFFFFF");
 			style.put("activeIndex", 0);
 		} catch (Exception e) {

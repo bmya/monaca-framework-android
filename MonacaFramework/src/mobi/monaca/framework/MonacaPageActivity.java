@@ -262,7 +262,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		MyLog.e(TAG, "onPrepareOptionMenu()");
 		if (mPageComponent != null) {
 			menu.clear();
 			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation(mPageComponent.menuName);
@@ -295,7 +294,7 @@ public class MonacaPageActivity extends DroidGap {
 			autoHide = appJsonSetting.getAutoHide();
 		}
 		if (pageIndex == 0 && autoHide == false) {
-			showMonacaSplash(); //TODO test
+			showMonacaSplash();
 		}
 
 		registerReceiver(closePageReceiver, ClosePageIntent.createIntentFilter());
@@ -473,10 +472,10 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		String startPage = intent.hasExtra(URL_PARAM_NAME) ? intent.getStringExtra(URL_PARAM_NAME) : "file:///android_asset/www/index.html";
-		if(shouldExtractAssets()){
+		if (shouldLoadExtractedIndex()) {
 			startPage = "file://" + LocalFileBootloader.getFullPath(getContext(), "www/index.html");
 		}
-		
+
 		setCurrentUri(startPage);
 
 //		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
@@ -485,8 +484,8 @@ public class MonacaPageActivity extends DroidGap {
 
 
 
-	protected boolean shouldExtractAssets() {
-		return mApp.getAppJsonSetting().shouldExtractAssets();
+	protected boolean shouldLoadExtractedIndex() {
+		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader);
 	}
 
 	public JSONObject getInfoForJavaScript() {
@@ -576,11 +575,13 @@ public class MonacaPageActivity extends DroidGap {
 
 	private int getScreenOrientationOfMonacaPageActivity(PackageInfo packageInfo) {
 		ActivityInfo[] activies = packageInfo.activities;
-		for (int i = 0; i < activies.length; i++) {
-			ActivityInfo activityInfo = activies[i];
-			if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
-				MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
-				return activityInfo.screenOrientation;
+		if(activies != null){
+			for (int i = 0; i < activies.length; i++) {
+				ActivityInfo activityInfo = activies[i];
+				if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
+					MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
+					return activityInfo.screenOrientation;
+				}
 			}
 		}
 		// not found -> use sensor
@@ -752,8 +753,17 @@ public class MonacaPageActivity extends DroidGap {
 		if (hasFocus) {
 			BenchmarkTimer.mark("visible");
 			BenchmarkTimer.finish();
-			// Debug.stopMethodTracing();
+			requestJStoProcessMessages();
 		}
+	}
+	
+	/*
+	 * current Native2JS bridge use window.online event to signal to js side to process message.
+	 * there is a bug that when resumed from other page activity, the online/offline event is not triggered
+	 * it will trigger if there is more than one js statment in the queue -> we queue a dummy console.log
+	 */
+	private void requestJStoProcessMessages(){
+		appView.sendJavascript("console.log(' ')");
 	}
 
 	public void onPageFinished(View view, String url) {
@@ -1015,16 +1025,35 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (mPageComponent != null && mPageComponent.eventer != null && mPageComponent.eventer.hasOnTapBackButtonAction()) {
+			if (hasOnTapBackButtonAction()) {
 				mPageComponent.eventer.onTapBackButton();
-			} else if (mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null) {
+			} else if (hasBackButtonEventer()) {
 				PageComponent.BACK_BUTTON_EVENTER.onTap();
+			} else if (appView.isBackButtonBound()){
+				return super.onKeyDown(keyCode, event);
 			} else {
 				popPage();
 			}
 			return true;
+		} else {
+			return super.onKeyDown(keyCode, event);
 		}
-		return false;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && (hasBackButtonEventer() || hasOnTapBackButtonAction())) {
+			return true;
+		} else {
+			return super.onKeyUp(keyCode, event);
+		}
+	}
+	public boolean hasBackButtonEventer() {
+		return mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null;
+	}
+
+	public boolean hasOnTapBackButtonAction() {
+		return mPageComponent != null && mPageComponent.eventer != null && mPageComponent.eventer.hasOnTapBackButtonAction();
 	}
 
 	public void pushPageAsync(String relativePath, final TransitionParams params) {
@@ -1155,7 +1184,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		uiContext.fireOnRotateListeners(newConfig.orientation);
 
-		appView.clearView();
+//		appView.clearView(); commented out cos it cause the webview to show nothing
 		appView.invalidate();
 
 		Display display = getWindowManager().getDefaultDisplay();

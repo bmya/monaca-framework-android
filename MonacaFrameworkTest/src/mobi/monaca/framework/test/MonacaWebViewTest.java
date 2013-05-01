@@ -18,6 +18,7 @@ public class MonacaWebViewTest extends ActivityUnitTestCase<MonacaPageActivity> 
 	protected void setUp() throws Exception {
 		super.setUp();
 		MonacaApplication application = new MonacaApplication();
+		application.loadAppJsonSetting();
 		setApplication(application);
 		startActivity(new Intent(), null, null);
 		activity = getActivity();

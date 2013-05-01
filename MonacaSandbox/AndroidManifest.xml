@@ -12,8 +12,6 @@
 	   android:normalScreens="true"
 	   android:smallScreens="true"></supports-screens>
 
-
-
     <application android:hardwareAccelerated="false" android:icon="@drawable/icon" android:label="@string/app_name" android:name="mobi.monaca.framework.MonacaApplication">
 	    <service android:name="your.app.name.GCMIntentService" />
         <receiver
@@ -52,13 +50,13 @@
         <activity android:name="mobi.monaca.framework.MonacaPageActivity"
                   android:label="MonacaPageActivity"
                   android:screenOrientation="sensor"
-                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"
+                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
 
          <activity
             android:name="mobi.monaca.framework.MonacaNotificationActivity"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale">
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode">
         </activity>
 
         <!-- <meta-data android:name="disable_monaca_template_engine" android:value="true" />-->

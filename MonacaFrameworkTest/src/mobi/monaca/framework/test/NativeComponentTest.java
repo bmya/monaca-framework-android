@@ -30,6 +30,7 @@ public class NativeComponentTest extends ActivityUnitTestCase<MonacaPageActivity
 	protected void setUp() throws Exception {
 		super.setUp();
 		MonacaApplication application = new MonacaApplication();
+		application.loadAppJsonSetting();
 		setApplication(application);
 		startActivity(new Intent(getInstrumentation().getTargetContext(), MonacaPageActivity.class), null, null);
 		mUIContext = getActivity().getUiContext();
@@ -53,7 +54,7 @@ public class NativeComponentTest extends ActivityUnitTestCase<MonacaPageActivity
 			MyLog.v(TAG, "pageJSON: " + pageJSON);
 			new PageComponent(mUIContext, pageJSON);
 		} catch (KeyNotValidException e) {
-			assertEquals("Page 'can_u_accept_me' is not a valid key. Did you meant one of this? [top, bottom, event, style, menu]"
+			assertEquals("Page 'can_u_accept_me' is not a valid key. Did you mean one of these [top, bottom, event, style, iosStyle, androidStyle, menu, id] ?"
 					, e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -67,7 +68,7 @@ public class NativeComponentTest extends ActivityUnitTestCase<MonacaPageActivity
 			MyLog.v(TAG, "pageJSON: " + pageJSON);
 			new PageComponent(mUIContext, pageJSON);
 		} catch (KeyNotValidException e) {
-			assertEquals("Toolbar 'can_u_accept_me' is not a valid key. Did you meant one of this? [container, style, iosStyle, androidStyle, id, left, center, right]"
+			assertEquals("Toolbar 'can_u_accept_me' is not a valid key. Did you mean one of these [container, style, iosStyle, androidStyle, id, left, center, right] ?"
 					, e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
