@@ -20,7 +20,7 @@ public class BackButtonComponent extends ButtonComponent {
 			throw new RuntimeException(e);
 		}
 		style();
-		PageComponent.BACK_BUTTON_EVENTER = this.eventer;
+		uiContext.getPageComponent().setBackButtonEventer(this.eventer);
 	}
 	
 	@Override

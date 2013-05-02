@@ -1028,7 +1028,7 @@ public class MonacaPageActivity extends DroidGap {
 			if (hasOnTapBackButtonAction()) {
 				mPageComponent.eventer.onTapBackButton();
 			} else if (hasBackButtonEventer()) {
-				PageComponent.BACK_BUTTON_EVENTER.onTap();
+				mPageComponent.getBackButtonEventer().onTap();
 			} else if (appView.isBackButtonBound()){
 				return super.onKeyDown(keyCode, event);
 			} else {
@@ -1049,7 +1049,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 	public boolean hasBackButtonEventer() {
-		return mPageComponent != null && PageComponent.BACK_BUTTON_EVENTER != null;
+		return mPageComponent != null && mPageComponent.getBackButtonEventer() != null;
 	}
 
 	public boolean hasOnTapBackButtonAction() {

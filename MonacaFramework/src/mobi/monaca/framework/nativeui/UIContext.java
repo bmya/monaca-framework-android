@@ -13,6 +13,7 @@ import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.InternalSettings;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
@@ -39,6 +40,7 @@ public class UIContext extends ContextWrapper {
 
 	protected String uiFilePath;
 	protected MonacaPageActivity pageActivity;
+	protected PageComponent mPageComponent;
 	protected DisplayMetrics metrics;
 	protected SparseIntArray computedFontSizeCache = new SparseIntArray();
 	protected ArrayList<OnRotateListener> onRotateListeners = new ArrayList<OnRotateListener>();
@@ -54,6 +56,15 @@ public class UIContext extends ContextWrapper {
 		pageActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 		MonacaApplication app = (MonacaApplication) pageActivity.getApplication();
 		this.settings = app.getInternalSettings();
+	}
+	
+
+	public void setPageComponent(PageComponent mPageComponent) {
+		this.mPageComponent = mPageComponent;
+	}
+	
+	public PageComponent getPageComponent() {
+		return mPageComponent;
 	}
 	
 	public Map<String, Component> getComponentIDsMap() {
