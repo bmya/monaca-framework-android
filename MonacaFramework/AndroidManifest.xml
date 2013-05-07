@@ -38,8 +38,7 @@
         <activity android:name="mobi.monaca.framework.MonacaPageActivity"
                   android:label="MonacaPageActivity"
                   android:screenOrientation="sensor"
-                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
+                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode">
         </activity>
 
          <activity
