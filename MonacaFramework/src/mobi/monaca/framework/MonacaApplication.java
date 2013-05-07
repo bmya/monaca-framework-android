@@ -235,7 +235,7 @@ public class MonacaApplication extends Application {
 	/** Get either MenuRepresentation or null from menu name. */
 	public static MenuRepresentation findMenuRepresentation(String name) {
 		if (menuMap != null) {
-			return menuMap.containsKey(name) ? menuMap.get(name) : null;
+			return menuMap.containsKey(name) ? menuMap.get(name) : menuMap.get("default");
 		}
 		return null;
 	}
