@@ -115,8 +115,6 @@ public class MonacaPageActivity extends DroidGap {
 			if (pageIndex >= level) {
 				finish();
 			}
-			//MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "close intent received: " + getCurrentUriWithoutOptions());
-			//MyLog.d(MonacaPageActivity.this.getClass().getSimpleName(), "page index: " + pageIndex);
 		}
 	};
 
@@ -195,8 +193,6 @@ public class MonacaPageActivity extends DroidGap {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
-		// root.setBackgroundColor(Color.WHITE);
-
 	}
 	
 
@@ -329,8 +325,6 @@ public class MonacaPageActivity extends DroidGap {
 				path = "www/" + transitionParams.backgroundImagePath;
 			}
 
-//			MyLog.v(TAG, "loadBackground(). path:" + path);
-
 			try {
 
 				Bitmap bitmap = BitmapFactory.decodeStream(LocalFileBootloader.openAsset(this.getApplicationContext(), path));
@@ -374,8 +368,6 @@ public class MonacaPageActivity extends DroidGap {
 				}
 			}
 		});
-
-		// setupBackground();
 
 		// for focus problem between native component and webView
 		appView.setOnTouchListener(new View.OnTouchListener() {
