@@ -8,14 +8,11 @@ import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.util.MyLog;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -23,7 +20,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,10 +31,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 public class SpinnerDialog extends Dialog {
-
-	private static final String DebuggerTAG = "Monaca";
 	private static final String TAG = SpinnerDialog.class.getSimpleName();
-	
+
 	public class SpinnerDialogException extends Exception{
 		public SpinnerDialogException(String message) {
 			super(message);
@@ -49,10 +43,10 @@ public class SpinnerDialog extends Dialog {
 
 	public SpinnerDialog(UIContext context, JSONArray args) throws SpinnerDialogException {
 		super(context.getApplicationContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-		
+
 		getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
+
 
 		String spinnerImagePath = null;
 		try {
@@ -71,17 +65,17 @@ public class SpinnerDialog extends Dialog {
 		if(interval < 50){
 			throw new SpinnerDialogException("Spinner interval needs to be greater than 50 milliseconds. You provided: " + interval);
 		}
-		
+
 		String spinnerBackgroundColor = args.optString(3, "#000000");
 		if(spinnerBackgroundColor.equalsIgnoreCase("null")){
 			spinnerBackgroundColor = "#000000";
 		}
-		
+
 		float backgroundOpacity = (float) args.optDouble(4, 0.8f);
 		if(backgroundOpacity < 0.0 || backgroundOpacity > 1.0){
 			throw new SpinnerDialogException("Spinner backgroundOpacity value must be in the range 0.0-1.0, you provided: " + backgroundOpacity);
 		}
-		
+
 		try{
 			ColorDrawable windowDrawable = new ColorDrawable( Color.parseColor(spinnerBackgroundColor));
 			getWindow().setBackgroundDrawable(windowDrawable);
@@ -89,7 +83,7 @@ public class SpinnerDialog extends Dialog {
 		}catch (IllegalArgumentException e){
 			throw new SpinnerDialogException("Spinner backgroundColor is invalid. You provided: " + spinnerBackgroundColor);
 		}
-		
+
 		Bitmap fullSpinner = null;
 		if (spinnerImagePath == null || spinnerImagePath.equalsIgnoreCase("null")) {
 			fullSpinner = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.spinner);
@@ -98,7 +92,7 @@ public class SpinnerDialog extends Dialog {
 			if(!spinnerImagePath.toLowerCase(Locale.ENGLISH).endsWith("png")){
 				throw new SpinnerDialogException("Spinner image is not a PNG format: " + spinnerImagePath);
 			}
-			
+
 			String fullImagePath = context.resolve(spinnerImagePath);
 			if (fullImagePath.startsWith("file:///android_asset/")) {
 				try {
@@ -113,7 +107,7 @@ public class SpinnerDialog extends Dialog {
 				}else{
 					throw new SpinnerDialogException("Spinner image not found: " + fullImagePath);
 				}
-				
+
 			}
 		}
 
@@ -130,11 +124,11 @@ public class SpinnerDialog extends Dialog {
 			animationDrawable.addFrame(new BitmapDrawable(getContext().getResources(), frameBitmap), interval);
 		}
 
-		
+
 		LinearLayout spinnerContent = new LinearLayout(context);
 		spinnerContent.setOrientation(LinearLayout.VERTICAL);
 		spinnerContent.setBackgroundColor(Color.TRANSPARENT);
-		
+
 		LinearLayout.LayoutParams imageViewParams = new LayoutParams(fullSpinner.getWidth(), Math.round(frameHeight));
 		imageViewParams.gravity = Gravity.CENTER;
 
@@ -142,10 +136,10 @@ public class SpinnerDialog extends Dialog {
 		imageView.setImageDrawable(animationDrawable);
 		imageView.setScaleType(ScaleType.CENTER_INSIDE);
 		spinnerContent.addView(imageView, imageViewParams);
-		
-		
+
+
 		mTitleView = new TextView(getContext());
-		
+
 		float titleFontScale = (float) args.optDouble(7, 1.0f);
 		int defaultFontSize = context.getFontSizeFromDip(Component.SPINNER_TEXT_DIP);
 		float titleFontSize = titleFontScale * defaultFontSize;
@@ -155,13 +149,13 @@ public class SpinnerDialog extends Dialog {
 		if(titleColor.equalsIgnoreCase("null")){
 			titleColor = "#FFFFFF";
 		}
-		
+
 		try{
 			mTitleView.setTextColor(Color.parseColor(titleColor));
 		}catch (IllegalArgumentException e){
 			throw new SpinnerDialogException("Spinner titleColor is invalid. You provided: " + titleColor);
 		}
-		
+
 		LinearLayout.LayoutParams titleParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		titleParams.gravity = Gravity.CENTER;
 		titleParams.topMargin = (int) (titleFontSize * 1.5);
@@ -170,7 +164,7 @@ public class SpinnerDialog extends Dialog {
 		if (title != null && !TextUtils.isEmpty(title) && !title.equals("null")) {
 			mTitleView.setText(title);
 		}
-			
+
 
 		FrameLayout.LayoutParams spinnerContentParams = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		spinnerContentParams.gravity = Gravity.CENTER;
@@ -184,7 +178,7 @@ public class SpinnerDialog extends Dialog {
 			}
 		});
 	}
-	
+
 	public void updateTitleText(String title){
 		mTitleView.setText(title);
 	}

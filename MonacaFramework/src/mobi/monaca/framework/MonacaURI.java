@@ -35,6 +35,7 @@ public class MonacaURI {
 			hasUnusedFragment = (originalUri.getFragment() != null);
 		} catch (URISyntaxException e) {
 			MyLog.e(TAG, "URISyntacException! : " + url);
+			e.printStackTrace();
 		}
 	}
 
@@ -62,10 +63,7 @@ public class MonacaURI {
 	}
 
 	public static String buildUrlWithQuery(String baseUrl, JSONObject queryJson) {
-
-		//MyLog.d(TAG, "buildUrl :" + baseUrl);
 		if (queryJson == null || (queryJson != null && queryJson.length() == 0)) {
-		//	MyLog.d(TAG, "no query");
 			return baseUrl;
 		}
 
@@ -131,7 +129,6 @@ public class MonacaURI {
 
 	public static String removeSpecialChar(String target) {
 		String result;
-		//MyLog.d(TAG,"removeSpecialChar");
 		result = target.replace("\\","\\\\").replace("\"", "\\\\\"").replace("\'", "\\\\\'").replace("/", "\\/").replace("}", "\\}");
 		MyLog.d(TAG, target);
 		MyLog.d(TAG, result);
@@ -163,18 +160,14 @@ public class MonacaURI {
 		Matcher matcher = pattern.matcher(targetHtml);
 
 		if (matcher.find()) {
-		//	MyLog.d(TAG, "matches");
 			return matcher.replaceFirst(matcher.group() + paramsString);
 		}else {
-		//	MyLog.d(TAG, "no matches");
 			return paramsString + targetHtml;
 		}
 	}
 
 	public void parseQuery() {
 		if (originalUri.getRawQuery() != null) {
-			//MyLog.d(TAG, "hasQuery");
-			//MyLog.d(TAG, "rawQuery:"+ originalUri.getRawQuery());
 			String[] params = originalUri.getRawQuery().split("&");
 			queryParamsArrayList = new ArrayList<QueryParam>();
 
@@ -197,7 +190,6 @@ public class MonacaURI {
 		public QueryParam(String baseParam) {
 			String[] keyAndValue = baseParam.split("=");
 			if (keyAndValue == null || keyAndValue.length < 2) {
-				//MyLog.d(TAG, "length < 2");
 				this.key = baseParam;
 				this.value = null;
 

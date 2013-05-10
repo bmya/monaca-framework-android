@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.MyAsyncTask;
 import android.app.AlertDialog;
@@ -23,7 +22,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Handler;
-import android.util.Log;
 
 /** This class make Monaca application running on local file. */
 public class LocalFileBootloader {
@@ -161,7 +159,6 @@ public class LocalFileBootloader {
      * @throws IOException
      */
     public static InputStream openAsset(Context context, String path) throws IOException {
-    //	Log.d(TAG, "getInputStream : " + path);
         String newPath = path.replaceFirst("(file:///android_asset/)|(file://android_asset/)", "");
         if(mShouldExtractAssets){
         	return loadFileUsingBootloader(context, path);
@@ -182,26 +179,21 @@ public class LocalFileBootloader {
 			return context.getAssets().open(newPath);
 		}
 	}
-    
+
     public static String getFullPath(Context context, String path){
     	return context.getApplicationInfo().dataDir + "/" + path;
     }
 
-	protected void aggregateAssetsFileList(String prefix,
-            ArrayList<String> result) {
+	protected void aggregateAssetsFileList(String prefix, ArrayList<String> result) {
         try {
             for (String path : context.getAssets().list(prefix)) {
             	MyLog.d(TAG, "pathCheck :" + prefix + "/" + path);
-               // if (!path.contains(".")) {
                     if (existAsset(prefix + "/" + path)) {
                         result.add(prefix + "/" + path);
                     } else {
                         // may be directory
                         aggregateAssetsFileList(prefix + "/" + path, result);
                     }
-              //  } else {
-              //      result.add(prefix + "/" + path);
-              //  }
             }
         } catch (Exception e) {
             MyLog.e(getClass().getSimpleName(), e.getMessage());
@@ -226,8 +218,7 @@ public class LocalFileBootloader {
         return result;
     }
 
-    protected void aggregateApplicationLocalFileList(File dir,
-            ArrayList<String> result) {
+    protected void aggregateApplicationLocalFileList(File dir,  ArrayList<String> result) {
 
         for (File file : dir.listFiles()) {
             if (file.isDirectory()) {

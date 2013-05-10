@@ -1,7 +1,5 @@
 package mobi.monaca.framework;
 
-import mobi.monaca.framework.util.MyLog;
-
 import org.apache.cordova.CordovaChromeClient;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.api.CordovaInterface;
@@ -27,9 +25,7 @@ public class MonacaChromeClient extends CordovaChromeClient {
 
 	@Override
 	public boolean onJsPrompt(WebView webView, String url, String message, String defaultValue, JsPromptResult jsPromtResult) {
-//		MyLog.v(MonacaPageActivity.TAG, "onJsPromt:arg1:" + url + ", arg2:" + message + ", arg3:" + defaultValue);
 		if (url.equalsIgnoreCase("uri")) {
-			// MyLog.v(TAG, "url null-> return true");
 			return true;
 		}
 

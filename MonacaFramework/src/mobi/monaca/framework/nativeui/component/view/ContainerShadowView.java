@@ -6,7 +6,7 @@ import mobi.monaca.framework.psedo.R;
 import android.view.View;
 
 public class ContainerShadowView extends View{
-	private static final String TAG = ContainerShadowView.class.getSimpleName();
+	//private static final String TAG = ContainerShadowView.class.getSimpleName();
 
 	public ContainerShadowView(UIContext context, boolean isTop) {
 		super(context);

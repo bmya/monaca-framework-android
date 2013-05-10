@@ -1,7 +1,6 @@
 package mobi.monaca.framework.psedo;
 
 import mobi.monaca.framework.MonacaApplication;
-import mobi.monaca.framework.MonacaNotificationActivity;
 import mobi.monaca.framework.task.GCMUnregistrationTask;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;

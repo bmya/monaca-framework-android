@@ -2,7 +2,6 @@ package mobi.monaca.framework.util;
 
 import mobi.monaca.framework.psedo.BuildConfig;
 import mobi.monaca.utils.log.LogItem;
-import mobi.monaca.utils.log.LogSource;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;

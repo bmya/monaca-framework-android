@@ -42,13 +42,11 @@ public class UIEventer extends Component {
 
 	@Override
 	public View getView() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void updateStyle(JSONObject update) {
-		// TODO Auto-generated method stub
 
 	}
 

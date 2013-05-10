@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**

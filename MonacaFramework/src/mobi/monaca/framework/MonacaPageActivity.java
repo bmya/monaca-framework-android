@@ -166,9 +166,9 @@ public class MonacaPageActivity extends DroidGap {
 		// WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN); in DroidGap
 		// class
 		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-//		MyLog.v(TAG, "MonacaApplication.getPages().size():" + MonacaApplication.getPages().size());
 
 		// currentMonacaUri is set in prepare()
+		// this if statement and postDelayed is for animation
 		if (MonacaApplication.getPages().size() == 1) {
 			init();
 			loadUri(currentMonacaUri.getOriginalUrl(), false);
@@ -194,7 +194,7 @@ public class MonacaPageActivity extends DroidGap {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
 	}
-	
+
 
 
 	protected boolean isIndex() {
@@ -310,8 +310,6 @@ public class MonacaPageActivity extends DroidGap {
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
-
-		// loadBackground(getResources().getConfiguration());
 	}
 
 	/** Load background drawable from transition params and device orientation. */
@@ -326,7 +324,6 @@ public class MonacaPageActivity extends DroidGap {
 			}
 
 			try {
-
 				Bitmap bitmap = BitmapFactory.decodeStream(LocalFileBootloader.openAsset(this.getApplicationContext(), path));
 				background = new BackgroundDrawable(bitmap, getWindowManager().getDefaultDisplay(), config.orientation);
 			} catch (Exception e) {
@@ -469,9 +466,6 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		setCurrentUri(startPage);
-
-//		MyLog.v(TAG, "uri without query:" + getCurrentUriWithoutOptions());
-//		MyLog.v(TAG, "uri with query:" + currentMonacaUri.getOriginalUrl());
 	}
 
 
@@ -498,7 +492,7 @@ public class MonacaPageActivity extends DroidGap {
 				return;
 			}
 		}
-		
+
 		applyUiToView();
 	}
 
@@ -530,7 +524,7 @@ public class MonacaPageActivity extends DroidGap {
 			applyScreenOrientationFromManifest();
 			return;
 		}
-		
+
 		switch (pageOrientation) {
 		case PORTRAIT:
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -553,7 +547,7 @@ public class MonacaPageActivity extends DroidGap {
 			break;
 		}
 	}
-	
+
 	protected void applyScreenOrientationFromManifest(){
 		try {
 			PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
@@ -713,7 +707,6 @@ public class MonacaPageActivity extends DroidGap {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-//				MyLog.d(MonacaPageActivity.class.getSimpleName(), "updateStyleBulkily() start");
 				for (UpdateStyleQuery query : queries) {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
@@ -748,7 +741,7 @@ public class MonacaPageActivity extends DroidGap {
 			requestJStoProcessMessages();
 		}
 	}
-	
+
 	/*
 	 * current Native2JS bridge use window.online event to signal to js side to process message.
 	 * there is a bug that when resumed from other page activity, the online/offline event is not triggered
@@ -796,7 +789,6 @@ public class MonacaPageActivity extends DroidGap {
 		MyLog.i(TAG, "onRestart");
 		super.onRestart();
 		loadBackground(getResources().getConfiguration());
-		// setupBackground();
 		if (background != null) {
 			background.invalidateSelf();
 		}
@@ -826,7 +818,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		isCapableForTransition = true;
 		mApp.showMonacaSpinnerDialogIfAny();
-		
+
 		super.onResume();
 	}
 
@@ -954,7 +946,6 @@ public class MonacaPageActivity extends DroidGap {
 			}
 
 			appView.setBackgroundColor(0x00000000);
-			// setupBackground();
 			loadLayoutInformation();
 
 			appView.loadUrl(currentMonacaUri.getOriginalUrl());
@@ -1188,7 +1179,6 @@ public class MonacaPageActivity extends DroidGap {
 	 * publish log message
 	 */
 	public void onLoadResource(WebView view, String url) {
-		//MyLog.d(TAG, "onLoadResource :" + url);
 	}
 
 	protected void processMonacaReady(String url) {
@@ -1215,8 +1205,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	@Override
 	public void onReceivedError(int errorCode, String description, String failingUrl) {
-		// MyLog.d(TAG, "got error :" + Integer.toString(errorCode) + ", " +
-		// description + ", " + failingUrl);
 		if (isInitializationMessage(errorCode, description, failingUrl)) {
 			MyLog.d(TAG, "supressed initialize message");
 			return;

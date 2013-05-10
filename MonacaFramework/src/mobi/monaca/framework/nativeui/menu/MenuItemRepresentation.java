@@ -9,10 +9,8 @@ import java.lang.reflect.Field;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.util.MyLog;
-
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,7 +19,7 @@ public class MenuItemRepresentation implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String TAG = MenuItemRepresentation.class.getSimpleName();
+	//private static final String TAG = MenuItemRepresentation.class.getSimpleName();
 
 	protected String title;
 	protected String iconImagePath = "";

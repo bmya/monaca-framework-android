@@ -1,10 +1,8 @@
 package mobi.monaca.framework.nativeui;
 
-import java.security.InvalidParameterException;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.TimeStamp;
 import mobi.monaca.utils.log.LogItem;
@@ -18,7 +16,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -99,13 +96,13 @@ public class UIUtil {
     public static void reportInvalidComponent(Context context, String msg) {
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidComponent:" + msg, "", 0);
      	MyLog.sendBroadcastDebugLog(context, logItem);
-  
+
     }
 
     public static void reportInvalidContainer(Context context, String msg) {
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidContainer:" + msg, "", 0);
      	MyLog.sendBroadcastDebugLog(context, logItem);
-  
+
     }
 
     public static void reportUndefinedProperty(Context context, String msg) {
@@ -117,14 +114,14 @@ public class UIUtil {
     	MyLog.e(TAG, "InvalidStyleProperty: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:InvalidStyleProperty:" + msg, "", 0);
      	MyLog.sendBroadcastDebugLog(context, logItem);
-  
+
     }
 
     public static void reportIgnoredStyleProperty(Context context, String msg) {
     	MyLog.e(TAG, "IgnoredStyleProperty: " + msg);
         LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:IgnoredStyleProperty:" + msg, "", 0);
      	MyLog.sendBroadcastDebugLog(context, logItem);
-  
+
     }
 
     public static int multiplyColor(int base, int filter) {
@@ -226,7 +223,7 @@ public class UIUtil {
 
             // xhdpi
             // do nothing
-    	
+
          if (metrics.densityDpi == DisplayMetrics.DENSITY_HIGH) {
             // hdpi
             bitmap = resizeBitmap(bitmap,
@@ -278,5 +275,5 @@ public class UIUtil {
 
         return (int) resultTextSize;
     }
-    
+
 }
