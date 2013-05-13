@@ -16,7 +16,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 public abstract class Component {
-	private static final String TAG = Component.class.getSimpleName();
+//	private static final String TAG = Component.class.getSimpleName();
 	protected UIContext uiContext;
 	protected JSONObject componentJSON;
 	protected JSONObject style;

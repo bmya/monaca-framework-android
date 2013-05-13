@@ -69,9 +69,7 @@ public class MonacaConst {
 				String node = xml.getName();
 				if (eventType == XmlResourceParser.START_TAG && node.equalsIgnoreCase("monaca")) {
 					int count = xml.getAttributeCount();
-					//	Log.d("consts", "found monaca tag, has options :" + count);
 					for (int i = 0; i < count; i++) {
-					//	Log.d("MonacaConst", xml.getAttributeName(i) + ":" + xml.getAttributeValue(i));
 						constMap.put(xml.getAttributeName(i), xml.getAttributeValue(i));
 					}
 					// only uses first Monaca tag

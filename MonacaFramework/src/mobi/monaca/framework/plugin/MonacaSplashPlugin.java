@@ -1,7 +1,6 @@
 package mobi.monaca.framework.plugin;
 
 import mobi.monaca.framework.MonacaPageActivity;
-import mobi.monaca.framework.transition.TransitionParams;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;

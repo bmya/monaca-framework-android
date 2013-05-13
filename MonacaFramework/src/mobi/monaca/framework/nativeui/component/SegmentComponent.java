@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui.component;
 
-import static mobi.monaca.framework.nativeui.UIUtil.TAG;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -185,7 +183,6 @@ public class SegmentComponent extends ToolbarComponent {
 			if (android.os.Build.VERSION.SDK_INT >= 11) {
 				maxWidth = maxWidth - UIUtil.dip2px(getContext(), 15);
 			}
-//			MyLog.e(TAG, "max width:" + maxWidth);
 			for (SegmentItemView segment : items) {
 				LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) segment.getLayoutParams();
 				p.width = maxWidth;
@@ -301,7 +298,6 @@ public class SegmentComponent extends ToolbarComponent {
 			isSelected = true;
 			button.setTextColor(this.activeTextColor);
 			invalidate();
-//			MyLog.d(getClass().getSimpleName(), "selected");
 		}
 
 		public void switchToUnselected() {
@@ -309,7 +305,6 @@ public class SegmentComponent extends ToolbarComponent {
 			isSelected = false;
 			button.setTextColor(this.textColor);
 			invalidate();
-//			MyLog.d(getClass().getSimpleName(), "unselected");
 		}
 
 		protected void updateSwitchingEffect() {

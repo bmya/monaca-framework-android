@@ -2,8 +2,6 @@ package mobi.monaca.framework.util;
 
 import java.util.ArrayList;
 
-import android.util.Log;
-
 public class BenchmarkTimer {
 
     protected static class Entry {
