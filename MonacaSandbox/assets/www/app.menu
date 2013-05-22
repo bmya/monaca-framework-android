@@ -1,0 +1,8 @@
+{
+  "default": [
+      {
+        "name": "This is default menu",
+        "action": "alert('default menu pressed')"
+      }
+    ]
+}
