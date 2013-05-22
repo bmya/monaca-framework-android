@@ -266,7 +266,12 @@ public class MonacaPageActivity extends DroidGap {
 			}
 			return true;
 		} else {
-			return false;
+			menu.clear();
+			MenuRepresentation menuRepresentation = MonacaApplication.findMenuRepresentation("default");
+			if (menuRepresentation != null) {
+				menuRepresentation.configureMenu(uiContext, menu);
+			}
+			return true;
 		}
 	}
 
