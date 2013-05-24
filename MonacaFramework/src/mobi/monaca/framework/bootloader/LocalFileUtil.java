@@ -16,7 +16,12 @@ public class LocalFileUtil {
 
 	public static ArrayList<String> getLocalFilePathList(String path) {
 		ArrayList<String> result = new ArrayList<String>();
-		aggregateApplicationLocalFileList(new File(path), result);
+		File f = new File(path);
+		if (f.exists()) {
+			aggregateApplicationLocalFileList(new File(path), result);
+		} else {
+			f.mkdir();
+		}
 		return result;
 	}
 }
