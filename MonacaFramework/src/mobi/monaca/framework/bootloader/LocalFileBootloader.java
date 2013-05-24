@@ -25,7 +25,6 @@ import android.os.Handler;
 
 /** This class make Monaca application running on local file. */
 public class LocalFileBootloader {
-
     protected static final String BOOTLOADER_PREFERENCE_NAME = "bootloader";
     protected static final String BOOTLOADER_FILES_PREFERENCE_NAME = "bootloader_files";
 	private static final String TAG = LocalFileBootloader.class.getSimpleName();
@@ -62,79 +61,19 @@ public class LocalFileBootloader {
         new BootloaderTask().execute();
     }
 
-    protected String getApplicationLocalFileListHash() {
-        return Md5Util.md5(join(getApplicationLocalFileList()));
-    }
-
     public static void setup(Context context, Runnable runner, Runnable fail) {
     	MyLog.d(TAG, "using LocalFileBootloader");
         new LocalFileBootloader(context, runner, fail).execute();
     }
 
-    protected boolean validateAllFilesHash() {
-        Map<String, String> hashMap = bootloaderPreferences.getFileHashMap();
-
-        if (hashMap == null) {
-            MyLog.w(getClass().getSimpleName(), "all file hash validation: fail");
-            return false;
-        }
-
-        for (String path : getApplicationLocalFileList()) {
-            String assetHash = hashMap.get(path);
-            String localFileHash = Md5Util.getLocalFileHash(dataDirPath + "/"
-                    + path);
-            String assetFileHash;
-            try {
-                assetFileHash = Md5Util.getAssetFileHash(context, path);
-            } catch (RuntimeException e) {
-                MyLog.w(getClass().getSimpleName(),
-                        "all file hash validation: fail." + e.getMessage());
-                return false;
-            }
-
-            MyLog.d(getClass().getSimpleName(), "file hash comparison: "
-                    + assetHash + " = " + localFileHash);
-
-            if (assetHash == null || localFileHash == null) {
-                MyLog.w(getClass().getSimpleName(),
-                        "all file hash validation: fail");
-                return false;
-            }
-
-            if (!(assetHash.equals(localFileHash) && assetHash
-                    .equals(assetFileHash))) {
-                MyLog.d(getClass().getSimpleName(),
-                        "all file hash validation: fail");
-                return false;
-            }
-        }
-        MyLog.i(getClass().getSimpleName(), "all file hash validation: ok");
-        return true;
+    protected boolean isAppVersionUpdated() {
+        boolean updated = !bootloaderPreferences.getAppVersionCode().equals(getAppliationVersionCode());
+        return updated;
     }
 
-    protected boolean validateFileListHash() {
-        boolean result = bootloaderPreferences.getFileListHash().equals(
-                Md5Util.md5(join(getApplicationLocalFileList())));
-        result = result
-                && bootloaderPreferences.getFileListHash().equals(
-                        Md5Util.md5(join(getAssetsFileList())));
-        MyLog.d(getClass().getSimpleName(), "filelist hash validation: "
-                + (result ? "ok" : "fail"));
-
-        return result;
-    }
-
-    protected boolean validateAppVersion() {
-        boolean result = bootloaderPreferences.getAppVersionCode().equals(
-                getAppliationVersionCode());
-        MyLog.d(getClass().getSimpleName(), "app version validation: "
-                + (result ? "ok" : "fail"));
-
-        return result;
-    }
-
-    protected boolean needInitialization() {
-        return !(validateAppVersion() && validateFileListHash() && validateAllFilesHash());
+    protected boolean needsInitialization() {
+    	MyLog.d(TAG, "AppVersionUpdated , AppPackageUpdated : " + isAppVersionUpdated()+ ", " + bootloaderPreferences.isAppPackageUpdated());
+    	return isAppVersionUpdated() || bootloaderPreferences.isAppPackageUpdated();
     }
 
     protected List<String> getAssetsFileList() {
@@ -311,7 +250,7 @@ public class LocalFileBootloader {
 
             showProgressDialog();
             try {
-                needInit = needInitialization();
+                needInit = needsInitialization();
                 MyLog.v(TAG, "needInit = " + needInit);
             } catch (AbortException e) {
                 MyLog.e(getClass().getSimpleName(), "bootloader task aborted." + e);
@@ -324,24 +263,13 @@ public class LocalFileBootloader {
             try {
                 if (needInit) {
                     clean();
-
                     MyLog.v(TAG, "assetFiles size=" + getAssetsFileList().size());
-
                     for (String path : getAssetsFileList()) {
                         copyAssetToLocal(path);
                     }
-
                     bootloaderPreferences
                             .saveAppVersionCode(getAppliationVersionCode());
-                    bootloaderPreferences
-                            .saveFileListHash(getApplicationLocalFileListHash());
-
-                    HashMap<String, String> map = new HashMap<String, String>();
-                    for (String path : getAssetsFileList()) {
-                        map.put(path, Md5Util.getAssetFileHash(context, path));
-                    }
-
-                    bootloaderPreferences.saveFileHashMap(map);
+                    bootloaderPreferences.updateLastPackageUpdatedTime();
                 }
             } catch (AbortException e) {
                 MyLog.e(getClass().getSimpleName(),

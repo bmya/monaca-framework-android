@@ -1,31 +1,47 @@
 package mobi.monaca.framework.bootloader;
 
-import java.util.Map;
+import java.nio.ReadOnlyBufferException;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 public class BootloaderPreferences {
     protected Context context;
     protected SharedPreferences bootloaderPreferences;
-    protected SharedPreferences fileHashPreferences;
 
     protected static final String BOOTLOADER_PREFERENCES_NAME = "bootloader";
-    protected static final String FILE_HASH_PREFERENCES_NAME = "file_hash";
     protected static final String APP_VERSION_CODE_KEY = "app_ver_code";
-    protected static final String FILE_LIST_HASH_KEY = "file_list_hash";
+    protected static final String KEY_LAST_UPDATE = "last_update_time";
 
     public BootloaderPreferences(Context context) {
         this.context = context;
         bootloaderPreferences = context.getSharedPreferences(
                 BOOTLOADER_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        fileHashPreferences = context.getSharedPreferences(
-                FILE_HASH_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
     public void clear() {
         bootloaderPreferences.edit().clear().commit();
-        fileHashPreferences.edit().clear().commit();
+    }
+
+    public void updateLastPackageUpdatedTime() {
+    	bootloaderPreferences.edit().putLong(KEY_LAST_UPDATE, getCurrentPackageLastUpdated()).commit();
+    }
+
+    public boolean isAppPackageUpdated() {
+		long savedLastUpdate = bootloaderPreferences.getLong(KEY_LAST_UPDATE, 0);
+		return getCurrentPackageLastUpdated() != savedLastUpdate;
+    }
+
+    private long getCurrentPackageLastUpdated() {
+    	try {
+			PackageInfo p = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+			return p.lastUpdateTime;
+    	} catch (Exception e) {
+    		throw new RuntimeException(e);
+    	}
     }
 
     public void saveAppVersionCode(String versionCode) {
@@ -35,35 +51,6 @@ public class BootloaderPreferences {
 
     public String getAppVersionCode() {
         return bootloaderPreferences.getString(APP_VERSION_CODE_KEY, "");
-    }
-
-    public void saveFileListHash(String hash) {
-        bootloaderPreferences.edit().putString(FILE_LIST_HASH_KEY, hash)
-                .commit();
-    }
-
-    public String getFileListHash() {
-        return bootloaderPreferences.getString(FILE_LIST_HASH_KEY, "");
-    }
-
-    public void saveFileHashMap(Map<String, String> map) {
-        SharedPreferences.Editor editor = fileHashPreferences.edit();
-        for (String key : map.keySet()) {
-            editor.putString(key, map.get(key));
-        }
-        editor.commit();
-    }
-
-    @SuppressWarnings("unchecked")
-    public Map<String, String> getFileHashMap() {
-        Map<String, String> map = (Map<String, String>) fileHashPreferences
-                .getAll();
-
-        if (map.keySet().size() == 0) {
-            return null;
-        }
-
-        return map;
     }
 
 }
