@@ -1,12 +1,9 @@
 package mobi.monaca.framework.bootloader;
 
-import java.nio.ReadOnlyBufferException;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 
 public class BootloaderPreferences {
     protected Context context;
