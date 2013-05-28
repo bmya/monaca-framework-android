@@ -33,3 +33,4 @@ Troubleshooting
 * Make sure you have Google API Level 17 SDK installed (for Cordova project)
 * Make sure each project have set the Project Build Target (Right click the project -> Properties -> Android). If there is a tick sign, you are at the right track!
 * Try cleaning all projects.
+* 
