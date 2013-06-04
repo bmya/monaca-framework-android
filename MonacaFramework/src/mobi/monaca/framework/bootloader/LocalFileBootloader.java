@@ -142,7 +142,7 @@ public class LocalFileBootloader {
         ArrayList<String> temp = new ArrayList<String>();
         File dir = new File(context.getApplicationInfo().dataDir + "/www");
         dir.mkdir();
-        aggregateApplicationLocalFileList(new File(
+        LocalFileUtil.aggregateApplicationLocalFileList(new File(
                 context.getApplicationInfo().dataDir + "/www"), temp);
 
         ArrayList<String> result = new ArrayList<String>();
@@ -153,17 +153,6 @@ public class LocalFileBootloader {
 
         Collections.sort(result);
         return result;
-    }
-
-    protected void aggregateApplicationLocalFileList(File dir,  ArrayList<String> result) {
-
-        for (File file : dir.listFiles()) {
-            if (file.isDirectory()) {
-                aggregateApplicationLocalFileList(file, result);
-            } else {
-                result.add(file.getAbsolutePath());
-            }
-        }
     }
 
     protected static String join(List<String> list) {
