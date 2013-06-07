@@ -300,7 +300,7 @@ public class ApplicationResource extends CordovaPluginExecutor {
 		} catch (JSONException e) {
 		}
 		try {
-			condition.setUntil(param.getInt("until"));
+			condition.setUntil(param.getLong("until"));
 		} catch (JSONException e) {
 		}
 		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
