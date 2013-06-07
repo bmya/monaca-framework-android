@@ -303,6 +303,11 @@ public class ApplicationResource extends CordovaPluginExecutor {
 			condition.setUntil(param.getLong("until"));
 		} catch (JSONException e) {
 		}
+
+		if (param.optBoolean("self", false)) {
+			condition.setSelf();
+		}
+
 		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.query(resourceName, condition, new IPPQueryCallback<IPPApplicationResource[]>() {
 			@Override
