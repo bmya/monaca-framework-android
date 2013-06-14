@@ -156,6 +156,10 @@ public class Geolocation extends CordovaPluginExecutor{
 		} catch (JSONException e) {
 		}
 
+		if (param.optBoolean("self", false)) {
+			query.setSelf();
+		}
+
 		IPPGeoLocationClient client = new IPPGeoLocationClient(context);
 		client.setApplicationId(KeyPreferenceUtil.getApplicationId(context));
 		client.setAuthKey(authKey);
