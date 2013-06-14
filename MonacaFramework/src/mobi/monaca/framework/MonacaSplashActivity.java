@@ -6,14 +6,9 @@ import java.io.InputStream;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.util.MyLog;
 import mobi.monaca.utils.gcm.GCMPushDataset;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ImageView;
@@ -94,7 +89,7 @@ public class MonacaSplashActivity extends Activity {
         		setupLocalFileBootLoaderAndRunProject(pageActivityLauncher);
         	}
     	}
-    	
+
     }
 
 	private void setupLocalFileBootLoaderAndRunProject(Runnable pageActivityLauncher) {
@@ -107,7 +102,7 @@ public class MonacaSplashActivity extends Activity {
 			}
 		});
 	}
-    
+
     // same as shouldUseLocalFileBootloader but has higher priority
     protected boolean shouldExtractAsset(){
     	return app.getAppJsonSetting().shouldExtractAssets();

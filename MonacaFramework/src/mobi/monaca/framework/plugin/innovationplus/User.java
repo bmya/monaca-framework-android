@@ -12,8 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.widget.Toast;
-
 public class User extends CordovaPluginExecutor{
 
 	public User(CordovaInterface cordovaInterface) {

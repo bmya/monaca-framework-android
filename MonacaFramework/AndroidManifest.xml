@@ -3,7 +3,7 @@
       package="mobi.monaca.framework.psedo"
       android:versionCode="1"
       android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="17"/>
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="17"/>
 
 	<supports-screens
 	   android:anyDensity="true"
@@ -38,8 +38,7 @@
         <activity android:name="mobi.monaca.framework.MonacaPageActivity"
                   android:label="MonacaPageActivity"
                   android:screenOrientation="sensor"
-                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
+                  android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|uiMode">
         </activity>
 
          <activity

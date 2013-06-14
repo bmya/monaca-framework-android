@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
 /** This class build MenuRepresentation instace from json file. */
 public class MenuRepresentationBuilder {

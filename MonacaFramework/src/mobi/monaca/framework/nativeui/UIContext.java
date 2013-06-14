@@ -8,37 +8,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import mobi.monaca.framework.InternalSettings;
 import mobi.monaca.framework.MonacaApplication;
 import mobi.monaca.framework.MonacaPageActivity;
-import mobi.monaca.framework.InternalSettings;
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.component.Component;
+import mobi.monaca.framework.nativeui.component.PageComponent;
 import mobi.monaca.framework.util.InputStreamLoader;
-import mobi.monaca.framework.util.MyLog;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 public class UIContext extends ContextWrapper {
-
 	public interface OnRotateListener {
 		public void onRotate(int orientation);
 	}
-
-	private static final String TAG = UIContext.class.getSimpleName();
+	//private static final String TAG = UIContext.class.getSimpleName();
 
 	protected String uiFilePath;
 	protected MonacaPageActivity pageActivity;
+	protected PageComponent mPageComponent;
 	protected DisplayMetrics metrics;
 	protected SparseIntArray computedFontSizeCache = new SparseIntArray();
 	protected ArrayList<OnRotateListener> onRotateListeners = new ArrayList<OnRotateListener>();
@@ -55,7 +50,16 @@ public class UIContext extends ContextWrapper {
 		MonacaApplication app = (MonacaApplication) pageActivity.getApplication();
 		this.settings = app.getInternalSettings();
 	}
-	
+
+
+	public void setPageComponent(PageComponent mPageComponent) {
+		this.mPageComponent = mPageComponent;
+	}
+
+	public PageComponent getPageComponent() {
+		return mPageComponent;
+	}
+
 	public Map<String, Component> getComponentIDsMap() {
 		return mComponentIDsMap;
 	}
@@ -89,10 +93,8 @@ public class UIContext extends ContextWrapper {
 	}
 
 	public void loadRelativePathWithoutUIFile(String relativePath) {
-//		MyLog.v(TAG, "loadRelativePathWithoutUIFile. relativePath:" + relativePath);
 		String resolved = resolve(relativePath);
 		pageActivity.loadUri(resolved, true);
-//		MyLog.v(TAG, "uri resolved=" + pageActivity.getCurrentUriWithoutOptions());
 	}
 
 	public void changeCurrentUri(String uri) {

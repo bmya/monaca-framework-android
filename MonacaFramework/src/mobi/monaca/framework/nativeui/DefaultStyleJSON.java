@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -66,7 +65,7 @@ public class DefaultStyleJSON {
 			style.put("visibility", true);
 			style.put("disable", false);
 			style.put("opacity", 1.0);
-			style.put("activeTextColor", "#0000FF");
+			style.put("activeTextColor", "#FFFFFF");
 			style.put("backgroundColor", "#000000");
 			style.put("textColor", "#FFFFFF");
 			style.put("activeIndex", 0);

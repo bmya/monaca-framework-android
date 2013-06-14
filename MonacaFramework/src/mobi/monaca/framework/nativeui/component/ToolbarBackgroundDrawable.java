@@ -10,7 +10,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
 public class ToolbarBackgroundDrawable extends Drawable {
-    private static final String TAG = ToolbarBackgroundDrawable.class.getSimpleName();
+    //private static final String TAG = ToolbarBackgroundDrawable.class.getSimpleName();
 	protected Drawable drawable;
     protected int alpha = 79;
     protected ColorFilter colorFilter = null;
@@ -30,14 +30,14 @@ public class ToolbarBackgroundDrawable extends Drawable {
         if (rect.width() <= 0 || rect.height() <= 0) {
         	return;
         }
-        
+
         Bitmap bitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
-        
+
         if (colorFilter != null) {
             drawable.setColorFilter(colorFilter);
         }
         drawable.draw(new Canvas(bitmap));
-        
+
         Paint paint = new Paint();
         paint.setAlpha(alpha);
         canvas.drawBitmap(bitmap, 0, 0, paint);
@@ -89,7 +89,7 @@ public class ToolbarBackgroundDrawable extends Drawable {
         this.alpha = 0xff & alpha;
         invalidateSelf();
     }
-    
+
 
     @Override
     public void setColorFilter(ColorFilter colorFilter) {

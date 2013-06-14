@@ -51,7 +51,7 @@ public class PageComponent extends Component {
 	private PageOrientation mScreenOrientation = PageOrientation.INHERIT;
 	protected Component topComponent;
 	protected Component bottomComponent;
-	public static ComponentEventer BACK_BUTTON_EVENTER;
+	protected ComponentEventer mBackButtonEventer;
 	public UIEventer eventer;
 	public String menuName;
 
@@ -66,6 +66,7 @@ public class PageComponent extends Component {
 
 	public PageComponent(UIContext uiContext, JSONObject pageJSON) throws NativeUIException, JSONException {
 		super(uiContext, pageJSON);
+		uiContext.setPageComponent(this);
 		UIValidator.validateKey(uiContext, "Page's style", style, styleValidKeys);
 
 		JSONObject event = getComponentJSON().optJSONObject("event");
@@ -82,6 +83,14 @@ public class PageComponent extends Component {
 		}
 		style();
 		buildChildren();
+	}
+	
+	public ComponentEventer getBackButtonEventer() {
+		return mBackButtonEventer;
+	};
+	
+	public void setBackButtonEventer(ComponentEventer mBackButtonEventer) {
+		this.mBackButtonEventer = mBackButtonEventer;
 	}
 
 	public Map<String, Component> getComponentIDsMap(){

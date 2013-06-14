@@ -1,0 +1,16 @@
+{
+  "default": [
+      {
+        "name": "This is default menu",
+        "action": "alert('default menu pressed')",
+        "image": "home.png"
+      }
+    ],
+    "my_menu": [
+    	{
+	        "name": "This is My menu",
+	        "action": "alert('My menu pressed')",
+          "image": "heart.png"
+      	}	
+    ]
+}

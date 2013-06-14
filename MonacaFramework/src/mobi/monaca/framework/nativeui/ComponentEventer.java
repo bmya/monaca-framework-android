@@ -1,8 +1,6 @@
 package mobi.monaca.framework.nativeui;
 
 import mobi.monaca.framework.nativeui.component.Component;
-import mobi.monaca.framework.nativeui.exception.DuplicateIDException;
-import mobi.monaca.framework.nativeui.exception.KeyNotValidException;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 
 import org.json.JSONException;
@@ -15,7 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 public class ComponentEventer extends Component{
     protected JSONObject event;
     protected UIContext context;
-    protected static final String[] VALID_KEYS = {"onTap", "onSearch", "onChange"}; 
+    protected static final String[] VALID_KEYS = {"onTap", "onSearch", "onChange"};
 
     public ComponentEventer(UIContext context, JSONObject event) throws NativeUIException, JSONException {
     	super(context, event);
@@ -68,7 +66,7 @@ public class ComponentEventer extends Component{
 
 	@Override
 	public void updateStyle(JSONObject update) throws NativeUIException {
-		
+
 	}
 
 	@Override

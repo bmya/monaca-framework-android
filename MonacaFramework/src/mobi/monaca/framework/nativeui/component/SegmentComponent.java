@@ -1,6 +1,5 @@
 package mobi.monaca.framework.nativeui.component;
 
-import static mobi.monaca.framework.nativeui.UIUtil.TAG;
 import static mobi.monaca.framework.nativeui.UIUtil.updateJSONObject;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import mobi.monaca.framework.nativeui.UIValidator;
 import mobi.monaca.framework.nativeui.exception.NativeUIException;
 import mobi.monaca.framework.nativeui.exception.RequiredKeyNotFoundException;
 import mobi.monaca.framework.psedo.R;
-import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +35,7 @@ public class SegmentComponent extends ToolbarComponent {
 	protected int pressedBackgroundColor;
 
 	protected static final String[] SEGMENT_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event", };
-	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "texts", "activeIndex" };
+	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "texts", "activeIndex"};
 
 	@Override
 	public String[] getValidKeys() {
@@ -73,11 +71,13 @@ public class SegmentComponent extends ToolbarComponent {
 		}
 
 		backgroundColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "backgroundColor", "#ff0000", style);
+		int textColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "textColor", "#ffffff", style);
+		int activeTextColor = UIValidator.parseAndValidateColor(uiContext, getComponentName() + " style", "activeTextColor", "#ffffff", style);
 
 		if (texts != null) {
 			view.removeAllSegmentItemViews();
 			for (int i = 0; i < texts.length(); i++) {
-				SegmentItemView item = new SegmentItemView(uiContext, texts.optString(i), backgroundColor);
+				SegmentItemView item = new SegmentItemView(uiContext, texts.optString(i), backgroundColor, textColor, activeTextColor);
 				if (i == 0) {
 					item.setAsLeft();
 				} else if (i == texts.length() - 1) {
@@ -183,7 +183,6 @@ public class SegmentComponent extends ToolbarComponent {
 			if (android.os.Build.VERSION.SDK_INT >= 11) {
 				maxWidth = maxWidth - UIUtil.dip2px(getContext(), 15);
 			}
-//			MyLog.e(TAG, "max width:" + maxWidth);
 			for (SegmentItemView segment : items) {
 				LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) segment.getLayoutParams();
 				p.width = maxWidth;
@@ -241,17 +240,20 @@ public class SegmentComponent extends ToolbarComponent {
 		protected Button button;
 		protected boolean isSelected = true;
 		protected int tint;
+
+		protected int textColor, activeTextColor;
 		protected SegmentBackgroundDrawable background;
 
-		public SegmentItemView(UIContext context, String title, int tint) {
+		public SegmentItemView(UIContext context, String title, int tint, int textColor, int activeTextColor) {
 			super(context);
 
 			this.tint = tint;
-
+			this.textColor = textColor;
+			this.activeTextColor = activeTextColor;
 			button = new Button(context);
 			button.setText(title);
 			button.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
-			button.setTextColor(0xffffffff);
+			button.setTextColor(this.textColor);
 			button.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getFontSizeFromDip(Component.SEGMENT_TEXT_DIP));
 			button.setShadowLayer(1f, 0f, -1f, 0xcc000000);
 
@@ -294,15 +296,15 @@ public class SegmentComponent extends ToolbarComponent {
 		public void switchToSelected() {
 			background.setSelected(true);
 			isSelected = true;
+			button.setTextColor(this.activeTextColor);
 			invalidate();
-//			MyLog.d(getClass().getSimpleName(), "selected");
 		}
 
 		public void switchToUnselected() {
 			background.setSelected(false);
 			isSelected = false;
+			button.setTextColor(this.textColor);
 			invalidate();
-//			MyLog.d(getClass().getSimpleName(), "unselected");
 		}
 
 		protected void updateSwitchingEffect() {
