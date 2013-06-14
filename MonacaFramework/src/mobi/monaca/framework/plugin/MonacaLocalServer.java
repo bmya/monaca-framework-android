@@ -32,6 +32,10 @@ public class MonacaLocalServer extends NanoHTTPD {
 			fullPath = mAppAssetPath + "/" + removeLeadingSlash(rootDir);
 		}
 	}
+	
+	public String getServerRoot(){
+		return fullPath;
+	}
 
 	private String removeLeadingSlash(String string) {
 		if(string.startsWith("/")){

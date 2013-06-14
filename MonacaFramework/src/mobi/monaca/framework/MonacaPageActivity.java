@@ -28,7 +28,7 @@ import mobi.monaca.framework.psedo.R;
 import mobi.monaca.framework.transition.BackgroundDrawable;
 import mobi.monaca.framework.transition.ClosePageIntent;
 import mobi.monaca.framework.transition.TransitionParams;
-import mobi.monaca.framework.util.AssetUriUtil;
+import mobi.monaca.framework.util.AssetUtils;
 import mobi.monaca.framework.util.BenchmarkTimer;
 import mobi.monaca.framework.util.InputStreamLoader;
 import mobi.monaca.framework.util.MyLog;
@@ -322,7 +322,7 @@ public class MonacaPageActivity extends DroidGap {
 		if (transitionParams != null && transitionParams.hasBackgroundImage()) {
 			String path = null;
 			String preferedPath = "www/" + UIContext.getPreferredPath(transitionParams.backgroundImagePath);
-			if (AssetUriUtil.existsAsset(this, preferedPath)) {
+			if (AssetUtils.existsAsset(this, preferedPath)) {
 				path = preferedPath;
 			} else {
 				path = "www/" + transitionParams.backgroundImagePath;
@@ -916,7 +916,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected String buildCurrentUriHtml() throws IOException {
-		String html = AssetUriUtil.assetToString(this, getCurrentUriWithoutOptions());
+		String html = AssetUtils.assetToString(this, getCurrentUriWithoutOptions());
 
 		if (UrlUtil.isMonacaUri(this, currentMonacaUri.getOriginalUrl()) && currentMonacaUri.hasQueryParams()) {
 			html = currentMonacaUri.getQueryParamsContainingHtml(html);

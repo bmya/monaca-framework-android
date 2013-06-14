@@ -1,8 +1,7 @@
 package mobi.monaca.framework.plugin;
 
-import java.io.IOException;
-
 import mobi.monaca.framework.util.MyLog;
+import mobi.monaca.framework.util.NetworkUtils;
 
 import org.apache.cordova.api.CallbackContext;
 import org.apache.cordova.api.CordovaPlugin;
@@ -13,12 +12,32 @@ import org.json.JSONObject;
 public class HttpServerPlugin extends CordovaPlugin{
 	
 	private static final String TAG = HttpServerPlugin.class.getSimpleName();
-	private MonacaLocalServer localServer;
+	private static MonacaLocalServer localServer;
 
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		MyLog.v(TAG, "HttpServerPlugin exec action:" + action + ", args:" + args);
+		if(action.equalsIgnoreCase("getServerRoot")){
+			if(localServer != null){
+				callbackContext.success(localServer.getServerRoot());
+			}else{
+				callbackContext.error("Error server is not started yet. Plesae start the server before lcalling this");
+			}
+			
+			return true;
+		}
+		
+		if(action.equalsIgnoreCase("getIpAddress")){
+			callbackContext.success(NetworkUtils.getIPAddress(true));
+			return true;
+		}
+		
 		if(action.equalsIgnoreCase("start")){
+			if(localServer != null){
+				callbackContext.error("A server is already running. Please stop current server before starting a new server.");
+				return true;
+			}
+			
 			if(args.length() < 2){
 				callbackContext.error("either documentRoot or params is not supplied");				
 			}else{
@@ -28,7 +47,7 @@ public class HttpServerPlugin extends CordovaPlugin{
 					int port = params.getInt("port");
 					localServer = new MonacaLocalServer(cordova.getActivity(), rootDir, port);
 					localServer.start();
-					callbackContext.success("server started at port " + port);
+					callbackContext.success("server started at " + NetworkUtils.getIPAddress(true) + ":" + port);
 				}catch (JSONException e) {
 					callbackContext.error(e.getMessage());
 					e.printStackTrace();
@@ -41,6 +60,7 @@ public class HttpServerPlugin extends CordovaPlugin{
 		}else if(action.equalsIgnoreCase("stop")){
 			if(localServer != null){
 				localServer.stop();
+				localServer = null;
 				callbackContext.success("stopped server");
 			}
 			return true;
