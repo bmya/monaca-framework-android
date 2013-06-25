@@ -66,7 +66,7 @@ public class HttpServerPlugin extends CordovaPlugin{
 						callbackContext.error("Cannot start server.");
 					}};
 
-				if (((MonacaApplication)cordova.getActivity().getApplication()).getEnablesBootloader()) {
+				if (((MonacaApplication)cordova.getActivity().getApplication()).enablesBootloader()) {
 					LocalFileBootloader.setup(cordova.getActivity(), serverRunner, fail);
 				} else {
 					serverRunner.run();

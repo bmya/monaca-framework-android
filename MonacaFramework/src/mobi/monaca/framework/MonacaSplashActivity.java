@@ -76,7 +76,7 @@ public class MonacaSplashActivity extends Activity {
     		MyLog.v(TAG, "should extract asset!!!!");
     		setupLocalFileBootLoaderAndRunProject(pageActivityLauncher);
     	}else{
-    		if (!app.getEnablesBootloader()) {
+    		if (!app.needToUseBootloader()) {
         		pageActivityLauncher.run();
         		LocalFileBootloader.mShouldExtractAssets = false;
         	} else {

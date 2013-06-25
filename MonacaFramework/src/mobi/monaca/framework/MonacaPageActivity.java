@@ -473,7 +473,7 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	protected boolean shouldLoadExtractedIndex() {
-		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || mApp.getEnablesBootloader());
+		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || mApp.needToUseBootloader());
 	}
 
 	public JSONObject getInfoForJavaScript() {
