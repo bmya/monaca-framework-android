@@ -49,9 +49,9 @@ import org.apache.cordova.DroidGap;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import receiver.ScreenReceiver;
 import android.R.color;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -96,6 +96,7 @@ public class MonacaPageActivity extends DroidGap {
 	public static final String TRANSITION_PARAM_NAME = "monaca.transition";
 	public static final String URL_PARAM_NAME = "monaca.url";
 	public static final String TAG = MonacaPageActivity.class.getSimpleName();
+	private static final int MONACA_TRANSIT_REQUEST = 9000;
 
 	protected MonacaURI currentMonacaUri;
 
@@ -123,7 +124,7 @@ public class MonacaPageActivity extends DroidGap {
 		public void onReceive(Context context, Intent intent) {
 			MyLog.d(TAG, "push broadcast received");
 			if (isIndex()) {
-				GCMPushDataset p = (GCMPushDataset)intent.getExtras().get(GCMPushDataset.KEY);
+				GCMPushDataset p = (GCMPushDataset) intent.getExtras().get(GCMPushDataset.KEY);
 				sendPushToWebView(p);
 			}
 		}
@@ -138,7 +139,6 @@ public class MonacaPageActivity extends DroidGap {
 
 	protected JSONObject infoForJavaScript = new JSONObject();
 	protected String mCurrentHtml;
-	private ScreenReceiver mScreenReceiver;
 	protected GCMPushDataset pushData;
 	protected MonacaApplication mApp;
 	private PageComponent mPageComponent;
@@ -150,15 +150,9 @@ public class MonacaPageActivity extends DroidGap {
 
 		prepare();
 
-		if(VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN){
+		if (VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN) {
 			getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 		}
-
-		// initialize receiver
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-		filter.addAction(Intent.ACTION_SCREEN_OFF);
-		mScreenReceiver = new ScreenReceiver();
-		registerReceiver(mScreenReceiver, filter);
 
 		super.onCreate(savedInstance);
 		// to clear
@@ -189,18 +183,16 @@ public class MonacaPageActivity extends DroidGap {
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_LEFT) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_open_exit);
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.SLIDE_RIGHT) {
-			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_exit);
+			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_enter,
+					mobi.monaca.framework.psedo.R.anim.monaca_slide_right_open_exit);
 		} else if (transitionParams.animationType == TransitionParams.TransitionAnimationType.NONE) {
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_none, mobi.monaca.framework.psedo.R.anim.monaca_none);
 		}
 	}
 
-
-
 	protected boolean isIndex() {
 		return pageIndex == MonacaApplication.getPages().size() - 1;
 	}
-
 
 	protected Drawable getSplashDrawable() throws IOException {
 		InputStream is = getResources().getAssets().open(MonacaSplashActivity.SPLASH_IMAGE_PATH);
@@ -280,7 +272,7 @@ public class MonacaPageActivity extends DroidGap {
 		if (bundle != null) {
 			Serializable s = bundle.getSerializable(GCMPushDataset.KEY);
 			if (s != null) {
-				pushData = (GCMPushDataset)s;
+				pushData = (GCMPushDataset) s;
 			}
 		}
 
@@ -291,7 +283,7 @@ public class MonacaPageActivity extends DroidGap {
 
 		AppJsonSetting appJsonSetting = mApp.getAppJsonSetting();
 		boolean autoHide = false;
-		if(appJsonSetting != null){
+		if (appJsonSetting != null) {
 			autoHide = appJsonSetting.getAutoHide();
 		}
 		if (pageIndex == 0 && autoHide == false) {
@@ -393,19 +385,20 @@ public class MonacaPageActivity extends DroidGap {
 	@Override
 	public void init() {
 		CordovaWebView webView = new MonacaWebView(this);
-		// Fix webview bug on ICS_MR1 where webview background is always white when hardware accerleration is on
+		// Fix webview bug on ICS_MR1 where webview background is always white
+		// when hardware accerleration is on
 		if (VERSION.SDK_INT == VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 
 		if (uiContext.getSettings().forceDisableWebviewGPU) {
-    		Method method;
-    		try {
-    		    method = webView.getClass().getMethod("setLayerType", new Class[]{ int.class, Paint.class });
-    		    method.invoke(webView, new Object[]{ View.LAYER_TYPE_SOFTWARE, null });
-    		} catch (Exception e) {
-        		MyLog.e(TAG, "webview.setLayerType() is fail.");
-            }
+			Method method;
+			try {
+				method = webView.getClass().getMethod("setLayerType", new Class[] { int.class, Paint.class });
+				method.invoke(webView, new Object[] { View.LAYER_TYPE_SOFTWARE, null });
+			} catch (Exception e) {
+				MyLog.e(TAG, "webview.setLayerType() is fail.");
+			}
 		}
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
@@ -475,10 +468,9 @@ public class MonacaPageActivity extends DroidGap {
 
 	// called by MonacaHttpServer to know the root folder of the app.
 	// in this case, we tell it to use the assets folder
-	public String getAppAssetsPath(){
+	public String getAppAssetsPath() {
 		return "assets";
 	}
-	
 
 	protected boolean shouldLoadExtractedIndex() {
 		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader);
@@ -488,14 +480,13 @@ public class MonacaPageActivity extends DroidGap {
 		return infoForJavaScript;
 	}
 
-
 	/** Load local ui file */
 	public void loadUiFile(String uri) {
 		JSONObject uiJSON = getUIJSON(uri);
-		if(uiJSON != null){
+		if (uiJSON != null) {
 			try {
 				mPageComponent = new PageComponent(uiContext, uiJSON);
-			}catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				LogItem logItem = new LogItem(TimeStamp.getCurrentTimeStamp(), Source.SYSTEM, LogLevel.ERROR, "NativeComponent:" + e.getMessage(), "", 0);
 				MyLog.sendBroadcastDebugLog(getContext(), logItem);
@@ -505,8 +496,6 @@ public class MonacaPageActivity extends DroidGap {
 
 		applyUiToView();
 	}
-
-
 
 	protected JSONObject getUIJSON(String uri) {
 		String uiJSONString = null;
@@ -528,8 +517,8 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	protected void applyScreenOrientation(PageOrientation pageOrientation){
-		if(pageOrientation == null){
+	protected void applyScreenOrientation(PageOrientation pageOrientation) {
+		if (pageOrientation == null) {
 			MyLog.v(TAG, "null -> apply from manifest");
 			applyScreenOrientationFromManifest();
 			return;
@@ -558,7 +547,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	protected void applyScreenOrientationFromManifest(){
+	protected void applyScreenOrientationFromManifest() {
 		try {
 			PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), PackageManager.GET_ACTIVITIES);
 			int screenOrientation = getScreenOrientationOfMonacaPageActivity(packageInfo);
@@ -568,13 +557,12 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-
 	private int getScreenOrientationOfMonacaPageActivity(PackageInfo packageInfo) {
 		ActivityInfo[] activies = packageInfo.activities;
-		if(activies != null){
+		if (activies != null) {
 			for (int i = 0; i < activies.length; i++) {
 				ActivityInfo activityInfo = activies[i];
-				if(activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())){
+				if (activityInfo.name.equalsIgnoreCase(MonacaPageActivity.class.getName())) {
 					MyLog.v(TAG, "found screenorientation for MonacaPageAcitivyt");
 					return activityInfo.screenOrientation;
 				}
@@ -584,10 +572,9 @@ public class MonacaPageActivity extends DroidGap {
 		return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 	}
 
-
 	protected void applyUiToView() {
 
-		if(mPageComponent == null){
+		if (mPageComponent == null) {
 			applyScreenOrientationFromManifest();
 			return;
 		}
@@ -607,15 +594,17 @@ public class MonacaPageActivity extends DroidGap {
 		// top
 		ToolbarContainer topComponent = (ToolbarContainer) mPageComponent.getTopComponent();
 		int topComponentViewId = 0;
-		if (topComponent != null){
+		if (topComponent != null) {
 			// view
 			topComponentViewId = topComponent.getView().getId();
-			RelativeLayout.LayoutParams topComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams topComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT);
 			topComponentParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			container.addView(topComponent.getView(), topComponentParams);
 
 			// shadow
-			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT);
 			shadowViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
 			container.addView(topComponent.getShadowView(), shadowViewParams);
 		}
@@ -623,31 +612,34 @@ public class MonacaPageActivity extends DroidGap {
 		// bottom
 		Container bottomComponentContainer = (Container) mPageComponent.getBottomComponent();
 		int bottomComponentContainerViewId = 0;
-		if(bottomComponentContainer != null){
+		if (bottomComponentContainer != null) {
 			bottomComponentContainerViewId = bottomComponentContainer.getView().getId();
-			RelativeLayout.LayoutParams bottomComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams bottomComponentParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT);
 			bottomComponentParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			container.addView(bottomComponentContainer.getView(), bottomComponentParams);
 
 			// shadow
-			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			RelativeLayout.LayoutParams shadowViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+					RelativeLayout.LayoutParams.WRAP_CONTENT);
 			shadowViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
 			container.addView(bottomComponentContainer.getShadowView(), shadowViewParams);
 		}
 
 		// webview
-		RelativeLayout.LayoutParams webViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams webViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+				RelativeLayout.LayoutParams.WRAP_CONTENT);
 		webViewParams.alignWithParent = true;
-		if(topComponent != null && topComponent.isTransparent()){
+		if (topComponent != null && topComponent.isTransparent()) {
 			webViewParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		}else{
+		} else {
 			webViewParams.addRule(RelativeLayout.BELOW, topComponentViewId);
 		}
 
-		if(bottomComponentContainer != null){
+		if (bottomComponentContainer != null) {
 			webViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
 		}
-		container.addView(appView, 0,  webViewParams);
+		container.addView(appView, 0, webViewParams);
 
 	}
 
@@ -721,7 +713,8 @@ public class MonacaPageActivity extends DroidGap {
 					for (int i = 0; i < query.ids.length(); i++) {
 						String componentId = query.ids.optString(i, "");
 
-						if (mPageComponent != null && mPageComponent.getComponentIDsMap() != null && mPageComponent.getComponentIDsMap().containsKey(componentId)) {
+						if (mPageComponent != null && mPageComponent.getComponentIDsMap() != null
+								&& mPageComponent.getComponentIDsMap().containsKey(componentId)) {
 							Component component = mPageComponent.getComponentIDsMap().get(componentId);
 							if (component != null) {
 								try {
@@ -753,11 +746,13 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	/*
-	 * current Native2JS bridge use window.online event to signal to js side to process message.
-	 * there is a bug that when resumed from other page activity, the online/offline event is not triggered
-	 * it will trigger if there is more than one js statment in the queue -> we queue a dummy console.log
+	 * current Native2JS bridge use window.online event to signal to js side to
+	 * process message. there is a bug that when resumed from other page
+	 * activity, the online/offline event is not triggered it will trigger if
+	 * there is more than one js statment in the queue -> we queue a dummy
+	 * console.log
 	 */
-	private void requestJStoProcessMessages(){
+	private void requestJStoProcessMessages() {
 		appView.sendJavascript("void(0);");
 	}
 
@@ -782,7 +777,9 @@ public class MonacaPageActivity extends DroidGap {
 
 		if (url.equals(getCurrentUriWithoutOptions()) && UrlUtil.isMonacaUri(this, url) && currentMonacaUri.hasUnusedFragment()) {
 			// process pushed url fragment
-			// TODO refactor MonacaURI not to use this checkment.noncritical bug with nativecomponent remains that does not work with nativecomponent remains.
+			// TODO refactor MonacaURI not to use this checkment.noncritical bug
+			// with nativecomponent remains that does not work with
+			// nativecomponent remains.
 			appView.loadUrl("javascript:window.location.hash = '" + currentMonacaUri.popFragment() + "';");
 		}
 	}
@@ -812,24 +809,16 @@ public class MonacaPageActivity extends DroidGap {
 		} catch (Exception e) {
 		}
 
-		// only when screen turns on
-		if (!ScreenReceiver.wasScreenOn) {
-			// this is when onResume() is called due to a screen state change
-			System.out.println("SCREEN TURNED ON");
-		} else {
-			// this is when onResume() is called when the screen state has not
-			// changed
-			// if (appView != null && appView.callbackServer != null &&
-			// appView.pluginManager != null) {
-			if (appView != null && appView.pluginManager != null) {
-				appView.loadUrl("javascript: window.onReactivate && onReactivate();");
-			}
-		}
-
 		isCapableForTransition = true;
 		mApp.showMonacaSpinnerDialogIfAny();
 
 		super.onResume();
+	}
+
+	private void triggerOnReactivate() {
+		if (appView != null && appView.pluginManager != null) {
+			appView.loadUrl("javascript: window.onReactivate && onReactivate();");
+		}
 	}
 
 	@Override
@@ -848,7 +837,7 @@ public class MonacaPageActivity extends DroidGap {
 	 * @see MonacaPageActivity#onDestroyMonaca()
 	 */
 	private final void onDestroyMonacaCaller() {
-		//MyLog.d(TAG, "monacaOnDestroyCaller()");
+		// MyLog.d(TAG, "monacaOnDestroyCaller()");
 		if (!isOnDestroyMonacaCalled) {
 			// prevent from multiple calls
 			onDestroyMonaca();
@@ -857,9 +846,10 @@ public class MonacaPageActivity extends DroidGap {
 	}
 
 	/**
-	 * to call onDestroy surely, this is called in onPause or onDestroy
-	 * since Activity#finish doesn't guarantee calling onDestroy.
-	 * this should be called through onDestroyMonacaCaller
+	 * to call onDestroy surely, this is called in onPause or onDestroy since
+	 * Activity#finish doesn't guarantee calling onDestroy. this should be
+	 * called through onDestroyMonacaCaller
+	 * 
 	 * @see MonacaPageActivity#onDestroyMonacaCaller()
 	 */
 	protected void onDestroyMonaca() {
@@ -884,11 +874,11 @@ public class MonacaPageActivity extends DroidGap {
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
 		closePageReceiver = null;
-		unregisterReceiver(mScreenReceiver);
 
 		root.removeView(appView);
 		appView.stopLoading();
-//		appView.setWebChromeClient(null);  // this caused Android 2.3.5 to crash. Null Pointer Exception
+		// appView.setWebChromeClient(null); // this caused Android 2.3.5 to
+		// crash. Null Pointer Exception
 		appView.setWebViewClient(null);
 
 		// this causes null pointer on some devices
@@ -992,9 +982,12 @@ public class MonacaPageActivity extends DroidGap {
 			Intent intent = createIntentForNextPage(url, params);
 
 			isCapableForTransition = false;
-			startActivity(intent);
+			startActivityForResult(intent, MONACA_TRANSIT_REQUEST);
 			if (params.needsToClearStack()) {
-				/*intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) works similarly but shows blank screen in transit animation*/
+				/*
+				 * intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) works
+				 * similarly but shows blank screen in transit animation
+				 */
 				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -1022,7 +1015,7 @@ public class MonacaPageActivity extends DroidGap {
 				mPageComponent.eventer.onTapBackButton();
 			} else if (hasBackButtonEventer()) {
 				mPageComponent.getBackButtonEventer().onTap();
-			} else if (appView.isBackButtonBound()){
+			} else if (appView.isBackButtonBound()) {
 				return super.onKeyDown(keyCode, event);
 			} else {
 				popPage();
@@ -1041,6 +1034,7 @@ public class MonacaPageActivity extends DroidGap {
 			return super.onKeyUp(keyCode, event);
 		}
 	}
+
 	public boolean hasBackButtonEventer() {
 		return mPageComponent != null && mPageComponent.getBackButtonEventer() != null;
 	}
@@ -1092,6 +1086,27 @@ public class MonacaPageActivity extends DroidGap {
 			// dirty fix for android4's strange bug
 			overridePendingTransition(mobi.monaca.framework.psedo.R.anim.monaca_slide_close_enter, mobi.monaca.framework.psedo.R.anim.monaca_slide_close_exit);
 		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (requestCode == MONACA_TRANSIT_REQUEST) {
+			triggerOnReactivate();
+		} else {
+			super.onActivityResult(requestCode, resultCode, intent);
+		}
+	}
+
+	@Override
+	public void finishActivityFromChild(Activity child, int requestCode) {
+		MyLog.e(TAG, "finish activity from child. child class " + child.getClass().getSimpleName() + ", request code: " + requestCode);
+		super.finishActivityFromChild(child, requestCode);
+	}
+
+	@Override
+	public void finishFromChild(Activity child) {
+		MyLog.e(TAG, "finish from child. child class " + child.getClass().getSimpleName());
+		super.finishFromChild(child);
 	}
 
 	public void dismissPage() {
@@ -1177,7 +1192,8 @@ public class MonacaPageActivity extends DroidGap {
 
 		uiContext.fireOnRotateListeners(newConfig.orientation);
 
-//		appView.clearView(); commented out cos it cause the webview to show nothing
+		// appView.clearView(); commented out cos it cause the webview to show
+		// nothing
 		appView.invalidate();
 
 		Display display = getWindowManager().getDefaultDisplay();
@@ -1234,7 +1250,7 @@ public class MonacaPageActivity extends DroidGap {
 
 	/**
 	 * update uri and currentMonacaURI
-	 *
+	 * 
 	 * @param uri
 	 */
 	public void setCurrentUri(String uri) {

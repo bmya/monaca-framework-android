@@ -98,7 +98,7 @@ public class MonacaLocalServer extends NanoHTTPD {
 				data = new FileInputStream(fullPath + uri);
 			}
 			
-			return new Response(Status.ACCEPTED, guessedMimeType, data);
+			return new Response(Status.OK, guessedMimeType, data);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return new Response(Status.NOT_FOUND, MIME_PLAINTEXT, "Content not found!");
