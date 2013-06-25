@@ -21,12 +21,6 @@ public class MonacaSplashActivity extends Activity {
 	private static final String TAG = MonacaSplashActivity.class.getSimpleName();
     protected static final String SPLASH_IMAGE_PATH = "android/splash_default.png";
 
-    /**
-     * modify this if want to use LocalFileBootloader
-     **/
-    @SuppressWarnings("unused")
-	public static boolean usesLocalFileBootloader = (true && LocalFileBootloader.needToUseLocalFileBootloader());
-
 	protected ImageView splashView;
 
 	protected Handler handler;
@@ -82,7 +76,7 @@ public class MonacaSplashActivity extends Activity {
     		MyLog.v(TAG, "should extract asset!!!!");
     		setupLocalFileBootLoaderAndRunProject(pageActivityLauncher);
     	}else{
-    		if (!usesLocalFileBootloader) {
+    		if (!app.getEnablesBootloader()) {
         		pageActivityLauncher.run();
         		LocalFileBootloader.mShouldExtractAssets = false;
         	} else {

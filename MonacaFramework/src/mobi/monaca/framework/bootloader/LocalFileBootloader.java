@@ -235,7 +235,6 @@ public class LocalFileBootloader {
         protected Boolean doInBackground(Void ...a) {
             boolean needInit = true;
 
-            showProgressDialog();
             try {
                 needInit = needsInitialization();
                 MyLog.v(TAG, "needInit = " + needInit);
@@ -249,6 +248,7 @@ public class LocalFileBootloader {
 
             try {
                 if (needInit) {
+                	showProgressDialog();
                     clean();
                     MyLog.v(TAG, "assetFiles size=" + getAssetsFileList().size());
                     for (String path : getAssetsFileList()) {
