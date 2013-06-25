@@ -474,11 +474,11 @@ public class MonacaPageActivity extends DroidGap {
 	// called by MonacaHttpServer to know the root folder of the app.
 	// in this case, we tell it to use the assets folder
 	public String getAppAssetsPath() {
-		return "assets";
+		return getApplicationInfo().dataDir;
 	}
 
 	protected boolean shouldLoadExtractedIndex() {
-		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader);
+		return !getIntent().hasExtra(URL_PARAM_NAME) && (mApp.getAppJsonSetting().shouldExtractAssets() || mApp.needToUseBootloader());
 	}
 
 	public JSONObject getInfoForJavaScript() {
