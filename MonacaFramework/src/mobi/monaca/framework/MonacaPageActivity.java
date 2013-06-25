@@ -81,6 +81,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -400,6 +401,10 @@ public class MonacaPageActivity extends DroidGap {
 				MyLog.e(TAG, "webview.setLayerType() is fail.");
 			}
 		}
+		
+		WebSettings webSettings = webView.getSettings();
+		webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+		
 		CordovaWebViewClient webViewClient = (CordovaWebViewClient) createWebViewClient(this, webView);
 		MonacaChromeClient webChromeClient = new MonacaChromeClient(this, webView);
 		this.init(webView, webViewClient, webChromeClient);
