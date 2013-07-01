@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.component.SpinnerDialog;
 import mobi.monaca.framework.nativeui.menu.MenuRepresentation;
@@ -46,8 +47,12 @@ public class MonacaApplication extends Application {
 	private SpinnerDialog monacaSpinnerDialog;
     protected static InternalSettings settings = null;
 
-
     protected AppJsonSetting appJsonSetting;
+
+    /**
+     * if this is false, this app never use bootloader in any cases
+     */
+    protected boolean enablesBootloader = true;
 
 	private BroadcastReceiver registeredReceiver = new BroadcastReceiver() {
 		@Override
@@ -104,7 +109,7 @@ public class MonacaApplication extends Application {
 
 		if (!disableCookie) {
 			CookieSyncManager.getInstance().startSync();
-			String assetUrl = appJsonSetting.shouldExtractAssets() || MonacaSplashActivity.usesLocalFileBootloader ? "file:///data/" : "file:///android_asset/www/";
+			String assetUrl = appJsonSetting.shouldExtractAssets() || needToUseBootloader() ? "file:///data/" : "file:///android_asset/www/";
 			//MyLog.d(TAG, projectUrl);
 			CookieManager.getInstance().setCookie(assetUrl, "MONACA_CLOUD_DEVICE_ID=" + MonacaDevice.getDeviceId(this));
 			CookieSyncManager.getInstance().sync();
@@ -287,5 +292,16 @@ public class MonacaApplication extends Application {
 			}
 		}.execute();
 	}
-    
+
+	public boolean enablesBootloader() {
+		return enablesBootloader;
+	}
+
+	/**
+	 * should this app use bootloader when initializing
+	 * @return
+	 */
+	public boolean needToUseBootloader() {
+		return enablesBootloader && LocalFileBootloader.needToUseLocalFileBootloader();
+	}
 }

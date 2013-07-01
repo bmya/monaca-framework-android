@@ -25,14 +25,12 @@ public class MonacaLocalServer extends NanoHTTPD {
 		super(port);
 		this.activity = (MonacaPageActivity) activity;
 		this.setTempFileManagerFactory(new MonacaFileManagerFactory());
+
 		mAppAssetPath = this.activity.getAppAssetsPath();
-		if(mAppAssetPath.equalsIgnoreCase("assets")){
-			fullPath = removeLeadingSlash(rootDir);
-		}else{
-			fullPath = mAppAssetPath + "/" + removeLeadingSlash(rootDir);
-		}
+
+		fullPath = mAppAssetPath + "/" + removeLeadingSlash(rootDir);
 	}
-	
+
 	public String getServerRoot(){
 		return fullPath;
 	}
@@ -88,16 +86,13 @@ public class MonacaLocalServer extends NanoHTTPD {
 	public Response serve(String uri, Method method, Map<String, String> header, Map<String, String> parms, Map<String, String> files) {
 		MyLog.v(TAG, "serve uri:" + uri + ", file:" + files);
 		try {
-			
+
 			String guessedMimeType = URLConnection.guessContentTypeFromName(uri);
 			MyLog.v(TAG, "guessed mime type: " + guessedMimeType);
 			InputStream data = null;
-			if(mAppAssetPath.equalsIgnoreCase("assets")){
-				data = activity.getAssets().open(fullPath + uri);				
-			}else{
-				data = new FileInputStream(fullPath + uri);
-			}
-			
+
+			data = new FileInputStream(fullPath + uri);
+
 			return new Response(Status.OK, guessedMimeType, data);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -105,7 +100,7 @@ public class MonacaLocalServer extends NanoHTTPD {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return new Response(Status.NOT_FOUND, MIME_PLAINTEXT, "Content not found!");
-			
+
 		}
 
 	}
