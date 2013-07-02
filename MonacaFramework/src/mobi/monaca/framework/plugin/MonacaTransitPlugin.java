@@ -39,28 +39,40 @@ public class MonacaTransitPlugin extends Plugin {
 
 //    	MyLog.v(TAG, "action: " + action + ", args:" + args);
         // push
+
+    	// TODO this is unused. if want to use this code,  need to fix iOS framework
     	if (action.equals("slide") || action.equals("slideLeft")) {
             getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                     TransitionParams.from(args.optJSONObject(1), "slideLeft"));
             return new PluginResult(PluginResult.Status.OK);
         }
-    	
+
+    	//TODO dirty fix for animation:"slide"
         if (action.equals("push")) {
         	JSONObject options = args.optJSONObject(1);
-        	if(options != null && options.has("animation")){
+        	if (options.optString("animation", "").equals("slide")
+        			|| options.optString("animation", "").equals("slideLeft")) {
+        		getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
+                        TransitionParams.from(args.optJSONObject(1), "slideLeft"));
+                return new PluginResult(PluginResult.Status.OK);
+        	} else if (options != null && options.has("animation")) {
         		boolean animation = options.optBoolean("animation");
-        		if(animation == false){
+        		if (animation == false) {
         			getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                             TransitionParams.from(args.optJSONObject(1), "none"));
                     return new PluginResult(PluginResult.Status.OK);
+        		} else {
+            		getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
+                            TransitionParams.from(args.optJSONObject(1), "slideLeft"));
+                    return new PluginResult(PluginResult.Status.OK);
         		}
-        	}else{
+        	} else {
         		getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                         TransitionParams.from(args.optJSONObject(1), "slideLeft"));
                 return new PluginResult(PluginResult.Status.OK);
         	}
         }
-        
+
         if (action.equals("slideRight")) {
             getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                     TransitionParams.from(args.optJSONObject(1), "slideRight"));
