@@ -13,6 +13,7 @@ public class SimpleWebServer extends NanoHTTPD {
         put("htm", "text/html");
         put("html", "text/html");
         put("xml", "text/xml");
+        put("json", "text/json");
         put("java", "text/x-java-source, text/java");
         put("txt", "text/plain");
         put("asc", "text/plain");
@@ -219,6 +220,11 @@ public class SimpleWebServer extends NanoHTTPD {
                         res = new Response(Response.Status.OK, mime, new FileInputStream(f));
                         res.addHeader("Content-Length", "" + fileLen);
                         res.addHeader("ETag", etag);
+                        if(mime.equalsIgnoreCase("text/html") || mime.equalsIgnoreCase("application/javascript") || mime.equalsIgnoreCase("text/json")){
+                        	// no cache
+                        }else{
+                        	res.addHeader("Cache-Control", "max-age=2419200");
+                        }
                     }
                 }
             }
