@@ -1,0 +1,4 @@
+INDEX VERSION 1.126+/Users/kruyvanna/Documents/Programming/Monaca/Android3/forte_android_debugger/forte_android_framework/android/.metadata/.plugins/org.eclipse.jdt.core
+326277360.index
+317630535.index
+4265127328.index
