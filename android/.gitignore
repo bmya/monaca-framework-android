@@ -1,0 +1,12 @@
+*jarlist.cache
+*.class
+*local.properties
+
+# build
+MonacaFramework/bin
+MonacaFramework/gen
+MonacaFramework/tmp
+
+# Library
+BarcodeScannerLibrary/gen/
+BarcodeScannerLibrary/bin/
