@@ -522,7 +522,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	protected void applyScreenOrientation(PageOrientation pageOrientation) {
+	public void applyScreenOrientation(PageOrientation pageOrientation) {
 		if (pageOrientation == null) {
 			MyLog.v(TAG, "null -> apply from manifest");
 			applyScreenOrientationFromManifest();
