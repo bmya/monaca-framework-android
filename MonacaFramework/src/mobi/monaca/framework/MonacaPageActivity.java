@@ -522,7 +522,7 @@ public class MonacaPageActivity extends DroidGap {
 		}
 	}
 
-	protected void applyScreenOrientation(PageOrientation pageOrientation) {
+	public void applyScreenOrientation(PageOrientation pageOrientation) {
 		if (pageOrientation == null) {
 			MyLog.v(TAG, "null -> apply from manifest");
 			applyScreenOrientationFromManifest();
@@ -642,6 +642,9 @@ public class MonacaPageActivity extends DroidGap {
 		}
 
 		if (bottomComponentContainer != null) {
+			if (bottomComponentContainer.isTransparent()) {
+				webViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			}
 			webViewParams.addRule(RelativeLayout.ABOVE, bottomComponentContainerViewId);
 		}
 		container.addView(appView, 0, webViewParams);
