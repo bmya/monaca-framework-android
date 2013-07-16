@@ -167,6 +167,7 @@ public class PageComponent extends Component {
 	public void updateStyle(JSONObject update) throws InvalidValueException {
 		UIUtil.updateJSONObject(style, update);
 		style();
+		uiContext.getPageActivity().applyScreenOrientation(mScreenOrientation);
 		uiContext.getPageActivity().setupBackground(mLayeredBackgroundDrawable);
 	}
 
