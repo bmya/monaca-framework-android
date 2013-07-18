@@ -83,7 +83,7 @@ public class WebSocketPlugin extends CordovaPlugin{
 		if(action.equalsIgnoreCase("stop")){
 			if(server != null){
 				try {
-					server.stop();
+					stopServer();
 					callbackContext.success("stopped server");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -98,6 +98,12 @@ public class WebSocketPlugin extends CordovaPlugin{
 		return super.execute(action, args, callbackContext);
 	}
 
+	private void stopServer() throws IOException, InterruptedException {
+		server.stop();
+		sockets.clear();
+		server = null;
+	}
+
 	private JSONObject createAddressJSON() throws JSONException {
 		JSONObject result = new JSONObject();
 		result.put("ip", NetworkUtils.getIPAddress(true));
@@ -109,7 +115,7 @@ public class WebSocketPlugin extends CordovaPlugin{
 	public void onDestroy() {
 		if(server != null){
 			try {
-				server.stop();
+				stopServer();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
