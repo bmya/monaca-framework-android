@@ -42,3 +42,10 @@ RSYNC_OPT="-rptgoD $VERBOSE $DRY_RUN"
 rsync $RSYNC_OPT --delete "$PROJECT_ROOT/assets/" "$COPY_TO/assets/"
 rsync $RSYNC_OPT "$PROJECT_ROOT/android/" "$COPY_TO/"
 
+#
+# Copy certificate
+#
+if [ -d "$PROJECT_ROOT/etc/android" ]; then
+  rsync $RSYNC_OPT "$PROJECT_ROOT/etc/android/" "$COPY_TO/../etc/"
+fi
+

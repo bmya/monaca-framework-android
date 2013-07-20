@@ -46,6 +46,7 @@ rsync $RSYNC_OPT "$PROJECT_ROOT/iOS/MonacaSkeleton/" "$COPY_TO/"
 #
 # Copy certificate
 #
-if [ -d "$PROJECT_ROOT/etc/iOS" ]; then
+if [ -d "$PROJECT_ROOT/../etc/iOS" ]; then
+  mkdir -p "$COPY_TO/../etc/iOS"
   rsync $RSYNC_OPT "$PROJECT_ROOT/etc/iOS/" "$COPY_TO/../etc/"
 fi

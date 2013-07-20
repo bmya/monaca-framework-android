@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		10CB7FE416F8C10000E250BD /* libMonacaFramework.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 10CB7FE316F8C10000E250BD /* libMonacaFramework.a */; };
-		1C96EA6D2BC344DFB68FF8EF /* FacebookSDK-3.5.2-Release.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 850F7EE4A8C149E5BE2B9919 /* FacebookSDK-3.5.2-Release.a */; };
 		3E3DFB0415E4A1FB001C0AAD /* 404 in Resources */ = {isa = PBXBuildFile; fileRef = 3E3DFB0315E4A1FB001C0AAD /* 404 */; };
 		3E58C481166BBDB0001E01B8 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E58C480166BBDB0001E01B8 /* CoreVideo.framework */; };
 		3E58C484166BBDB5001E01B8 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E58C483166BBDB5001E01B8 /* AssetsLibrary.framework */; };
@@ -19,18 +18,18 @@
 		3E94F7AB161AD37500E9A3B6 /* ChildBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3E94F7A9161AD37500E9A3B6 /* ChildBrowser.bundle */; };
 		3E94F7AC161AD37500E9A3B6 /* ChildBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3E94F7AA161AD37500E9A3B6 /* ChildBrowserViewController.xib */; };
 		4EB4B10238F34469B4F72387 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C9EC1422D944D038C61D5B2 /* libz.dylib */; };
-		7FF58384D7154EEAA122DB37 /* libTestFlight.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9249C1B40A2346CC882E961D /* libTestFlight.a */; };
 		89696793B96F4D5D93B24655 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78B113B39262408DA632BD7A /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		9E599E76517846E598A0416B /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D309E579F77A4F9DA3BCDC9F /* Social.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B1C945CEF43C400B9C1787AA /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E6F9D16651D4F7D91BC8DC7 /* AdSupport.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B54B0A769CB64E279C3799CF /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BC39AA2CEFB4474A248B874 /* Accounts.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		BAC1DA86EEF5422FB5FE209D /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 729147D6A8924746B4B61CFB /* libsqlite3.dylib */; };
+		D9363006179A4E1700CEFBA5 /* app.json in Resources */ = {isa = PBXBuildFile; fileRef = D9363005179A4E1700CEFBA5 /* app.json */; };
+		D9363008179A4EB400CEFBA5 /* MonacaSkeleton-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D9363007179A4EB400CEFBA5 /* MonacaSkeleton-Info.plist */; };
 		F16D6D201755C267007E3556 /* spinner.png in Resources */ = {isa = PBXBuildFile; fileRef = F16D6D1D1755C267007E3556 /* spinner.png */; };
 		F16D6D211755C267007E3556 /* spinner@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F16D6D1E1755C267007E3556 /* spinner@2x.png */; };
 		F16D6D2B1755C2B8007E3556 /* IPP_RESTKit4iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F16D6D251755C2B8007E3556 /* IPP_RESTKit4iOS.framework */; };
 		F16D6D2C1755C2B8007E3556 /* MICommunication-info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F16D6D261755C2B8007E3556 /* MICommunication-info.plist */; };
 		F549D0C013CC61A30047F3F3 /* www in Resources */ = {isa = PBXBuildFile; fileRef = F549D0BF13CC61A30047F3F3 /* www */; };
-		F549D0C013CC61A30047F3F5 /* ../assets/app.json in Resources */ = {isa = PBXBuildFile; fileRef = F549D0BF13CC61A30047F3F4 /* ../assets/app.json */; };
 		F561616213FA8DAF009FB9FF /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F561616013FA8DAF009FB9FF /* Icon@2x.png */; };
 		F561616313FA8DAF009FB9FF /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F561616113FA8DAF009FB9FF /* Icon.png */; };
 		F561616E13FA8F1B009FB9FF /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = F561616C13FA8F1A009FB9FF /* Default.png */; };
@@ -148,9 +147,9 @@
 		4C9EC1422D944D038C61D5B2 /* libz.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		729147D6A8924746B4B61CFB /* libsqlite3.dylib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		78B113B39262408DA632BD7A /* Security.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		850F7EE4A8C149E5BE2B9919 /* FacebookSDK-3.5.2-Release.a */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = archive.ar; name = "FacebookSDK-3.5.2-Release.a"; path = "MonacaSkeleton/Plugins/com.phonegap.plugins.facebookconnect/FacebookSDK-3.5.2-Release.a"; sourceTree = "<group>"; };
-		9249C1B40A2346CC882E961D /* libTestFlight.a */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = archive.ar; name = libTestFlight.a; path = MonacaSkeleton/Plugins/com.testflightapp.cordova.plugin/libTestFlight.a; sourceTree = "<group>"; };
 		D309E579F77A4F9DA3BCDC9F /* Social.framework */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
+		D9363005179A4E1700CEFBA5 /* app.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = app.json; sourceTree = "<group>"; };
+		D9363007179A4EB400CEFBA5 /* MonacaSkeleton-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MonacaSkeleton-Info.plist"; sourceTree = "<group>"; };
 		F16D6D181755C1A2007E3556 /* MFJSInterfaceProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFJSInterfaceProtocol.h; sourceTree = "<group>"; };
 		F16D6D191755C227007E3556 /* MFVIewBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFVIewBackground.h; sourceTree = "<group>"; };
 		F16D6D1B1755C267007E3556 /* MFSpinnerParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFSpinnerParameter.h; sourceTree = "<group>"; };
@@ -169,7 +168,6 @@
 		F16D6D2D1755C325007E3556 /* MFTransitPopParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTransitPopParameter.h; sourceTree = "<group>"; };
 		F16D6D2E1755C325007E3556 /* MFTransitPushParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MFTransitPushParameter.h; sourceTree = "<group>"; };
 		F549D0BF13CC61A30047F3F3 /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
-		F549D0BF13CC61A30047F3F4 /* ../assets/app.json */ = {isa = PBXFileReference; lastKnownFileType = app.json; path = ../assets/app.json; sourceTree = "<group>"; };
 		F561616013FA8DAF009FB9FF /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		F561616113FA8DAF009FB9FF /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		F561616C13FA8F1A009FB9FF /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
@@ -191,7 +189,6 @@
 		F58FC6F313D8053100362F46 /* Cordova.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Cordova.plist; sourceTree = "<group>"; };
 		F5AE52E013FA95E100ABDCD9 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
 		F5FE5E7113CC28C200FE7C2A /* MonacaApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MonacaApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F5FE5E7D13CC28C300FE7C2A /* MonacaSkeleton-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "MonacaSkeleton-Info.plist"; path = "../../../../newRemoteBuild/monaca_native_framework/iOS/MonacaSkeleton-Info.plist"; sourceTree = "<group>"; };
 		F5FE5E7F13CC28C300FE7C2A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F5FE5E8113CC28C300FE7C2A /* MonacaSkeleton-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MonacaSkeleton-Prefix.pch"; sourceTree = "<group>"; };
 		F5FE5E8213CC28C300FE7C2A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -220,9 +217,7 @@
 				F58FC68613D7FFBC00362F46 /* CoreMedia.framework in Frameworks */,
 				10CB7FE416F8C10000E250BD /* libMonacaFramework.a in Frameworks */,
 				F16D6D2B1755C2B8007E3556 /* IPP_RESTKit4iOS.framework in Frameworks */,
-				7FF58384D7154EEAA122DB37 /* libTestFlight.a in Frameworks */,
 				4EB4B10238F34469B4F72387 /* libz.dylib in Frameworks */,
-				1C96EA6D2BC344DFB68FF8EF /* FacebookSDK-3.5.2-Release.a in Frameworks */,
 				BAC1DA86EEF5422FB5FE209D /* libsqlite3.dylib in Frameworks */,
 				9E599E76517846E598A0416B /* Social.framework in Frameworks */,
 				B54B0A769CB64E279C3799CF /* Accounts.framework in Frameworks */,
@@ -500,9 +495,7 @@
 				F58FC67713D7FFBC00362F46 /* SystemConfiguration.framework */,
 				F58FC67813D7FFBC00362F46 /* MobileCoreServices.framework */,
 				F58FC67913D7FFBC00362F46 /* CoreMedia.framework */,
-				9249C1B40A2346CC882E961D /* libTestFlight.a */,
 				4C9EC1422D944D038C61D5B2 /* libz.dylib */,
-				850F7EE4A8C149E5BE2B9919 /* FacebookSDK-3.5.2-Release.a */,
 				729147D6A8924746B4B61CFB /* libsqlite3.dylib */,
 				D309E579F77A4F9DA3BCDC9F /* Social.framework */,
 				3BC39AA2CEFB4474A248B874 /* Accounts.framework */,
@@ -515,6 +508,8 @@
 		F5FE5E7B13CC28C300FE7C2A /* MonacaSkeleton */ = {
 			isa = PBXGroup;
 			children = (
+				D9363007179A4EB400CEFBA5 /* MonacaSkeleton-Info.plist */,
+				D9363005179A4E1700CEFBA5 /* app.json */,
 				F57E51B313D2CBC400074B18 /* Plugins */,
 				F18D955C1797DA280067AD5A /* Resources */,
 				F5FE5E7C13CC28C300FE7C2A /* Supporting Files */,
@@ -530,7 +525,6 @@
 				F561617B13FA9293009FB9FF /* Splash */,
 				F561617613FA921C009FB9FF /* Icon */,
 				F58FC6F313D8053100362F46 /* Cordova.plist */,
-				F5FE5E7D13CC28C300FE7C2A /* MonacaSkeleton-Info.plist */,
 				F5FE5E7E13CC28C300FE7C2A /* InfoPlist.strings */,
 				F5FE5E8113CC28C300FE7C2A /* MonacaSkeleton-Prefix.pch */,
 				F5FE5E8213CC28C300FE7C2A /* main.m */,
@@ -588,7 +582,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F549D0C013CC61A30047F3F5 /* ../assets/app.json in Resources */,
+				D9363006179A4E1700CEFBA5 /* app.json in Resources */,
 				F5FE5E8013CC28C300FE7C2A /* InfoPlist.strings in Resources */,
 				F549D0C013CC61A30047F3F3 /* www in Resources */,
 				F58FC6F413D8053100362F46 /* Cordova.plist in Resources */,
@@ -606,6 +600,7 @@
 				F16D6D201755C267007E3556 /* spinner.png in Resources */,
 				F16D6D211755C267007E3556 /* spinner@2x.png in Resources */,
 				F16D6D2C1755C2B8007E3556 /* MICommunication-info.plist in Resources */,
+				D9363008179A4EB400CEFBA5 /* MonacaSkeleton-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
