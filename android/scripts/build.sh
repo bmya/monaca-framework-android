@@ -27,16 +27,6 @@ if [ -z "$TYPE" ]; then
   show_error
 fi
 
-#
-# Android build file
-#
-which android > /dev/null
-
-if [ $? -ne 0 ]; then
-  echo "ERROR: Android command not specified in path"
-  exit
-fi
-
 # Move to project root dir
 
 cd `dirname $0`
@@ -44,6 +34,13 @@ cd ..
 
 # Update project properties
 if [ $INIT ]; then
+  which android > /dev/null
+  
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Android command not specified in path"
+    exit
+  fi
+
   android update project -p MonacaUtils
   android update project -p cordova-android/framework
   android update project -p BarcodeScannerLibrary
