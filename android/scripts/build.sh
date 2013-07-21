@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH=$PATH:/android-sdk/tools/
+
 show_error() {
   echo >&2 "Usage: $0 -t debug/release -i ..."
   echo >&2 "  -t : Build type (debug or release)"

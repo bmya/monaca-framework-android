@@ -21,19 +21,15 @@ if [ $OPT_ERROR ]; then
   show_error
 fi
 
+if [ -z "$PROJECT_ROOT" ]; then
+  show_error ""
+fi
+
 if [ ! -d $PROJECT_ROOT ]; then
   show_error
 fi
 
 COPY_TO=`dirname $0`/../MonacaSkeleton
-
-#
-# Check if that is a valid Monaca project
-#
-if [ ! -f "$PROJECT_ROOT/project_info.json" ]; then
-  echo "This is not a valid project: $PROJECT_ROOT"
-  show_error ""
-fi
 
 #
 # Copy files
@@ -46,6 +42,6 @@ rsync $RSYNC_OPT "$PROJECT_ROOT/iOS/MonacaSkeleton/" "$COPY_TO/"
 #
 # Copy certificate
 #
-if [ -d "$PROJECT_ROOT/etc/iOS" ]; then
-  rsync $RSYNC_OPT "$PROJECT_ROOT/etc/iOS/" "$COPY_TO/../etc/"
+if [ -d "$PROJECT_ROOT/etc" ]; then
+  rsync $RSYNC_OPT "$PROJECT_ROOT/etc/" "$COPY_TO/../etc/"
 fi

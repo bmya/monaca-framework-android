@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php
 
+$success = false;
+
 //
 // Change directory
 //
@@ -78,6 +80,8 @@ if ($configuration == 'Debug') {
 execute('security unlock-keychain -p "" monaca');
 execute($cmd);
 
+$success = true;
+
 finalize: 
 
 // Delete provisioning
@@ -88,6 +92,11 @@ try {
   //execute('security delete-certificate -c "' . $CODE_SIGN . '"');
 } catch (Exception $e) { }
 
+if ($success) {
+  exit(0);
+} else {
+  exit(1);
+}
 
 function execute($command, $do_output = true) {
   $output = array();

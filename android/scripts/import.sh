@@ -25,15 +25,11 @@ if [ ! -d $PROJECT_ROOT ]; then
   show_error
 fi
 
-COPY_TO=`dirname $0`/../MonacaSandbox
-
-#
-# Check if that is a valid Monaca project
-#
-if [ ! -f "$PROJECT_ROOT/project_info.json" ]; then
-  echo "This is not a valid project: $PROJECT_ROOT"
+if [ -z "$PROJECT_ROOT" ]; then
   show_error ""
 fi
+
+COPY_TO=`dirname $0`/../MonacaSandbox
 
 #
 # Copy files
@@ -45,7 +41,10 @@ rsync $RSYNC_OPT "$PROJECT_ROOT/android/" "$COPY_TO/"
 #
 # Copy certificate
 #
-if [ -d "$PROJECT_ROOT/etc/android" ]; then
-  rsync $RSYNC_OPT "$PROJECT_ROOT/etc/android/" "$COPY_TO/../etc/"
+if [ -d "$PROJECT_ROOT/etc/" ]; then
+  rsync $RSYNC_OPT "$PROJECT_ROOT/etc/" "$COPY_TO/../etc/"
+  
+  # add keystore path
+  echo "key.store=$PROJECT_ROOT/etc/keystore.private" >> "$COPY_TO/local.properties"
 fi
 
