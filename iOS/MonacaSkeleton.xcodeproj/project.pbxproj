@@ -190,7 +190,6 @@
 		F5AE52E013FA95E100ABDCD9 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
 		F5FE5E7113CC28C200FE7C2A /* MonacaApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MonacaApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F5FE5E7F13CC28C300FE7C2A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F5FE5E8113CC28C300FE7C2A /* MonacaSkeleton-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MonacaSkeleton-Prefix.pch"; sourceTree = "<group>"; };
 		F5FE5E8213CC28C300FE7C2A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -526,7 +525,6 @@
 				F561617613FA921C009FB9FF /* Icon */,
 				F58FC6F313D8053100362F46 /* Cordova.plist */,
 				F5FE5E7E13CC28C300FE7C2A /* InfoPlist.strings */,
-				F5FE5E8113CC28C300FE7C2A /* MonacaSkeleton-Prefix.pch */,
 				F5FE5E8213CC28C300FE7C2A /* main.m */,
 			);
 			name = "Supporting Files";
@@ -682,19 +680,6 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/MonacaSkeleton/Plugins/MonacaFramework\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.testflightapp.cordova.plugin\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

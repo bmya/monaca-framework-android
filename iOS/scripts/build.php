@@ -39,7 +39,7 @@ $CODE_SIGN = "";
 //
 // Keychain Tool
 //
-
+echo "$ROOT_DIR\n";
 try {
   execute('security create-keychain -p "" monaca', false);
 } catch (Exception $e) {};
@@ -51,8 +51,12 @@ try {
 } catch (Exception $e) {};
 
 try {
-  execute('security import ' . $PRIVATE_KEY . ' -k monaca -t priv -f openssl -T /usr/bin/codesign -P ""', false);
-} catch (Exception $e) {};
+  #execute('security import ' . $PRIVATE_KEY . ' -k monaca -t priv -f openssl -T /usr/bin/codesign -P ""', false);
+  execute('security import ' . $PRIVATE_KEY . ' -k monaca -t priv -T /usr/bin/codesign -P ""', false);
+} catch (Exception $e) {
+  echo "Import failed: $PRIVATE_KEY\n";
+};
+
 try {
   execute('security add-certificate -k monaca ' . $CERTIFICATE);
   execute('cp ' . $PROVISIONING . ' ~/Library/MobileDevice/Provisioning\ Profiles/' . $BUILD_ID . '.mobileprovision');
