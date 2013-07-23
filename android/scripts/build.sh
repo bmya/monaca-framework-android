@@ -30,9 +30,9 @@ if [ -z "$TYPE" ]; then
 fi
 
 # Move to project root dir
-
-cd `dirname $0`
-cd ..
+DEST_DIR=`dirname $0`/../
+cd $DEST_DIR
+DEST_DIR=`pwd`
 
 # Update project properties
 if [ $INIT ]; then
@@ -40,7 +40,7 @@ if [ $INIT ]; then
   
   if [ $? -ne 0 ]; then
     echo "ERROR: Android command not specified in path"
-    exit
+    exit 1
   fi
 
   android update project -p MonacaUtils
@@ -71,6 +71,6 @@ case "$TYPE" in
 esac
 
 if [ -f $OUTPUT ]; then
-  echo "#SUCCESS# $OUTPUT"
+  echo "#SUCCESS# $DEST_DIR/MonacaSandbox/$OUTPUT"
 fi
 

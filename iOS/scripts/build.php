@@ -27,6 +27,9 @@ default:
   exit;
 }
 
+// Get configuration
+$config = json_decode(file_get_contents("etc/ios.config"), true);
+
 //
 // Unique build id
 //
@@ -35,6 +38,8 @@ $CERTIFICATE = current(glob("etc/*.cer"));
 $PRIVATE_KEY = current(glob("etc/*.key"));
 $PROVISIONING = current(glob("etc/*.mobileprovision"));
 $CODE_SIGN = "";
+$VERSION = $config["versionName_ios"];
+$TARGETED_DEVICE_FAMILY = $config["device_family"];
 
 //
 // Keychain Tool
@@ -65,25 +70,28 @@ try {
 
 try {
   $CODE_SIGN = execute("scripts/get_codesign.php cert $CERTIFICATE", false);
-  execute("xcodebuild -sdk iphoneos -configuration $configuration CODE_SIGN_IDENTITY=\"$CODE_SIGN\" clean build");
-  exit;
+  execute("xcodebuild -sdk iphoneos -configuration $configuration TARGETED_DEVICE_FAMILY=\"$TARGETED_DEVICE_FAMILY\" VERSION=\"$VERSION\" CODE_SIGN_IDENTITY=\"$CODE_SIGN\" clean build");
 } catch (Exception $e) {
   echo "Build failed\n";
   goto finalize;
 }
 
 if ($configuration == 'Debug') {
-  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Debug-iphoneos/MonacaApp.app" -o "%s/build/debug.ipa" --sign "%s" --embed "%s"', $ROOT_DIR, $ROOT_DIR, $CODE_SIGN, $PROVISIONING);
+  $OUTPUT_FILE = $ROOT_DIR . "/build/debug.ipa";
+  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Debug-iphoneos/MonacaApp.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
 } elseif ($configuration == 'Adhoc') {
-  $cmd = sprintf('/usr/bin/xcrun -sdk %s PackageApplication -v "build/Release-iphoneos/MonacaApp.app" -o "%s/release.ipa" --sign "%s" --embed "%s"', $config->sdk, $config->build_dir, $product_name, $config->output_dir, $version, $date, $CODE_SIGN, $PROVISIONING);
+  $OUTPUT_FILE = $ROOT_DIR . "/build/release.ipa";
+  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Release-iphoneos/MonacaApp.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
 } else {
-  chdir($config->build_dir . '/build/Release-iphoneos/');
-  echo `zip -r "$config->output_dir/app-$version-$date.zip" "$product_name.app"`;
+  $OUTPUT_FILE = $ROOT_DIR . "/build/release.zip";
+  chdir("$ROOT_DIR/build/Release-iphoneos/");
+  echo `zip -r "$OUTPUT_FILE" "MonacaApp.app"`;
 }
 
 execute('security unlock-keychain -p "" monaca');
 execute($cmd);
 
+echo "#SUCCESS# " . $OUTPUT_FILE . "\n";
 $success = true;
 
 finalize: 
