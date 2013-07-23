@@ -681,6 +681,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/MonacaSkeleton/Plugins/MonacaFramework\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "$(TARGETED_DEVICE_FAMILY)";
@@ -722,6 +723,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)/Plugins/com.phonegap.plugins.facebookconnect\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "$(TARGETED_DEVICE_FAMILY)";
