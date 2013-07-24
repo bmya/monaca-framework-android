@@ -101,7 +101,7 @@ execute('rm -f ~/Library/MobileDevice/Provisioning\ Profiles/' . $BUILD_ID . '.m
 
 // Delete certificate
 try {
-  //execute('security delete-certificate -c "' . $CODE_SIGN . '"');
+  execute('security delete-certificate -c "' . $CODE_SIGN . '"');
 } catch (Exception $e) { }
 
 if ($success) {
@@ -112,6 +112,7 @@ if ($success) {
 
 function execute($command, $do_output = true) {
   $output = array();
+  echo $command . "\n\n";
   if ($do_output) {
     passthru($command . " 2>&1", $return_var);
     echo "\n";
