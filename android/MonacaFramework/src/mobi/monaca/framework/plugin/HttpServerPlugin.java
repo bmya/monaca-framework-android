@@ -19,18 +19,33 @@ public class HttpServerPlugin extends CordovaPlugin{
 	@Override
 	public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 		MyLog.v(TAG, "HttpServerPlugin exec action:" + action + ", args:" + args);
-		if(action.equalsIgnoreCase("getServerRoot")){
+		
+		if(action.equalsIgnoreCase("getRootDirectoryAbsolutePath")){
 			if(localServer != null){
 				callbackContext.success(localServer.getServerRoot());
 			}else{
 				callbackContext.error("Error server is not started yet. Plesae start the server before lcalling this");
 			}
-
 			return true;
 		}
 
-		if(action.equalsIgnoreCase("getIpAddress")){
-			callbackContext.success(NetworkUtils.getIPAddress(true));
+		if(action.equalsIgnoreCase("getAddress")){
+			JSONObject addressJSON = createAddressJSON();
+			callbackContext.success(addressJSON);
+			return true;
+		}
+		
+		if(action.equalsIgnoreCase("getStatus")){
+			if(localServer == null){
+				JSONObject statusJSON = new JSONObject();
+				statusJSON.put("status", "stopped");
+				callbackContext.success(statusJSON);
+			}else{
+				JSONObject statusJSON = createAddressJSON();
+				statusJSON.put("status", "started");
+				statusJSON.put("rootDirectoryAbsolutePath", localServer.getServerRoot());
+				callbackContext.success(statusJSON);
+			}
 			return true;
 		}
 
@@ -79,12 +94,19 @@ public class HttpServerPlugin extends CordovaPlugin{
 			if(localServer != null){
 				localServer.stop();
 				localServer = null;
-				callbackContext.success("stopped server");
+				callbackContext.success();
 			}
 			return true;
 		}else{
 			return false;
 		}
+	}
+	
+	private JSONObject createAddressJSON() throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("ip", NetworkUtils.getIPAddress(true));
+		result.put("port", localServer.getPort());
+		return result;
 	}
 	
 	@Override

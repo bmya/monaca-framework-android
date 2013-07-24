@@ -13,6 +13,7 @@ public class MonacaLocalServer {
 	private String mAppAssetPath;
 	private String fullPath;
 	private SimpleWebServer webServer;
+	private int port;
 
 	public MonacaLocalServer(Activity activity, String rootDir, int port) {
 		
@@ -21,7 +22,8 @@ public class MonacaLocalServer {
 		mAppAssetPath = this.activity.getAppAssetsPath();
 
 		fullPath = mAppAssetPath + "/" + removeLeadingSlash(rootDir);
-		File fullPathFile = new File(fullPath); 
+		File fullPathFile = new File(fullPath);
+		this.port = port;
 		webServer = new SimpleWebServer(null, port, fullPathFile, true);
 	}
 	
@@ -35,6 +37,10 @@ public class MonacaLocalServer {
 
 	public String getServerRoot(){
 		return fullPath;
+	}
+	
+	public int getPort() {
+		return port;
 	}
 
 	private String removeLeadingSlash(String string) {
