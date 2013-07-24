@@ -78,8 +78,6 @@
 		<string>CDVBattery</string>
 		<key>Globalization</key>
 		<string>CDVGlobalization</string>
-		<key>TestFlightSDK</key>
-		<string>CDVTestFlight</string>
 	</dict>
 </dict>
 </plist>
