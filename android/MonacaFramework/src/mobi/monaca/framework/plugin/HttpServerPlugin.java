@@ -36,8 +36,7 @@ public class HttpServerPlugin extends CordovaPlugin{
 
 		if(action.equalsIgnoreCase("start")){
 			if(localServer != null){
-				callbackContext.error("A server is already running. Please stop current server before starting a new server.");
-				return true;
+				localServer.stop();
 			}
 			if (args.length() < 2) {
 				callbackContext.error("either documentRoot or params is not supplied");
