@@ -40,6 +40,7 @@ $PROVISIONING = current(glob("etc/*.mobileprovision"));
 $CODE_SIGN = "";
 $VERSION = $config["versionName_ios"];
 $TARGETED_DEVICE_FAMILY = $config["device_family"];
+$PRODUCT_NAME = $config["productName_ios"];
 
 //
 // Keychain Tool
@@ -70,7 +71,7 @@ try {
 
 try {
   $CODE_SIGN = execute("scripts/get_codesign.php cert $CERTIFICATE", false);
-  execute("xcodebuild -sdk iphoneos -configuration $configuration TARGETED_DEVICE_FAMILY=\"$TARGETED_DEVICE_FAMILY\" VERSION=\"$VERSION\" CODE_SIGN_IDENTITY=\"$CODE_SIGN\" clean build");
+  execute("xcodebuild -sdk iphoneos -configuration $configuration PRODUCT_NAME=\"$PRODUCT_NAME\" TARGETED_DEVICE_FAMILY=\"$TARGETED_DEVICE_FAMILY\" VERSION=\"$VERSION\" CODE_SIGN_IDENTITY=\"$CODE_SIGN\" clean build");
 } catch (Exception $e) {
   echo "Build failed\n";
   goto finalize;
@@ -78,14 +79,14 @@ try {
 
 if ($configuration == 'Debug') {
   $OUTPUT_FILE = $ROOT_DIR . "/build/debug.ipa";
-  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Debug-iphoneos/MonacaApp.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
+  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Debug-iphoneos/%s.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $PRODUCT_NAME, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
 } elseif ($configuration == 'Adhoc') {
   $OUTPUT_FILE = $ROOT_DIR . "/build/release.ipa";
-  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Release-iphoneos/MonacaApp.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
+  $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Release-iphoneos/%s.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $PRODUCT_NAME, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
 } else {
   $OUTPUT_FILE = $ROOT_DIR . "/build/release.zip";
   chdir("$ROOT_DIR/build/Release-iphoneos/");
-  echo `zip -r "$OUTPUT_FILE" "MonacaApp.app"`;
+  echo `zip -r "$OUTPUT_FILE" "$PRODUCT_NAME.app"`;
 }
 
 execute('security unlock-keychain -p "" monaca');

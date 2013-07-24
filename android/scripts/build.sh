@@ -53,6 +53,12 @@ fi
 # Do build
 cd MonacaSandbox
 
+# If src_local exists, use it
+if [ -d "src_local" ]; then
+  echo "Found src_local dir"
+  echo "source.dir=src_local" >> ant.properties
+fi
+
 if [ $CLEAN ]; then
   ant clean
 fi
