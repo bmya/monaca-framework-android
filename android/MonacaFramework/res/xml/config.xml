@@ -68,8 +68,8 @@
     <plugin name="BarcodeScanner" value="com.phonegap.plugins.barcodescanner.BarcodeScanner"/>
     <plugin name="WebIntent" value="mobi.monaca.framework.plugin.WebIntent"/>
     <plugin name="HttpServer" value="mobi.monaca.framework.plugin.HttpServerPlugin"/>
+    <plugin name="WebSocketServer" value="mobi.monaca.framework.plugin.WebSocketPlugin"/>
     <plugin name="Monaca" value="mobi.monaca.framework.plugin.MonacaPlugin"/>
-    <plugin name="WebSocket" value="mobi.monaca.framework.plugin.WebSocketPlugin"/>
 
     <plugin name="InnovationPlusPlugin" value="mobi.monaca.framework.plugin.innovationplus.InnovationPlusPlugin"/>
 </plugins>
