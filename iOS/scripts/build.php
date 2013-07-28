@@ -63,19 +63,30 @@ try {
   echo "Import failed: $PRIVATE_KEY\n";
 };
 
+// Delete certificate just in case
+$CODE_SIGN = "";
+try {
+  $CODE_SIGN = execute("scripts/get_codesign.php cert $CERTIFICATE", false);
+  execute('security delete-certificate -c "' . $CODE_SIGN . '"');
+} catch (Exception $e) {
+}
+
 try {
   execute('security add-certificate -k monaca ' . $CERTIFICATE);
   execute('cp ' . $PROVISIONING . ' ~/Library/MobileDevice/Provisioning\ Profiles/' . $BUILD_ID . '.mobileprovision');
   execute('security unlock-keychain -p "" monaca');
-} catch (Exception $e) {};
+} catch (Exception $e) {
+  echo "Error adding certificate: " . $e->getMessage() . "\n";
+}
 
 try {
-  $CODE_SIGN = execute("scripts/get_codesign.php cert $CERTIFICATE", false);
   execute("xcodebuild -sdk iphoneos -configuration $configuration PRODUCT_NAME=\"$PRODUCT_NAME\" TARGETED_DEVICE_FAMILY=\"$TARGETED_DEVICE_FAMILY\" VERSION=\"$VERSION\" CODE_SIGN_IDENTITY=\"$CODE_SIGN\" clean build");
 } catch (Exception $e) {
   echo "Build failed\n";
   goto finalize;
 }
+
+execute('security unlock-keychain -p "" monaca');
 
 if ($configuration == 'Debug') {
   $OUTPUT_FILE = $ROOT_DIR . "/build/debug.ipa";
