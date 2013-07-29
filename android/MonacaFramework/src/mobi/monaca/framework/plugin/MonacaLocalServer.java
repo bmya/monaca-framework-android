@@ -19,7 +19,7 @@ public class MonacaLocalServer {
 		
 		this.activity = (MonacaPageActivity) activity;
 
-		mAppAssetPath = this.activity.getAppAssetsPath();
+		mAppAssetPath = this.activity.getAppWWWPath();
 
 		fullPath = mAppAssetPath + "/" + removeLeadingSlash(rootDir);
 		File fullPathFile = new File(fullPath);
