@@ -12,7 +12,8 @@ chdir($ROOT_DIR);
 //
 // Command line
 //
-switch (@$_SERVER["argv"][1]) {
+$type = @$_SERVER["argv"][1];
+switch ($type) {
 case "debug":
   $configuration = "Debug";
   break;
@@ -88,10 +89,10 @@ try {
 
 execute('security unlock-keychain -p "" monaca');
 
-if ($configuration == 'Debug') {
+if ($type == 'debug') {
   $OUTPUT_FILE = $ROOT_DIR . "/build/debug.ipa";
   $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Debug-iphoneos/%s.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $PRODUCT_NAME, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
-} elseif ($configuration == 'Adhoc') {
+} elseif ($type == 'adhoc') {
   $OUTPUT_FILE = $ROOT_DIR . "/build/release.ipa";
   $cmd = sprintf('/usr/bin/xcrun -sdk iphoneos PackageApplication -v "%s/build/Release-iphoneos/%s.app" -o "%s" --sign "%s" --embed "%s"', $ROOT_DIR, $PRODUCT_NAME, $OUTPUT_FILE, $CODE_SIGN, $PROVISIONING);
 } else {
