@@ -473,8 +473,8 @@ public class MonacaPageActivity extends DroidGap {
 
 	// called by MonacaHttpServer to know the root folder of the app.
 	// in this case, we tell it to use the assets folder
-	public String getAppAssetsPath() {
-		return getApplicationInfo().dataDir;
+	public String getAppWWWPath() {
+		return getApplicationInfo().dataDir + "/www/";
 	}
 
 	protected boolean shouldLoadExtractedIndex() {

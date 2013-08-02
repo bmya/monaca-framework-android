@@ -1,17 +1,14 @@
-build
-MonacaFramework/bin
-MonacaFramework/gen
-MonacaFramework/tmp
-
-# Can ignore specific files
 .DS_Store
+
 *jarlist.cache
 *.class
 *local.properties
 
+# build
+MonacaFramework/bin
+MonacaFramework/gen
+MonacaFramework/tmp
+
 # Library
 BarcodeScannerLibrary/gen/
 BarcodeScannerLibrary/bin/
-
-# build
-MonacaTemplateEngine/monaca_templating.[0-9]*.jar
