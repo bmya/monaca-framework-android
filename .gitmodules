@@ -1,6 +1,6 @@
 [submodule "cordova-android"]
 	path = cordova-android
-	url = git@github.com:monaca/cordova-android.git
+	url = ssh://git@gitlab.asial.biz:2222/cordova-android.git
 [submodule "MonacaSandbox/assets/www/test"]
 	path = MonacaSandbox/assets/www/test
 	url = git@github.com:monaca/cordova-mobile-spec.git
