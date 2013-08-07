@@ -136,37 +136,38 @@ public class MonacaApplication extends Application {
 		menuMap = new MenuRepresentationBuilder(getApplicationContext()).buildFromAssets(this, "www/app.menu");
 	}
 
-	public void showMonacaSpinnerDialog(UIContext uiContext, JSONArray args) throws Exception {
-		// dismiss old one if any
-		if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
-			monacaSpinnerDialog.dismiss();
-		}
-		
-		try {
-			monacaSpinnerDialog = new SpinnerDialog(uiContext, args);
-			monacaSpinnerDialog.setCancelable(true);
-			monacaSpinnerDialog.setOnDismissListener(new OnDismissListener() {
-				
-				@Override
-				public void onDismiss(DialogInterface dialog) {
-					monacaSpinnerDialog = null;
-				}
-			});
-			
-			monacaSpinnerDialog.show();
-		} catch (Exception e) {
-			Log.e("MONACA", e.getMessage());
-			throw e;
-		}
-	}
+    public void showMonacaSpinnerDialog(UIContext uiContext, JSONArray args) throws Exception {
+        // dismiss old one if any
+        if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
+            monacaSpinnerDialog.dismiss();
+        }
 
-	public void dismissMonacaSpinnerDialog() {
-		if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
-			monacaSpinnerDialog.dismiss();
-			
-			monacaSpinnerDialog = null;
-		}
-	}
+        try {
+            monacaSpinnerDialog = new SpinnerDialog(uiContext, args);
+            monacaSpinnerDialog.setCancelable(true);
+            monacaSpinnerDialog.setOnDismissListener(new OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    // this causes duplication of dialog
+                    // if (monacaSpinnerDialog != null) {
+                    // monacaSpinnerDialog = null;
+                    // }
+                }
+            });
+            monacaSpinnerDialog.show();
+        } catch (Exception e) {
+            Log.e("MONACA", e.getMessage());
+            throw e;
+        }
+
+    }
+
+    public void dismissMonacaSpinnerDialog() {
+        if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
+            monacaSpinnerDialog.dismiss();
+            monacaSpinnerDialog = null;
+        }
+    }
 	
 	
 	public void hideMonacaSpinnerDialog(){
