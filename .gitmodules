@@ -4,3 +4,4 @@
 [submodule "MonacaSandbox/assets/www/test"]
 	path = MonacaSandbox/assets/www/test
 	url = git@github.com:monaca/cordova-mobile-spec.git
+
