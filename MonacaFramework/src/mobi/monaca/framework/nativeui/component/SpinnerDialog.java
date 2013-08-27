@@ -2,12 +2,14 @@ package mobi.monaca.framework.nativeui.component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 import mobi.monaca.framework.bootloader.LocalFileBootloader;
 import mobi.monaca.framework.nativeui.UIContext;
 import mobi.monaca.framework.nativeui.UIUtil;
 import mobi.monaca.framework.psedo.R;
+import mobi.monaca.framework.util.MyLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -86,7 +88,8 @@ public class SpinnerDialog extends Dialog {
 
 		Bitmap fullSpinner = null;
 		if (spinnerImagePath == null || spinnerImagePath.equalsIgnoreCase("null")) {
-			fullSpinner = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.spinner);
+			InputStream spinnerInputSteam = getContext().getResources().openRawResource(R.drawable.spinner);
+			fullSpinner = BitmapFactory.decodeStream(spinnerInputSteam);
 			numFrames = 12;
 		} else {
 			if(!spinnerImagePath.toLowerCase(Locale.ENGLISH).endsWith("png")){
@@ -114,11 +117,16 @@ public class SpinnerDialog extends Dialog {
 		final AnimationDrawable animationDrawable = new AnimationDrawable();
 
 		float frameHeight = (float) fullSpinner.getHeight() / numFrames;
+		MyLog.v(TAG, "fullSpinnerHeight: " + fullSpinner.getHeight());
+		MyLog.v(TAG, "numFrames: " + numFrames);
+		MyLog.v(TAG, "frameHeight: " + frameHeight);
 		int y = 0;
 		for (int i = 0; i < numFrames; i++) {
 			y = Math.round(frameHeight * i);
+			MyLog.v(TAG, "y: " + y);
 			if(y + frameHeight > fullSpinner.getHeight()){
 				frameHeight = fullSpinner.getHeight() - y;
+				MyLog.v(TAG, "frameHeight2: " + frameHeight);
 			}
 			Bitmap frameBitmap = Bitmap.createBitmap(fullSpinner, 0, y, fullSpinner.getWidth(), Math.round(frameHeight));
 			animationDrawable.addFrame(new BitmapDrawable(getContext().getResources(), frameBitmap), interval);

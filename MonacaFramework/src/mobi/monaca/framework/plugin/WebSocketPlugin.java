@@ -2,7 +2,9 @@ package mobi.monaca.framework.plugin;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.HashMap;
+import java.util.Set;
 
 import mobi.monaca.framework.util.NetworkUtils;
 
@@ -33,12 +35,41 @@ public class WebSocketPlugin extends CordovaPlugin{
 				createServer(port);
 				server.start();
 			}
-			JSONObject result = createAddressJSON();
-			result.put("event", "server:started");
-			PluginResult pluginResult = new PluginResult(Status.OK, result);
-			pluginResult.setKeepCallback(true);
-			callbackContext.sendPluginResult(pluginResult);
-			this.callbackContext = callbackContext;
+			JSONObject result;
+			try {
+				result = createAddressJSON();
+				result.put("event", "server:started");
+				PluginResult pluginResult = new PluginResult(Status.OK, result);
+				pluginResult.setKeepCallback(true);
+				callbackContext.sendPluginResult(pluginResult);
+				this.callbackContext = callbackContext;
+			} catch (SocketException e) {
+				callbackContext.error(e.getMessage());
+				e.printStackTrace();
+			}
+			
+			return true;
+		}
+		
+		if(action.equalsIgnoreCase("getStatus")){
+			if(server == null){
+				JSONObject statusJSON = new JSONObject();
+				statusJSON.put("status", "stopped");
+				callbackContext.success(statusJSON);
+			}else{
+				JSONObject statusJSON;
+				try {
+					statusJSON = createAddressJSON();
+					statusJSON.put("status", "started");
+					JSONArray clients = new JSONArray(sockets.keySet());
+					statusJSON.put("clients", clients);
+					callbackContext.success(statusJSON);
+				} catch (SocketException e) {
+					callbackContext.error(e.getMessage());
+					e.printStackTrace();
+				}
+				
+			}
 			return true;
 		}
 		
@@ -46,8 +77,15 @@ public class WebSocketPlugin extends CordovaPlugin{
 			if(server == null){
 				callbackContext.error("You need to start server first");
 			}else{
-				JSONObject result = createAddressJSON();
-				callbackContext.success(result);
+				JSONObject result;
+				try {
+					result = createAddressJSON();
+					callbackContext.success(result);
+				} catch (SocketException e) {
+					callbackContext.error(e.getMessage());
+					e.printStackTrace();
+				}
+				
 			}
 			return true;
 		}
@@ -80,11 +118,31 @@ public class WebSocketPlugin extends CordovaPlugin{
 			return true;
 		}
 		
+		if(action.equalsIgnoreCase("sendToAllClients")){
+			if(server == null){
+				callbackContext.error("You need to start server before sending a message");
+			}else{
+				JSONObject params = args.getJSONObject(0);
+				String message = params.getString("message");
+				Set<String> clients = sockets.keySet();
+				WebSocket webSocket;
+				for (String client : clients) {
+					webSocket = sockets.get(client);
+					webSocket.send(message);
+				}				
+				JSONObject resultJSON = new JSONObject();
+				resultJSON.put("send", "success");
+				resultJSON.put("clientsSent", sockets.size());
+				callbackContext.success(resultJSON);
+			}
+			return true;
+		}
+		
 		if(action.equalsIgnoreCase("stop")){
 			if(server != null){
 				try {
-					server.stop();
-					callbackContext.success("stopped server");
+					stopServer();
+					callbackContext.success();
 				} catch (Exception e) {
 					e.printStackTrace();
 					callbackContext.error(e.getMessage());
@@ -98,9 +156,15 @@ public class WebSocketPlugin extends CordovaPlugin{
 		return super.execute(action, args, callbackContext);
 	}
 
-	private JSONObject createAddressJSON() throws JSONException {
+	private void stopServer() throws IOException, InterruptedException {
+		server.stop();
+		sockets.clear();
+		server = null;
+	}
+
+	private JSONObject createAddressJSON() throws JSONException, SocketException {
 		JSONObject result = new JSONObject();
-		result.put("ip", NetworkUtils.getIPAddress(true));
+		result.put("networks", NetworkUtils.getIPAddresses());
 		result.put("port", port);
 		return result;
 	}
@@ -109,7 +173,7 @@ public class WebSocketPlugin extends CordovaPlugin{
 	public void onDestroy() {
 		if(server != null){
 			try {
-				server.stop();
+				stopServer();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -128,7 +192,7 @@ public class WebSocketPlugin extends CordovaPlugin{
 				String clientId = getClientId(webSocket);
 				sockets.remove(clientId);
 				try {
-					JSONObject message = createJSONMessage("close", clientId);
+					JSONObject message = createJSONMessage("disconnected", clientId);
 					message.put("message", msg);
 					PluginResult pluginResult = new PluginResult(Status.OK, message);
 					pluginResult.setKeepCallback(true);
@@ -143,7 +207,7 @@ public class WebSocketPlugin extends CordovaPlugin{
 				String clientId = getClientId(webSocket);
 				try {
 					JSONObject message = createJSONMessage("error", clientId);
-					message.put("message", msg);
+					message.put("message", msg.toString());
 					PluginResult pluginResult = new PluginResult(Status.OK, message);
 					pluginResult.setKeepCallback(true);
 					WebSocketPlugin.this.callbackContext.sendPluginResult(pluginResult);
@@ -172,7 +236,7 @@ public class WebSocketPlugin extends CordovaPlugin{
 				sockets.put(clientId, webSocket);
 				
 				try {
-					JSONObject message = createJSONMessage("open", clientId);
+					JSONObject message = createJSONMessage("connected", clientId);
 					PluginResult pluginResult = new PluginResult(Status.OK, message);
 					pluginResult.setKeepCallback(true);
 					WebSocketPlugin.this.callbackContext.sendPluginResult(pluginResult);
