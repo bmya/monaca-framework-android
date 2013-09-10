@@ -66,7 +66,7 @@ public class HttpServerPlugin extends CordovaPlugin{
 							localServer = new MonacaLocalServer(cordova.getActivity(), rootDir, port);
 							localServer.start();
 							JSONObject result = new JSONObject();
-							result.put("ip", NetworkUtils.getIPAddress(true));
+							result.put("networks", NetworkUtils.getIPAddresses());
 							result.put("port", port);
 							callbackContext.success(result);
 						}catch (JSONException e) {
