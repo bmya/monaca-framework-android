@@ -93,11 +93,11 @@ public class BluetoothPlugin extends Plugin {
 
 		//TODO fixed
 		// Register for necessary bluetooth events
-		ctx.getContext().registerReceiver(m_bpBroadcastReceiver, new IntentFilter(
+		ctx.getActivity().registerReceiver(m_bpBroadcastReceiver, new IntentFilter(
 				BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-		ctx.getContext().registerReceiver(m_bpBroadcastReceiver, new IntentFilter(
+		ctx.getActivity().registerReceiver(m_bpBroadcastReceiver, new IntentFilter(
 				BluetoothDevice.ACTION_FOUND));
-		ctx.getContext().registerReceiver(m_bpBroadcastReceiver, new IntentFilter(BluetoothPlugin.ACTION_UUID));
+		ctx.getActivity().registerReceiver(m_bpBroadcastReceiver, new IntentFilter(BluetoothPlugin.ACTION_UUID));
 		//ctx.registerReceiver(m_bpBroadcastReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	}
 

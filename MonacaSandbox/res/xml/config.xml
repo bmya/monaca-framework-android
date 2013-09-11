@@ -71,8 +71,6 @@
     <plugin name="HttpServer" value="mobi.monaca.framework.plugin.HttpServerPlugin"/>
     <plugin name="WebSocketServer" value="mobi.monaca.framework.plugin.WebSocketPlugin"/>
     <plugin name="Monaca" value="mobi.monaca.framework.plugin.MonacaPlugin"/>
-
-    <plugin name="InnovationPlusPlugin" value="mobi.monaca.framework.plugin.innovationplus.InnovationPlusPlugin"/>
 </plugins>
 </cordova>
 

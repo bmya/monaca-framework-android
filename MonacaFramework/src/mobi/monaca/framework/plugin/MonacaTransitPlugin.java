@@ -13,7 +13,7 @@ import mobi.monaca.framework.util.MyLog;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
-import org.apache.cordova.api.PluginResult.Status;
+import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +37,7 @@ public class MonacaTransitPlugin extends Plugin {
     public PluginResult execute(String action, final JSONArray args,
             String callbackId) {
 
-//    	MyLog.v(TAG, "action: " + action + ", args:" + args);
+    	//MyLog.v(TAG, "action: " + action + ", args:" + args);
         // push
 
     	// TODO this is unused. if want to use this code,  need to fix iOS framework
@@ -47,7 +47,8 @@ public class MonacaTransitPlugin extends Plugin {
             return new PluginResult(PluginResult.Status.OK);
         }
 
-    	//TODO dirty fix for animation:"slide"
+    	//TODO dirty fix for coexistance between animation:"slide" and animation:false or true
+    	// true is not defined in document, so transit normally
         if (action.equals("push")) {
         	JSONObject options = args.optJSONObject(1);
         	if (options.optString("animation", "").equals("slide")
@@ -79,7 +80,7 @@ public class MonacaTransitPlugin extends Plugin {
             return new PluginResult(PluginResult.Status.OK);
         }
 
-        // modal
+        // animation:'lift' is converted to action modal in monaca.js
         if (action.equals("modal")) {
             getMonacaPageActivity().pushPageAsync(buildTransitUrl(args),
                     TransitionParams.from(args.optJSONObject(1), "modal"));

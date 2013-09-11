@@ -8,7 +8,7 @@ import mobi.monaca.framework.nativeui.UpdateStyleQuery;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
-import org.apache.cordova.api.PluginResult.Status;
+import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
