@@ -5,6 +5,7 @@ import java.io.IOException;
 import mobi.monaca.framework.MonacaPageActivity;
 import mobi.monaca.framework.util.MyLog;
 
+import org.apache.cordova.Config;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.api.LOG;
 import org.xmlpull.v1.XmlPullParser;
@@ -161,7 +162,7 @@ public class MonacaWebView extends CordovaWebView {
 									String subdomains = parser.getAttributeValue(null, "subdomains");
 
 									 if (origin != null) {
-										 addWhiteListEntry(origin, subdomains != null && subdomains.compareToIgnoreCase("true") == 0);
+										 Config.addWhiteListEntry(origin, subdomains != null && subdomains.compareToIgnoreCase("true") == 0);
 									 }
 
 									MyLog.d(TAG, "addWhiteList : " +  origin);

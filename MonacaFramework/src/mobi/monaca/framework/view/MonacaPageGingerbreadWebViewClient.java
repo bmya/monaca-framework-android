@@ -36,7 +36,7 @@ public class MonacaPageGingerbreadWebViewClient extends CordovaWebViewClient {
 				return true;
 			} else if (UrlUtil.isMonacaUri(monacaPage, uri) && !UrlUtil.isEmbedding(uri)) {
 				MyLog.d(TAG, "load as monaca application : " + uri);
-				monacaPage.loadUri(uri, false);
+				monacaPage.loadUri(uri, true);
 				return true;
 			} else {
 				return super.shouldOverrideUrlLoading(view, uri);

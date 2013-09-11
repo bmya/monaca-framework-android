@@ -4,7 +4,7 @@ import mobi.monaca.framework.MonacaPageActivity;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
-import org.apache.cordova.api.PluginResult.Status;
+import org.apache.cordova.PluginResult.Status;
 import org.json.JSONArray;
 
 
