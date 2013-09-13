@@ -286,7 +286,7 @@ public class MonacaApplication extends Application {
 	}
 
 	public String getPushProjectId() {
-		return appJsonSetting.getPushProjectId();
+		return getAppJsonSetting().getPushProjectId();
 	}
 
 	public void sendGCMRegisterIdToAppAPI(String regId) {
