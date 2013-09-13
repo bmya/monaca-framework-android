@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -18,6 +19,14 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	public static final String ACTION_GCM_REGISTERED = "gcm_registered";
 	public static final String KEY_REGID = "gcm_registered_regid";
+	
+    @Override
+    protected String[] getSenderIds(Context context) {
+        String[] ids = new String[1];
+        ids[0] = ((MonacaApplication)getApplication()).getAppJsonSetting().getSenderId();
+        return ids;
+    }
+	
 	@Override
 	protected void onError(Context arg0, String arg1) {
 		MyLog.d(TAG, "onError :" + arg1);
