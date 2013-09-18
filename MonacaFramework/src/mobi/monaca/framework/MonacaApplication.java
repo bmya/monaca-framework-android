@@ -27,6 +27,7 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -154,6 +155,14 @@ public class MonacaApplication extends Application {
                     // }
                 }
             });
+            monacaSpinnerDialog.setOnCancelListener(new OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                   if (monacaSpinnerDialog != null) {
+                       monacaSpinnerDialog = null;
+                   }
+                }
+            });
             monacaSpinnerDialog.show();
         } catch (Exception e) {
             Log.e("MONACA", e.getMessage());
@@ -163,8 +172,10 @@ public class MonacaApplication extends Application {
     }
 
     public void dismissMonacaSpinnerDialog() {
-        if (monacaSpinnerDialog != null && monacaSpinnerDialog.isShowing()) {
-            monacaSpinnerDialog.dismiss();
+        if (monacaSpinnerDialog != null) {
+            if (monacaSpinnerDialog.isShowing()) {
+                monacaSpinnerDialog.dismiss();
+            }
             monacaSpinnerDialog = null;
         }
     }
@@ -275,7 +286,7 @@ public class MonacaApplication extends Application {
 	}
 
 	public String getPushProjectId() {
-		return appJsonSetting.getPushProjectId();
+		return getAppJsonSetting().getPushProjectId();
 	}
 
 	public void sendGCMRegisterIdToAppAPI(String regId) {

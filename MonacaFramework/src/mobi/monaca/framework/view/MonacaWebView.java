@@ -61,7 +61,6 @@ public class MonacaWebView extends CordovaWebView {
 
 	protected void init() {
 		resumeTimers();
-		loadCordovaConfigurationFromManifest();
 		notBackButton = true;
 	}
 
@@ -120,88 +119,4 @@ public class MonacaWebView extends CordovaWebView {
 			return super.onKeyDown(keyCode, event);
 		}
 	}
-
-	public void loadCordovaConfigurationFromManifest() {
-        AssetManager am;
-        XmlResourceParser parser = null;
-
-		try {
-			am = context.createPackageContext(context.getPackageName(), 0).getAssets();
-			parser = am.openXmlResourceParser("AndroidManifest.xml");
-		} catch (NameNotFoundException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (IOException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
-
-		parseCordovaTagFromXml(parser);
-	}
-
-	public void parseCordovaTagFromXml(XmlPullParser parser) {
-
-		if (parser == null) {
-			return;
-		}
-
-		 int eventType;
-		 String tag;
-         try {
-			while ((eventType = parser.next()) != XmlPullParser.END_DOCUMENT) {
-				tag = parser.getName();
-			     if (eventType == XmlPullParser.START_TAG && "cordova".equals(tag)) {
-			    	 MyLog.d(TAG,"found cordova tag");
-						boolean continues = true;
-
-						while (continues) {
-							switch (eventType) {
-							case XmlPullParser.START_TAG:
-								tag = parser.getName();
-
-								if ("access".equals(tag)) {
-									String origin = parser.getAttributeValue(null, "origin");
-									String subdomains = parser.getAttributeValue(null, "subdomains");
-
-									 if (origin != null) {
-										 Config.addWhiteListEntry(origin, subdomains != null && subdomains.compareToIgnoreCase("true") == 0);
-									 }
-
-									MyLog.d(TAG, "addWhiteList : " +  origin);
-								}
-
-								if ("log".equals(tag)) {
-					                   String level = parser.getAttributeValue(null, "level");
-					                   if (level != null) {
-					                        LOG.setLogLevel(level);
-					                   }
-								}
-								if ("preference".equals(tag)) {
-				                    String name = parser.getAttributeValue(null, "name");
-				                    String value = parser.getAttributeValue(null, "value");
-
-				                    MyLog.d("CordovaLog", "Found preference for " + name + "=" + value);
-
-				                    // Save preferences in Intent
-				                    try {
-				                    	page.getIntent().putExtra(name, value);
-				                    } catch (Exception e) {
-
-				                    }
-				                }
-								break;
-							case XmlPullParser.END_TAG:
-								tag = parser.getName();
-								continues = !"cordova".equals(tag);
-								break;
-							}
-							eventType = parser.next();
-						}
-					}
-			 }
-		} catch (XmlPullParserException e) {
-			MyLog.e(TAG, e.getMessage());
-		} catch (IOException e) {
-			MyLog.e(TAG, e.getMessage());
-		}
-	}
-
 }

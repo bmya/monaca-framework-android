@@ -865,6 +865,7 @@ public class MonacaPageActivity extends DroidGap {
 	 */
 	protected void onDestroyMonaca() {
 		MyLog.d(TAG, "onDestroyMonaca");
+	    isCapableForTransition = false;
 		unregisterReceiver(pushReceiver);
 		appView.setBackgroundDrawable(null);
 		root.setBackgroundDrawable(null);
