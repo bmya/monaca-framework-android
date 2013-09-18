@@ -139,5 +139,8 @@
 	<feature name="WebSocketServer">
       <param name="android-package" value="mobi.monaca.framework.plugin.WebSocketPlugin"/>
     </feature>    
+	<feature name="ChildBrowser">
+      <param name="android-package" value="mobi.monaca.framework.plugin.ChildBrowser"/>
+    </feature>    
 </widget>
 
