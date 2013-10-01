@@ -51,6 +51,7 @@ public class ToolbarContainer extends Container {
 
 	protected static String[] styleValidKeys = { "visibility", "disable", "opacity", "shadowOpacity", "backgroundColor", "title", "subtitle", "titleColor", "subtitleColor",
 			"titleFontScale", "subtitleFontScale", "titleImage", "iosBarStyle", };
+	   //XXX "disable" is abolished. but regard as valid key for compatibility
 
 	protected static String[] validComponents = { "backButton", "button", "searchBox", "label", "segment" };
 
