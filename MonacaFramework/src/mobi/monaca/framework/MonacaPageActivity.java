@@ -823,7 +823,7 @@ public class MonacaPageActivity extends DroidGap {
 		super.onResume();
 		
 		//fix broken native component in some device. 
-		root.invalidate();
+		root.postInvalidate();
 	}
 
 	private void triggerOnReactivate() {
