@@ -3,5 +3,5 @@
 	url = ssh://git@gitlab.asial.biz:2222/cordova-android.git
 [submodule "MonacaSandbox/assets/www/test"]
 	path = MonacaSandbox/assets/www/test
-	url = git@github.com:monaca/cordova-mobile-spec.git
+	url = https://github.com/monaca/cordova-mobile-spec.git
 
