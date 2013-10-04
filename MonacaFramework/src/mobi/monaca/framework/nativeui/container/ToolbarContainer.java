@@ -43,7 +43,6 @@ import android.view.animation.LinearInterpolator;
 
 public class ToolbarContainer extends Container {
 	protected ToolbarContainerView view;
-	protected ToolbarComponent left, center, right;
 	protected AlphaAnimation animation = null;
 	private ContainerShadowView shadowView;
 
