@@ -299,7 +299,7 @@ public class PageComponent extends Component {
 				// // Background Size
 				String backgroundSize = pageStyle.optString("backgroundSize").trim();
 				if (backgroundSize.equalsIgnoreCase("")) {
-					backgroundSize = "cover";
+					backgroundSize = "auto";
 				}
 
 				// cover
@@ -318,6 +318,8 @@ public class PageComponent extends Component {
 					BitmapDrawable drawable = new BitmapDrawable(uiContext.getResources(), bitmap);
 					layerList.remove(layerList.size() - 1);
 					layerList.add(drawable);
+				} else if (backgroundSize.equalsIgnoreCase("auto")) {
+				    backgroundImage.setGravity(Gravity.NO_GRAVITY);
 				}
 
 				// pixel or percentage or dip

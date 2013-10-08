@@ -61,12 +61,17 @@ public class MonacaTextButton extends Button {
 
     protected void style() throws NativeUIException {
 		int activeTextColor = UIValidator.parseAndValidateColor(context, "Button style", "activeTextColor", "#999999", style);
-		int textColorPressed = UIValidator.parseAndValidateColor(context, "Button style", "textColor", "#ffffff", style);
+		int textColor = UIValidator.parseAndValidateColor(context, "Button style", "textColor", "#ffffff", style);
 
-		ColorStateList textColor = new ColorStateList(new int[][] {
-                new int[] { android.R.attr.state_pressed }, new int[0] },
-                new int[] { activeTextColor,
-                        	textColorPressed });
+        ColorStateList textColorState = new ColorStateList(
+                new int[][] {
+                        new int[] { android.R.attr.state_pressed },
+                        new int[] { -android.R.attr.state_pressed }
+                },
+                new int[] {
+                        activeTextColor,
+                        textColor
+                });
 
 		int backgroundColor = UIValidator.parseAndValidateColor(context, "Button style", "backgroundColor", "#000000", style);
 		ButtonBackgroundDrawable background = new ButtonBackgroundDrawable(
@@ -85,14 +90,11 @@ public class MonacaTextButton extends Button {
         setText(style.optString("text", ""));
         setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE
                 : View.GONE);
-        setTextColor(textColor);
 
         setTextSize(TypedValue.COMPLEX_UNIT_PX,
                 getFontSizeFromDip(context, Component.BUTTON_TEXT_DIP));
 
-        setTextColor(0xffffffff);
-        setTextColor(getTextColors().withAlpha(
-                buildOpacity(opacity)));
+        setTextColor(textColorState.withAlpha(buildOpacity(opacity)));
 
         setEnabled(!style.optBoolean("disable", false));
         if (style.optBoolean("disable", false)) {

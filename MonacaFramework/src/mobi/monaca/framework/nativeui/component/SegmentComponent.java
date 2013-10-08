@@ -36,6 +36,7 @@ public class SegmentComponent extends ToolbarComponent {
 
 	protected static final String[] SEGMENT_VALID_KEYS = { "component", "style", "iosStyle", "androidStyle", "id", "event", };
 	protected static final String[] STYLE_VALID_KEYS = { "visibility", "disable", "opacity", "backgroundColor", "activeTextColor", "textColor", "texts", "activeIndex"};
+	//XXX "disable", "opacity" is abolished. but regard as valid key for compatibility
 
 	@Override
 	public String[] getValidKeys() {

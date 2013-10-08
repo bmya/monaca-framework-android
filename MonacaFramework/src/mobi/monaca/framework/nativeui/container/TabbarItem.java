@@ -41,7 +41,7 @@ public class TabbarItem extends Component {
 	protected String link;
 	protected Handler handler;
 
-	protected static final String[] TABBAR_ITEM_VALID_KYES = { "component", "style", "link", "id" };
+	protected static final String[] TABBAR_ITEM_VALID_KYES = { "component", "style", "link", "id", "androidStyle", "iosStyle" };
 	protected static final String[] STYLE_VALID_KYES = { "text", "backgroundColor", "image", "badgeText" };
 
 	@Override

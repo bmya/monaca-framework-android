@@ -43,7 +43,6 @@ import android.view.animation.LinearInterpolator;
 
 public class ToolbarContainer extends Container {
 	protected ToolbarContainerView view;
-	protected ToolbarComponent left, center, right;
 	protected AlphaAnimation animation = null;
 	private ContainerShadowView shadowView;
 
@@ -51,6 +50,7 @@ public class ToolbarContainer extends Container {
 
 	protected static String[] styleValidKeys = { "visibility", "disable", "opacity", "shadowOpacity", "backgroundColor", "title", "subtitle", "titleColor", "subtitleColor",
 			"titleFontScale", "subtitleFontScale", "titleImage", "iosBarStyle", };
+	   //XXX "disable" is abolished. but regard as valid key for compatibility
 
 	protected static String[] validComponents = { "backButton", "button", "searchBox", "label", "segment" };
 
@@ -175,6 +175,7 @@ public class ToolbarContainer extends Container {
 				public void onAnimationEnd(Animation animation) {
 					view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.INVISIBLE);
 					ToolbarContainer.this.animation = null;
+			        shadowView.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
 				}
 			});
 			animation.setInterpolator(new LinearInterpolator());
@@ -186,6 +187,7 @@ public class ToolbarContainer extends Container {
 			view.startAnimation(animation);
 		} else {
 			view.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
+			shadowView.setVisibility(style.optBoolean("visibility", true) ? View.VISIBLE : View.GONE);
 		}
 
 		// titleColor

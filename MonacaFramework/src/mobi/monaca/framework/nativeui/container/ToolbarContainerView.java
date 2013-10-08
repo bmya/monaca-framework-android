@@ -78,7 +78,7 @@ public class ToolbarContainerView extends LinearLayout {
 		return result;
 	}
 
-
+	//TODO rearrange
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public ToolbarContainerView(UIContext context, boolean isTop) {
 		super(context);
@@ -141,15 +141,15 @@ public class ToolbarContainerView extends LinearLayout {
 		subTitleMainTitleView.setShadowLayer(1.0f, 0f, -1f, 0xcc000000);
 		subTitleMainTitleView.setTypeface(null, Typeface.BOLD);
 		subTitleMainTitleView.setPadding(0, 0, 0, 0);
-		mDefaultSubtitleFontSize = context.getFontSizeFromDip(Component.TITLE_TEXT_DIP);
-		subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mDefaultSubtitleFontSize);
+		subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mDefaultTitleFontSize);
 
+	    mDefaultSubtitleFontSize = context.getFontSizeFromDip(Component.SUBTITLE_TEXT_DIP);
 		subtitleView = new TextView(context);
 		subtitleView.setId(SUBTITLE_ID);
 		subtitleView.setTextColor(0xffffffff);
 		subtitleView.setShadowLayer(1.0f, 0f, -1f, 0xcc000000);
 		subtitleView.setPadding(0, 0, 0, 0);
-		subtitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.getFontSizeFromDip(Component.SUBTITLE_TEXT_DIP));
+		subtitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mDefaultSubtitleFontSize);
 
 		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT,
 				Gravity.CENTER | Gravity.CENTER_VERTICAL);
@@ -158,8 +158,8 @@ public class ToolbarContainerView extends LinearLayout {
 		titleSubtitleWrapper.setOrientation(LinearLayout.VERTICAL);
 		titleSubtitleWrapper.setVisibility(View.GONE);
 		titleSubtitleWrapper.setGravity(Gravity.CENTER | Gravity.CENTER_VERTICAL);
+	    titleSubtitleWrapper.addView(subTitleMainTitleView, lp);
 		titleSubtitleWrapper.addView(subtitleView, lp);
-		titleSubtitleWrapper.addView(subTitleMainTitleView, lp);
 
 		FrameLayout.LayoutParams p = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.CENTER
 				| Gravity.CENTER_VERTICAL);
@@ -178,10 +178,7 @@ public class ToolbarContainerView extends LinearLayout {
 	public View getContentView() {
 		return content;
 	}
-
-	public void setTitleImage(Drawable drawable) {
-	}
-
+	
 	public void setTitleSubtitle(String title, String subtitle, Bitmap titleImage) {
 //		MyLog.v(TAG, "setTitleSubtitle: title:" + title + ", subtitle:" + subtitle);
 
@@ -299,6 +296,9 @@ public class ToolbarContainerView extends LinearLayout {
 		float titleFontScaleFloat = Float.parseFloat(titleFontScale);
 		if (titleView != null) {
 			titleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleFontScaleFloat * mDefaultTitleFontSize);
+		}
+		if (subTitleMainTitleView != null) {
+		    subTitleMainTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, titleFontScaleFloat * mDefaultTitleFontSize);
 		}
 
 	}
